@@ -1,5 +1,7 @@
 package org.nypl.simplified.app.catalog;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -24,6 +26,8 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.TextView;
+
+import com.google.firebase.crash.FirebaseCrash;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.ProcedureType;
@@ -121,6 +125,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
   private           int          saved_scroll_pos;
   private           boolean      previously_paused;
   private           SearchView   search_view;
+  private           FirebaseAnalytics firebase_analytics;
 
   /**
    * Construct an activity.
@@ -584,6 +589,14 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
     final @Nullable Bundle state)
   {
     super.onCreate(state);
+
+    //
+    // --- FIREBASE TEST ---
+    //
+    FirebaseApp.initializeApp(getApplicationContext());
+    firebase_analytics = FirebaseAnalytics.getInstance(this);
+    firebase_analytics.logEvent("test_event", state);
+    FirebaseCrash.log("CatalogFeedActivity was just created...");
 
     this.navigationDrawerSetActionBarTitle();
 

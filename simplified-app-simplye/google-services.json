@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "623726134191",
+    "firebase_url": "https://libraryforall-92e6d.firebaseio.com",
+    "project_id": "libraryforall-92e6d",
+    "storage_bucket": "libraryforall-92e6d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623726134191:android:d0a8dd35ade45a0e",
+        "android_client_info": {
+          "package_name": "org.nypl.simplified.simplye"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623726134191-jajruubmfcma9p78tb4tnnb767gpi65t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxBrkzhI1ucD3sKTydoQAlaB_kxOT1uWg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
