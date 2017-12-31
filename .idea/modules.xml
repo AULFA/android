@@ -28,6 +28,7 @@
       <module fileurl="file://$PROJECT_DIR$/simplified-json-tests-android/simplified-json-tests-android.iml" filepath="$PROJECT_DIR$/simplified-json-tests-android/simplified-json-tests-android.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplified-json-tests-junit4/simplified-json-tests-junit4.iml" filepath="$PROJECT_DIR$/simplified-json-tests-junit4/simplified-json-tests-junit4.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplified-multilibrary/simplified-multilibrary.iml" filepath="$PROJECT_DIR$/simplified-multilibrary/simplified-multilibrary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/simplified-observable/simplified-observable.iml" filepath="$PROJECT_DIR$/simplified-observable/simplified-observable.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplified-opds-core/simplified-opds-core.iml" filepath="$PROJECT_DIR$/simplified-opds-core/simplified-opds-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplified-opds-tests/simplified-opds-tests.iml" filepath="$PROJECT_DIR$/simplified-opds-tests/simplified-opds-tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/simplified-opds-tests-android/simplified-opds-tests-android.iml" filepath="$PROJECT_DIR$/simplified-opds-tests-android/simplified-opds-tests-android.iml" />

@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/simplified-http-core" />
             <option value="$PROJECT_DIR$/simplified-json-core" />
             <option value="$PROJECT_DIR$/simplified-multilibrary" />
+            <option value="$PROJECT_DIR$/simplified-observable" />
             <option value="$PROJECT_DIR$/simplified-opds-core" />
             <option value="$PROJECT_DIR$/simplified-prefs" />
             <option value="$PROJECT_DIR$/simplified-rfc3339-core" />
