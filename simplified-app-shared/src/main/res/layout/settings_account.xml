@@ -166,6 +166,7 @@
         </TableRow>
       </TableLayout>
 
+      <!-- XXXLFA: There may not be a better way to hide this at present.
       <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -176,6 +177,7 @@
         android:layout_weight="1"
         android:textAppearance="?android:attr/textAppearanceListItem"
         />
+        -->
 
       <Button
         android:id="@+id/settings_login"

@@ -544,6 +544,8 @@ public final class MainSettingsAccountActivity extends SimplifiedActivity implem
         }
       });
 
+    // XXXLFA: We do not want to presume an age gate is needed.
+    /*
     final CheckBox in_age13_checkbox =
       NullCheck.notNull((CheckBox) this.findViewById(R.id.age13_checkbox));
 
@@ -602,19 +604,21 @@ public final class MainSettingsAccountActivity extends SimplifiedActivity implem
         }
       }
     });
-
+    */
 
     if (this.account.needsAuth()) {
       in_login.setVisibility(View.VISIBLE);
-      in_age13_checkbox.setVisibility(View.GONE);
+      // XXXLFA: Needing auth should not imply an age gate.
+      // in_age13_checkbox.setVisibility(View.GONE);
     }
     else {
       in_login.setVisibility(View.GONE);
       // show age checkbox
-      in_age13_checkbox.setVisibility(View.VISIBLE);
+      // XXXLFA: Needing auth should not imply an age gate.
+      // in_age13_checkbox.setVisibility(View.VISIBLE);
     }
 
-    if (this.account.supportsCardCreator()) {
+    if (this.account.supportsCaredCreator()) {
 
       in_signup.setOnClickListener(
         new OnClickListener() {

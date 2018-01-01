@@ -47,8 +47,8 @@
   {
     "id": 2,
     "pathComponent" : "2",
-    "name" : "SimplyE Collection",
-    "subtitle" : "E-books free to download and read without a library card",
+    "name" : "Demarque Test",
+    "subtitle" : "This is an example subtitle.",
     "logo" : "LibraryLogoMagic",
     "needsAuth" : false,
     "supportsSimplyESync" : false,
@@ -57,9 +57,9 @@
     "supportsCardCreator" : false,
     "supportsReservations" : false,
     "supportsHelpCenter" : false,
-    "catalogUrl" : "https://instantclassics.librarysimplified.org/index.xml",
-    "catalogUrlUnder13": "https://instantclassics.librarysimplified.org/childrens-books.xml",
-    "catalogUrl13": "https://instantclassics.librarysimplified.org/all-books.xml",
+    "catalogUrl" : "http://demo-app.cantookstation.com/catalog.atom",
+    "catalogUrlUnder13": "http://demo-app.cantookstation.com/catalog.atom",
+    "catalogUrl13": "http://demo-app.cantookstation.com/catalog.atom",
     "licenseUrl": "http://www.librarysimplified.org/iclicenses.html",
     "mainColor": "#497049"
   },

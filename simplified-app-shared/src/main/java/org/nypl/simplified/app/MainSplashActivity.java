@@ -55,25 +55,33 @@ public class MainSplashActivity extends Activity
       setTheme(R.style.SimplifiedThemeNoActionBar);
     }
     super.onCreate(state);
-    this.setContentView(R.layout.splash);
 
-    final Timer timer = new Timer();
-    timer.schedule(
-      new TimerTask()
-      {
-        @Override
-        public void run()
-        {
-          MainSplashActivity.this.finishSplash(false);
-        }
-      }, 2000L);
+    // XXXLFA: Launch right to what was the SimplyE (now Demarque) account.
+    Simplified.getSharedPrefs().putInt("current_account", 2);
+
+    // XXXLFA: Avoid pointless 2000 ms delay and show catalog immediately.
+    // this.setContentView(R.layout.splash);
+    //
+    // final Timer timer = new Timer();
+    // timer.schedule(
+    //  new TimerTask()
+    //  {
+    //    @Override
+    //    public void run()
+    //    {
+    //      MainSplashActivity.this.finishSplash(false);
+    //    }
+    //  }, 2000L);
+    this.openCatalog();
   }
 
   @Override
   protected void onRestart()
   {
     super.onRestart();
-    this.finishSplash(false);
+    // XXXLFA: Skip EULA and welcome. Go straight to catalog.
+    // this.finishSplash(false);
+    this.openCatalog();
   }
 
   private void finishSplash(
