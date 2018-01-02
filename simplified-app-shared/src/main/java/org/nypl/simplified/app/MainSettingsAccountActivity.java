@@ -618,7 +618,7 @@ public final class MainSettingsAccountActivity extends SimplifiedActivity implem
       // in_age13_checkbox.setVisibility(View.VISIBLE);
     }
 
-    if (this.account.supportsCaredCreator()) {
+    if (this.account.supportsCardCreator()) {
 
       in_signup.setOnClickListener(
         new OnClickListener() {
