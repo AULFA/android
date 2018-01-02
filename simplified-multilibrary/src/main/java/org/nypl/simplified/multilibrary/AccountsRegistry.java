@@ -55,8 +55,7 @@ public class AccountsRegistry implements Serializable {
     if (this.current_accounts == null || this.current_accounts.length() == 0)
     {
       this.current_accounts = new JSONArray();
-//      this.current_accounts.put(this.getAccount(0).getJsonObject());
-      this.current_accounts.put(this.getAccount(2).getJsonObject());
+      this.current_accounts.put(this.getAccount(0).getJsonObject());
     }
 
     prefs.putString("current_accounts", this.current_accounts.toString());

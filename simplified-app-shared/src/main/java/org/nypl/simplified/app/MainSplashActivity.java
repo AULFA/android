@@ -57,7 +57,7 @@ public class MainSplashActivity extends Activity
     super.onCreate(state);
 
     // XXXLFA: Launch right to what was the SimplyE (now Demarque) account.
-    Simplified.getSharedPrefs().putInt("current_account", 2);
+    Simplified.getSharedPrefs().putInt("current_account", 0);
 
     // XXXLFA: Avoid pointless 2000 ms delay and show catalog immediately.
     // this.setContentView(R.layout.splash);

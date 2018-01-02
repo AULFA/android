@@ -12,7 +12,7 @@
 
   <!-- The configurable main color, used for branding. -->
   <color name="feature_main_color">#23A5A6</color>
-  <color name="feature_main_color_nypl">#da2527</color>
+  <color name="feature_main_color_nypl">#23A5A6</color>
   <color name="feature_main_color_bpl">#446ebf</color>
   <color name="feature_main_color_fcpl">#ef4123</color>
   <color name="feature_main_color_acl">#58a6f5</color>
@@ -34,7 +34,7 @@
 
   <!-- The configurable secondary color, used for branding. -->
   <color name="feature_secondary_color">#476648</color>
-  <color name="feature_secondary_color_nypl">#af1a16</color>
+  <color name="feature_secondary_color_nypl">#187373</color>
   <color name="feature_secondary_color_bpl">#4168a0</color>
   <color name="feature_secondary_color_fcpl">#ef4123</color>
   <color name="feature_secondary_color_acl">#58a6f5</color>
