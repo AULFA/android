@@ -31,6 +31,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -55,6 +56,7 @@ import org.nypl.simplified.app.reader.ReaderPaginationChangedEvent.OpenPage;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.ScrollMode;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.SyntheticSpreadMode;
 import org.nypl.simplified.app.reader.ReaderTOC.TOCElement;
+import org.nypl.simplified.app.utilities.AnalyticEvents;
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.FadeUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
@@ -325,6 +327,10 @@ public final class ReaderActivity extends Activity implements
     ReaderActivity.LOG.debug("epub file: {}", in_epub_file);
     ReaderActivity.LOG.debug("book id:   {}", this.book_id);
     ReaderActivity.LOG.debug("entry id:   {}", this.entry.getFeedEntry().getID());
+
+    final Bundle analyticsData = new Bundle();
+    analyticsData.putSerializable(AnalyticEvents.StringParameter.BOOK_ID, this.book_id.getShortID());
+    FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(AnalyticEvents.Event.BOOK_OPENED, analyticsData);
 
     final SimplifiedReaderAppServicesType rs =
       Simplified.getReaderAppServices();

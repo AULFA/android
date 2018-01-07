@@ -43,6 +43,7 @@ import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.SimplifiedCatalogAppServicesType;
+import org.nypl.simplified.app.utilities.AnalyticEvents;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.core.AccountBarcode;
@@ -1454,6 +1455,10 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
       final CatalogFeedActivity cfa = CatalogFeedActivity.this;
       final ImmutableStack<CatalogFeedArgumentsType> us =
         ImmutableStack.empty();
+
+      final Bundle analyticsData = new Bundle();
+      analyticsData.putSerializable(AnalyticEvents.StringParameter.SEARCH_QUERY, qnn);
+      FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(AnalyticEvents.Event.CATALOG_SEARCHED, analyticsData);
 
       final String title =
         this.resources.getString(R.string.catalog_search) + ": " + qnn;
