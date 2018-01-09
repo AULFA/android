@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -329,6 +330,8 @@ public final class ReaderActivity extends Activity implements
     ReaderActivity.LOG.debug("entry id:   {}", this.entry.getFeedEntry().getID());
 
     final Bundle analyticsData = new Bundle();
+    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+    analyticsData.putSerializable(AnalyticEvents.StringParameter.DEVICE_ID, android_id);
     analyticsData.putSerializable(AnalyticEvents.StringParameter.BOOK_ID, this.book_id.getShortID());
     FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(AnalyticEvents.Event.BOOK_OPENED, analyticsData);
 

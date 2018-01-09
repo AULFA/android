@@ -14,6 +14,7 @@ public final class AnalyticEvents {
   }
 
   public static class StringParameter {
+    public static String DEVICE_ID = "DEVICE_ID";
     public static String BOOK_ID = "BOOK_ID";
     public static String SEARCH_QUERY = "SEARCH_QUERY";
   }

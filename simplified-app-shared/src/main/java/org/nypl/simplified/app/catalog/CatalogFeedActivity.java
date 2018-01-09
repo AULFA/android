@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1457,6 +1458,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
         ImmutableStack.empty();
 
       final Bundle analyticsData = new Bundle();
+      String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+      analyticsData.putSerializable(AnalyticEvents.StringParameter.DEVICE_ID, android_id);
       analyticsData.putSerializable(AnalyticEvents.StringParameter.SEARCH_QUERY, qnn);
       FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(AnalyticEvents.Event.CATALOG_SEARCHED, analyticsData);
 
