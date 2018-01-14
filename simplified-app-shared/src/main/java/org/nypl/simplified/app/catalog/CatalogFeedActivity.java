@@ -1,7 +1,6 @@
 package org.nypl.simplified.app.catalog;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
@@ -45,6 +44,7 @@ import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.SimplifiedCatalogAppServicesType;
 import org.nypl.simplified.app.utilities.AnalyticEvents;
+import org.nypl.simplified.app.utilities.AnalyticWrapper;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.core.AccountBarcode;
@@ -127,7 +127,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
   private           int          saved_scroll_pos;
   private           boolean      previously_paused;
   private           SearchView   search_view;
-  private           FirebaseAnalytics firebase_analytics;
 
   /**
    * Construct an activity.
@@ -592,13 +591,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
   {
     super.onCreate(state);
 
-    //
-    // --- FIREBASE TEST ---
-    //
     FirebaseApp.initializeApp(getApplicationContext());
-    firebase_analytics = FirebaseAnalytics.getInstance(this);
-    firebase_analytics.logEvent("test_event", state);
-    FirebaseCrash.log("CatalogFeedActivity was just created...");
 
     this.navigationDrawerSetActionBarTitle();
 
@@ -1457,11 +1450,10 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
       final ImmutableStack<CatalogFeedArgumentsType> us =
         ImmutableStack.empty();
 
-      final Bundle analyticsData = new Bundle();
-      String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-      analyticsData.putSerializable(AnalyticEvents.StringParameter.DEVICE_ID, android_id);
-      analyticsData.putSerializable(AnalyticEvents.StringParameter.SEARCH_QUERY, qnn);
-      FirebaseAnalytics.getInstance(getApplicationContext()).logEvent(AnalyticEvents.Event.CATALOG_SEARCHED, analyticsData);
+      AnalyticWrapper.logEventWithDeviceID(getApplicationContext(),
+          AnalyticEvents.Event.CATALOG_SEARCHED,
+          AnalyticEvents.StringParameter.SEARCH_QUERY,
+          qnn);
 
       final String title =
         this.resources.getString(R.string.catalog_search) + ": " + qnn;
