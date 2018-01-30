@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.nypl.simplified.prefs.Prefs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ public class AccountsRegistry implements Serializable {
     if (this.current_accounts == null || this.current_accounts.length() == 0)
     {
       this.current_accounts = new JSONArray();
-      this.current_accounts.put(this.getAccount(0).getJsonObject());
+      // this.current_accounts.put(this.getAccount(0).getJsonObject());
     }
 
     prefs.putString("current_accounts", this.current_accounts.toString());
@@ -64,7 +65,7 @@ public class AccountsRegistry implements Serializable {
    */
   public void addAccount(final Account account, final Prefs prefs) {
 
-    this.current_accounts.put(account.getJsonObject());
+   // this.current_accounts.put(account.getJsonObject());
     prefs.putString("current_accounts", this.current_accounts.toString());
   }
 
@@ -87,7 +88,7 @@ public class AccountsRegistry implements Serializable {
 
         if (account.getId() != acc.getId()) {
 
-          this.current_accounts.put(acc.getJsonObject());
+          // this.current_accounts.put(acc.getJsonObject());
 
         }
 
