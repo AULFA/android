@@ -141,6 +141,7 @@ public final class HTTP implements HTTPType
       }
       conn.setRequestProperty("User-Agent", this.user_agent);
       conn.setRequestProperty("Accept-Encoding", "identity");
+      conn.setRequestProperty("Authorization", "Basic bGZhX2FwcDo0emZtQzRFeERWV1J5SW5VYmhxbFVhYXJrUVM0a2RBZEpyajJhbXYyQjFjOEk3emJsYw==");
 
       if (content_type_opt.isSome()) {
         conn.setRequestProperty("Content-Type", ((Some<String>) content_type_opt).get());
