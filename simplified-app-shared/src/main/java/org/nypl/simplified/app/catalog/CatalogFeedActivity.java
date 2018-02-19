@@ -1,9 +1,11 @@
 package org.nypl.simplified.app.catalog;
 
+import com.google.firebase.FirebaseApp;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.firebase.crash.FirebaseCrash;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.Some;
@@ -38,6 +41,10 @@ import org.nypl.simplified.app.NetworkConnectivityType;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.ScreenSizeInformationType;
 import org.nypl.simplified.app.Simplified;
+import org.nypl.simplified.app.SimplifiedActivity;
+import org.nypl.simplified.app.SimplifiedCatalogAppServicesType;
+import org.nypl.simplified.app.utilities.AnalyticEvents;
+import org.nypl.simplified.app.utilities.AnalyticWrapper;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.book_registry.BookStatusEvent;
@@ -434,6 +441,10 @@ public abstract class CatalogFeedActivity extends CatalogActivity
   @Override
   protected void onCreate(final @Nullable Bundle state) {
     super.onCreate(state);
+
+    FirebaseApp.initializeApp(getApplicationContext());
+
+    this.navigationDrawerSetActionBarTitle();
 
     final CatalogFeedArgumentsType args = this.getArguments();
     final ImmutableStack<CatalogFeedArgumentsType> stack = this.getUpStack();
@@ -1149,6 +1160,11 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       final CatalogFeedActivity cfa = CatalogFeedActivity.this;
       final ImmutableStack<CatalogFeedArgumentsType> us =
           ImmutableStack.empty();
+
+      AnalyticWrapper.logEventWithDeviceID(getApplicationContext(),
+          AnalyticEvents.Event.CATALOG_SEARCHED,
+          AnalyticEvents.StringParameter.SEARCH_QUERY,
+          qnn);
 
       final String title =
           this.resources.getString(R.string.catalog_search) + ": " + qnn;

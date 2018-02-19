@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -32,6 +33,8 @@ import org.nypl.simplified.app.reader.ReaderPaginationChangedEvent.OpenPage;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.ScrollMode;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.SyntheticSpreadMode;
 import org.nypl.simplified.app.reader.ReaderTOC.TOCElement;
+import org.nypl.simplified.app.utilities.AnalyticEvents;
+import org.nypl.simplified.app.utilities.AnalyticWrapper;
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.FadeUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
@@ -254,6 +257,14 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
       this.failWithErrorMessage(this.getResources(), e);
       return;
     }
+
+    AnalyticWrapper.logEventWithDeviceID(getApplicationContext(),
+        AnalyticEvents.Event.BOOK_OPENED,
+        AnalyticEvents.StringParameter.BOOK_ID,
+        this.book_id.getShortID());
+
+    final SimplifiedReaderAppServicesType rs =
+      Simplified.getReaderAppServices();
 
     final ReaderPreferences reader_preferences =
         this.profile.preferences()
@@ -653,7 +664,7 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
   public void onReadiumFunctionPaginationChanged(final ReaderPaginationChangedEvent e) {
     LOG.debug("pagination changed: {}", e);
     final WebView in_web_view = NullCheck.notNull(this.view_web_view);
-    
+
     /*
      * Configure the progress bar and text.
      */
