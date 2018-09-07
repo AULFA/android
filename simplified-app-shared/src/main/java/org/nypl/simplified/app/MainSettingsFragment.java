@@ -42,6 +42,8 @@ class MainSettingsFragment extends PreferenceFragment implements LoginListenerTy
     final Resources resources = NullCheck.notNull(this.getResources());
     final DocumentStoreType docs = Simplified.getDocumentStore();
 
+    // LFA
+    /*
     {
       final Intent intent = new Intent(
         MainSettingsFragment.this.getActivity(), WebViewActivity.class);
@@ -54,7 +56,7 @@ class MainSettingsFragment extends PreferenceFragment implements LoginListenerTy
 
       final Preference preferences = findPreference(resources.getString(R.string.settings_about));
       preferences.setIntent(intent);
-    }
+    }*/
 
     {
       final Intent intent =

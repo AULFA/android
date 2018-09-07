@@ -41,7 +41,7 @@
       android:layout_width="wrap_content"
       android:layout_height="@dimen/button_standard_height"
       android:textSize="12sp"
-      android:text="@string/catalog_book_error_retry" />
+      android:text="@string/catalog_book_error_retry_now" />
 
     <Button
       android:id="@+id/cell_downloading_failed_dismiss"
@@ -49,7 +49,7 @@
       android:layout_height="@dimen/button_standard_height"
       android:layout_marginLeft="8dp"
       android:textSize="12sp"
-      android:text="@string/catalog_book_error_dismiss" />
+      android:text="@string/catalog_book_error_download_later" />
   </LinearLayout>
 
 </RelativeLayout>
