@@ -226,7 +226,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     if (this.previously_paused && !did_retry) {
       final CatalogFeedArgumentsType args = this.getArguments();
-      if (args.requiresNetworkConnectivity()) {
+      if (!args.requiresNetworkConnectivity()) {
         this.retryFeed();
       }
     }
