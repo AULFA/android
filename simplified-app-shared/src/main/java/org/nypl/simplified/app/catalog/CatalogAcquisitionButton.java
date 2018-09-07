@@ -44,28 +44,33 @@ public final class CatalogAcquisitionButton extends Button implements CatalogBoo
     final OPDSAvailabilityType availability = in_entry.getFeedEntry().getAvailability();
     this.setTextSize(12.0f);
 
-    switch (in_acquisition.getType()) {
-      case ACQUISITION_OPEN_ACCESS:
-        this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_download)));
-        this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_download)));
-        break;
-      case ACQUISITION_BORROW: {
-        if (availability instanceof OPDSAvailabilityHoldable) {
-          this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_reserve)));
-          this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_reserve)));
-        } else {
-          this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_borrow)));
-          this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_borrow)));
+    if (in_book_registry.book(in_book_id).isSome()) {
+      this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_download)));
+      this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_download)));
+    } else {
+      switch (in_acquisition.getType()) {
+        case ACQUISITION_OPEN_ACCESS:
+          this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_add)));
+          this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_add)));
+          break;
+        case ACQUISITION_BORROW: {
+          if (availability instanceof OPDSAvailabilityHoldable) {
+            this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_reserve)));
+            this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_reserve)));
+          } else {
+            this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_borrow)));
+            this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_borrow)));
+          }
+          break;
         }
-        break;
-      }
-      case ACQUISITION_BUY:
-      case ACQUISITION_GENERIC:
-      case ACQUISITION_SAMPLE:
-      case ACQUISITION_SUBSCRIBE: {
-        this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_download)));
-        this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_download)));
-        break;
+        case ACQUISITION_BUY:
+        case ACQUISITION_GENERIC:
+        case ACQUISITION_SAMPLE:
+        case ACQUISITION_SUBSCRIBE: {
+          this.setText(NullCheck.notNull(resources.getString(R.string.catalog_book_download)));
+          this.setContentDescription(NullCheck.notNull(resources.getString(R.string.catalog_accessibility_book_download)));
+          break;
+        }
       }
     }
 
