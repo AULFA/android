@@ -593,7 +593,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
             public Boolean onFeedSearchOpen1_1(final FeedSearchOpen1_1 fs) {
               search_view.setOnQueryTextListener(
                   new OpenSearchQueryHandler(log(), resources, args, feed, fs.getSearch()));
-              return true;
+              // LFA: Temporarily disable catalog search.
+              return false;
             }
 
             @Override
@@ -605,10 +606,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
           });
     }
 
-    if (search_ok) {
-      search_item.setEnabled(true);
-      search_item.setVisible(true);
-    }
+    search_item.setEnabled(search_ok);
+    search_item.setVisible(search_ok);
   }
 
   @Override
