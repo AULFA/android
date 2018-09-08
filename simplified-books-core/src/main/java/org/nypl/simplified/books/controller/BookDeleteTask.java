@@ -49,8 +49,8 @@ final class BookDeleteTask implements Callable<Unit> {
 
     final BookDatabaseType book_database = this.account.bookDatabase();
     final BookDatabaseEntryType entry = book_database.entry(this.book_id);
-    entry.deleteEPUB();
+    entry.delete();
     final Book book = entry.book();
-    this.book_registry.update(BookWithStatus.create(book, BookStatus.fromBook(book)));
+    this.book_registry.clearFor(book_id);
   }
 }
