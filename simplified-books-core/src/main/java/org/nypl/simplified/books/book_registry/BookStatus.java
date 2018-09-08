@@ -92,7 +92,7 @@ public final class BookStatus
             if (downloaded) {
               return new BookStatusDownloaded(book.id(), no_expiry, returnable);
             }
-            return new BookStatusLoanable(book.id());
+            return new BookStatusLoaned(book.id(), no_expiry, returnable);
           }
 
           @Override
