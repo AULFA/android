@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.io7m.jfunctional.None;
+import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.OptionVisitorType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
@@ -32,6 +33,7 @@ import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.observable.ObservableSubscriptionType;
 import org.slf4j.Logger;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,30 +91,26 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     this.profile_event_subscription.unsubscribe();
   }
 
+  private <A> A getWithDefault(OptionType<A> optional, A orElse) {
+    return optional instanceof Some ? ((Some<A>) optional).get() : orElse;
+  }
+
   private void onSelectedProfile(
       final ProfileReadableType profile) {
 
     LOG.debug("selected profile: {} ({})", profile.id(), profile.displayName());
     final ProfilesControllerType profiles = Simplified.getProfilesController();
 
-    profile.preferences().gender().accept(new OptionVisitorType<String, Unit>() {
-      @Override
-      public Unit none(None<String> none) {
-        final String message = "profile_selected," + profile.id().id()
-            + "," + profile.displayName();
-        Simplified.getAnalyticsController().logToAnalytics(message);
-        return Unit.unit();
-      }
+    final String gender = getWithDefault(profile.preferences().gender(), "");
+    final String birthday = getWithDefault(
+        profile.preferences().dateOfBirth().map((d) -> d.toString()),
+        "");
 
-      @Override
-      public Unit some(Some<String> some) {
-        final String message = "profile_selected," + profile.id().id()
-            + "," + profile.displayName()
-            + "," + some.get();
-        Simplified.getAnalyticsController().logToAnalytics(message);
-        return Unit.unit();
-      }
-    });
+    final String message = "profile_selected," + profile.id().id()
+        + "," + profile.displayName()
+        + "," + gender
+        + "," + birthday;
+    Simplified.getAnalyticsController().logToAnalytics(message);
 
     if ( Simplified.getNetworkConnectivity().isNetworkAvailable() ) {
       String deviceId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
