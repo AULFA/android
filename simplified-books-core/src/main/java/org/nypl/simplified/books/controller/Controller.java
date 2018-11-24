@@ -132,8 +132,6 @@ public final class Controller implements BooksControllerType, ProfilesController
     this.account_events = Observable.create();
     this.timer = ProfileIdleTimer.create(this.timer_executor, this.profile_events);
     this.profile_event_subscription = this.profile_events.subscribe(this::onProfileEvent);
-
-    logToAnalytics("app_open");
   }
 
   private void onProfileEvent(final ProfileEvent e) {

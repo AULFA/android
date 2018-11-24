@@ -2,6 +2,8 @@ package org.nypl.simplified.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
@@ -650,6 +652,16 @@ public final class Simplified extends Application {
       analytics_logger = AnalyticsLogger.create(this.directory_analytics);
     } catch (Exception e) {
       LOG.debug("Ignoring exception: AnalyticsLogger.create raised: ", e);
+    }
+
+    try {
+      final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+      analytics_logger.logToAnalytics("app_open,"
+          + packageInfo.packageName + ","
+          + packageInfo.versionName + ","
+          + Integer.toString(packageInfo.versionCode));
+    } catch (PackageManager.NameNotFoundException e) {
+      LOG.warn("Could not get package info for analytics");
     }
 
     LOG.debug("initializing bundled content");
