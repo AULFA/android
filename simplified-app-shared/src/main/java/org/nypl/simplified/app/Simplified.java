@@ -656,7 +656,7 @@ public final class Simplified extends Application {
 
     try {
       final PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-      analytics_logger.logToAnalytics("app_open,"
+       analytics_logger.logToAnalytics("app_open,"
           + packageInfo.packageName + ","
           + packageInfo.versionName + ","
           + Integer.toString(packageInfo.versionCode));
