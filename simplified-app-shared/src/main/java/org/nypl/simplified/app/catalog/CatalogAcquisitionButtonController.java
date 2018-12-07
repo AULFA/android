@@ -1,8 +1,12 @@
 package org.nypl.simplified.app.catalog;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.Option;
@@ -13,6 +17,7 @@ import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnimplementedCodeException;
 
 import org.nypl.simplified.app.LoginDialog;
+import org.nypl.simplified.app.R;
 import org.nypl.simplified.books.accounts.AccountID;
 import org.nypl.simplified.books.accounts.AccountType;
 import org.nypl.simplified.books.accounts.AccountsDatabaseNonexistentException;
@@ -84,6 +89,16 @@ public final class CatalogAcquisitionButtonController implements OnClickListener
 
   @Override
   public void onClick(final @Nullable View v) {
+    ConnectivityManager cm =
+        (ConnectivityManager) this.activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    if (netInfo == null || !netInfo.isConnectedOrConnecting()) {
+      Toast.makeText(
+          activity.getApplicationContext(),
+          activity.getResources().getString(R.string.catalog_added_for_later_download),
+          Toast.LENGTH_LONG
+      ).show();
+    }
 
     final AccountType account  =
         accountForBook(this.profiles, this.book_registry, this.id);

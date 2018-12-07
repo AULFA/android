@@ -63,6 +63,7 @@
   <string name="catalog_more_feed">More&#8230;</string>
   <string name="catalog_requesting_loan">Requesting</string>
   <string name="catalog_requesting_revoke">Requesting</string>
+  <string name="catalog_added_for_later_download">Added to My Books for downloading later.</string>
 
   <!-- Catalog book detail strings -->
   <string name="catalog_book_borrow">Get</string>

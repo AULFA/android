@@ -1,8 +1,11 @@
 package org.nypl.simplified.app.catalog;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -513,6 +516,14 @@ public final class CatalogBookDetailView
   @Override
   public Unit onBookStatusDownloadFailed(final BookStatusDownloadFailed f) {
     UIThread.checkIsUIThread();
+
+    ConnectivityManager cm =
+        (ConnectivityManager) this.activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    if (netInfo == null || !netInfo.isConnectedOrConnecting()) {
+      this.onBookStatusLoaned(new BookStatusLoaned(f.getID(), None.none(), false));
+      return Unit.unit();
+    }
 
     this.book_debug_status.setText("download failed");
 

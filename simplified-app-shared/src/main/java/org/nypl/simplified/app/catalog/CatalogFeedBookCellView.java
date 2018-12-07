@@ -1,7 +1,10 @@
 package org.nypl.simplified.app.catalog;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
@@ -299,6 +303,14 @@ public final class CatalogFeedBookCellView extends FrameLayout implements
 
   @Override
   public Unit onBookStatusDownloadFailed(final BookStatusDownloadFailed f) {
+
+    ConnectivityManager cm =
+        (ConnectivityManager) this.activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+    if (netInfo == null || !netInfo.isConnectedOrConnecting()) {
+      this.onBookStatusLoaned(new BookStatusLoaned(f.getID(), None.none(), false));
+      return Unit.unit();
+    }
 
     LOG.debug("{}: download failed", f.getID());
 
