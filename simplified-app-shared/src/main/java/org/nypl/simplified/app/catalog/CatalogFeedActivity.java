@@ -40,6 +40,7 @@ import org.nypl.simplified.app.ScreenSizeInformationType;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
+import org.nypl.simplified.books.accounts.AccountAuthenticatedHTTP;
 import org.nypl.simplified.books.book_registry.BookStatusEvent;
 import org.nypl.simplified.books.controller.ProfileFeedRequest;
 import org.nypl.simplified.books.core.BooksFeedSelection;
@@ -416,8 +417,18 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       final URI u) {
 
     this.log().debug("loading feed: {}", u);
-    final OptionType<HTTPAuthType> none = Option.none();
-    this.loading = feed_loader.fromURIWithBookRegistryEntries(u, none, this);
+
+    final OptionType<HTTPAuthType> auth;
+    try {
+      auth = Simplified.getProfilesController()
+        .profileAccountCurrent()
+        .credentials()
+        .map(AccountAuthenticatedHTTP::createAuthenticatedHTTP);
+    } catch (final ProfileNoneCurrentException e) {
+      throw new IllegalStateException(e);
+    }
+
+    this.loading = feed_loader.fromURIWithBookRegistryEntries(u, auth, this);
   }
 
   @Override
