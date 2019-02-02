@@ -30,17 +30,24 @@ android {
 
 description = 'simplified-app-lfa'
 
-task unzipBundledContent(type: Copy) {
-  def zipPath = "${project.rootDir}/bundled.zip"
-  def zipFile = file(zipPath)
-  def outputDir = file("src/main/assets/")
-  from zipTree(zipFile)
-  into outputDir
+def jsonFile   = file("${project.rootDir}/simplified-app-lfa/bundles.json")
+def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+
+parsedJson.each { bundle ->
+  def zipFile   = file("${project.rootDir}/simplified-app-lfa/${bundle.zip}")
+  def outputDir = file("src/main/assets/${bundle.short}")
+  def taskName  = "unzipBundled_${bundle.short}"
+
+  logger.lifecycle("instantiating task {} to unzip {} to {}", taskName, zipFile, outputDir)
+  task (taskName, type: Copy) {
+    from zipTree(zipFile)
+    into outputDir
+  }
 }
 
 afterEvaluate {
   android.applicationVariants.all { variant ->
-    variant.javaCompiler.dependsOn(unzipBundledContent)
+    variant.javaCompiler.dependsOn(tasks.matching { Task task -> task.name.startsWith("unzipBundled_") })
   }
 }
 
