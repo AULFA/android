@@ -41,20 +41,20 @@ public interface AccountsDatabaseType {
    */
 
   AccountType createAccount(
-      AccountProvider account_provider)
-      throws AccountsDatabaseException;
+    AccountProvider account_provider)
+    throws AccountsDatabaseException;
 
   /**
    * Delete an account using the given account provider. The call will fail if no account
    * exists with the given provider, or if deleting the account would leave the accounts
    * database empty.
    *
-   * @return The ID of the account that was deleted
    * @param account_provider The account provider for the account
+   * @return The ID of the account that was deleted
    * @throws AccountsDatabaseException On account deletion errors
    */
 
   AccountID deleteAccountByProvider(
-      AccountProvider account_provider)
-      throws AccountsDatabaseException;
+    AccountProvider account_provider)
+    throws AccountsDatabaseException;
 }

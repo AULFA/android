@@ -75,6 +75,8 @@ public final class AccountProvidersJSON {
         JSONParserUtilities.getBooleanDefault(obj, "supportsCardCreator", false));
     b.setSupportsHelpCenter(
         JSONParserUtilities.getBooleanDefault(obj, "supportsHelpCenter", false));
+    b.setAddAutomatically(
+      JSONParserUtilities.getBooleanDefault(obj, "addAutomatically", false));
 
     b.setSupportEmail(
         JSONParserUtilities.getStringOptional(obj, "supportEmail"));

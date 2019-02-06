@@ -101,7 +101,7 @@ public abstract class NavigationDrawerActivity extends ProfileTimeOutActivity
       final Activity activity) {
 
     final ImmutableList.Builder<NavigationDrawerItemType> drawer_items = ImmutableList.builder();
-    // drawer_items.add(new NavigationDrawerItemAccountCurrent(activity));
+    drawer_items.add(new NavigationDrawerItemAccountCurrent(activity));
     drawer_items.add(new NavigationDrawerItemCatalog(activity));
     drawer_items.add(new NavigationDrawerItemBooks(activity));
     if (activity.getResources().getBoolean(R.bool.feature_holds_enabled)) {
@@ -129,7 +129,9 @@ public abstract class NavigationDrawerActivity extends ProfileTimeOutActivity
         drawer_items.add(new NavigationDrawerItemAccountSelectSpecific(activity, account));
       }
 
-      drawer_items.add(new NavigationDrawerItemAccountManage(activity));
+      if (activity.getResources().getBoolean(R.bool.feature_manage_accounts)) {
+        drawer_items.add(new NavigationDrawerItemAccountManage(activity));
+      }
       return drawer_items.build();
     } catch (final ProfileNoneCurrentException | ProfileNonexistentAccountProviderException e) {
       throw new IllegalStateException(e);

@@ -3,35 +3,5 @@
     "id":    "urn:provider:com.cantookstation.lfa.bundled",
     "short": "offline",
     "zip":   "bundles/offline.zip"
-  },
-
-  {
-    "id":    "urn:provider:com.cantookstation.lfa.png",
-    "short": "png",
-    "zip":   "bundles/png.zip"
-  },
-
-  {
-    "id":    "urn:provider:com.cantookstation.lfa.global",
-    "short": "global",
-    "zip":   "bundles/global.zip"
-  },
-
-  {
-    "id":    "urn:provider:com.cantookstation.lfa.btt",
-    "short": "btt",
-    "zip":   "bundles/btt.zip"
-  },
-
-  {
-    "id":    "urn:provider:com.cantookstation.lfa.laos",
-    "short": "laos",
-    "zip":   "bundles/laos.zip"
-  },
-
-  {
-    "id":    "urn:provider:la.dp.openbookshelf",
-    "short": "openbookshelf",
-    "zip":   "bundles/openbookshelf.zip"
   }
 ]

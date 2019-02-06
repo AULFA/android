@@ -41,6 +41,8 @@ import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.accounts.AccountAuthenticatedHTTP;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsType;
+import org.nypl.simplified.books.accounts.AccountProvider;
 import org.nypl.simplified.books.book_registry.BookStatusEvent;
 import org.nypl.simplified.books.controller.ProfileFeedRequest;
 import org.nypl.simplified.books.core.BooksFeedSelection;
@@ -78,7 +80,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -90,17 +91,18 @@ import static org.nypl.simplified.books.feeds.FeedFacetPseudo.FacetType.SORT_BY_
  */
 
 public abstract class CatalogFeedActivity extends CatalogActivity
-    implements
-    FeedMatcherType<Unit, UnreachableCodeException>,
-    FeedLoaderListenerType {
+  implements
+  FeedMatcherType<Unit, UnreachableCodeException>,
+  FeedLoaderListenerType {
 
   private static final String CATALOG_ARGS =
-      "org.nypl.simplified.app.CatalogFeedActivity.arguments";
+    "org.nypl.simplified.app.CatalogFeedActivity.arguments";
   private static final String LIST_STATE_ID =
-      "org.nypl.simplified.app.CatalogFeedActivity.list_view_state";
+    "org.nypl.simplified.app.CatalogFeedActivity.list_view_state";
 
   private final Object feed_lock;
-  private @GuardedBy("feed_lock") FeedType feed;
+  private @GuardedBy("feed_lock")
+  FeedType feed;
 
   private AbsListView list_view;
   private SwipeRefreshLayout swipe_refresh_layout;
@@ -136,8 +138,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
    */
 
   public static void setActivityArguments(
-      final Bundle b,
-      final CatalogFeedArgumentsType in_args) {
+    final Bundle b,
+    final CatalogFeedArgumentsType in_args) {
 
     NullCheck.notNull(b);
     NullCheck.notNull(in_args);
@@ -145,21 +147,21 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     b.putSerializable(CatalogFeedActivity.CATALOG_ARGS, in_args);
 
     in_args.matchArguments(
-        new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
-          @Override
-          public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
-            NavigationDrawerActivity.setActivityArguments(b, false);
-            CatalogActivity.setActivityArguments(b, c.getUpStack());
-            return Unit.unit();
-          }
+      new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
+        @Override
+        public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
+          NavigationDrawerActivity.setActivityArguments(b, false);
+          CatalogActivity.setActivityArguments(b, c.getUpStack());
+          return Unit.unit();
+        }
 
-          @Override
-          public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
-            NavigationDrawerActivity.setActivityArguments(b, c.isDrawerOpen());
-            CatalogActivity.setActivityArguments(b, c.getUpStack());
-            return Unit.unit();
-          }
-        });
+        @Override
+        public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
+          NavigationDrawerActivity.setActivityArguments(b, c.isDrawerOpen());
+          CatalogActivity.setActivityArguments(b, c.getUpStack());
+          return Unit.unit();
+        }
+      });
   }
 
   /**
@@ -171,22 +173,22 @@ public abstract class CatalogFeedActivity extends CatalogActivity
    */
 
   private static void onPossiblyReceivedEULALink(
-      final Logger log,
-      final OptionType<URI> latest) {
+    final Logger log,
+    final OptionType<URI> latest) {
 
     latest.map_(
-        latest_actual -> {
-          final DocumentStoreType docs = Simplified.getDocumentStore();
+      latest_actual -> {
+        final DocumentStoreType docs = Simplified.getDocumentStore();
 
-          docs.getEULA().map_(
-              eula -> {
-                try {
-                  eula.documentSetLatestURL(latest_actual.toURL());
-                } catch (final MalformedURLException e) {
-                  log.error("could not use latest EULA link: ", e);
-                }
-              });
-        });
+        docs.getEULA().map_(
+          eula -> {
+            try {
+              eula.documentSetLatestURL(latest_actual.toURL());
+            } catch (final MalformedURLException e) {
+              log.error("could not use latest EULA link: ", e);
+            }
+          });
+      });
   }
 
   @Override
@@ -244,18 +246,18 @@ public abstract class CatalogFeedActivity extends CatalogActivity
    */
 
   private void configureFacets(
-      final FeedWithoutGroups feed,
-      final ViewGroup layout,
-      final ScreenSizeInformationType screen,
-      final Resources resources) {
+    final FeedWithoutGroups feed,
+    final ViewGroup layout,
+    final ScreenSizeInformationType screen,
+    final Resources resources) {
 
     final ViewGroup facets_view =
-        NullCheck.notNull(layout.findViewById(R.id.catalog_feed_nogroups_facets));
+      NullCheck.notNull(layout.findViewById(R.id.catalog_feed_nogroups_facets));
     final View facet_divider =
-        NullCheck.notNull(layout.findViewById(R.id.catalog_feed_nogroups_facet_divider));
+      NullCheck.notNull(layout.findViewById(R.id.catalog_feed_nogroups_facet_divider));
 
     final Map<String, List<FeedFacetType>> facet_groups =
-        feed.getFeedFacetsByGroup();
+      feed.getFeedFacetsByGroup();
 
     /*
      * If the facet groups are empty, then no facet bar should be displayed.
@@ -276,8 +278,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         final ArrayList<FeedFacetType> group_copy = new ArrayList<>(group);
 
         final LinearLayout.LayoutParams text_view_layout_params = new LinearLayout.LayoutParams(
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+          android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+          android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         text_view_layout_params.rightMargin = (int) screen.screenDPToPixels(8);
 
         final TextView text_view = new TextView(this);
@@ -291,46 +293,46 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         final CatalogFeedArgumentsType current_args = this.getArguments();
         if (current_args instanceof CatalogFeedArgumentsLocalBooks) {
           final CatalogFeedArgumentsLocalBooks locals =
-              (CatalogFeedArgumentsLocalBooks) current_args;
+            (CatalogFeedArgumentsLocalBooks) current_args;
           search_terms = locals.getSearchTerms();
         } else {
           search_terms = Option.none();
         }
 
         final FeedFacetMatcherType<Unit, UnreachableCodeException> facet_feed_listener =
-            new FeedFacetMatcherType<Unit, UnreachableCodeException>() {
-              @Override
-              public Unit onFeedFacetOPDS(final FeedFacetOPDS feed_opds) {
-                final OPDSFacet o = feed_opds.getOPDSFacet();
-                final CatalogFeedArgumentsRemote args =
-                    new CatalogFeedArgumentsRemote(
-                        false,
-                        getUpStack(),
-                        feed.getFeedTitle(),
-                        o.getURI(),
-                        false);
+          new FeedFacetMatcherType<Unit, UnreachableCodeException>() {
+            @Override
+            public Unit onFeedFacetOPDS(final FeedFacetOPDS feed_opds) {
+              final OPDSFacet o = feed_opds.getOPDSFacet();
+              final CatalogFeedArgumentsRemote args =
+                new CatalogFeedArgumentsRemote(
+                  false,
+                  getUpStack(),
+                  feed.getFeedTitle(),
+                  o.getURI(),
+                  false);
 
-                CatalogFeedActivity.this.catalogActivityForkNewReplacing(args);
-                return Unit.unit();
-              }
+              CatalogFeedActivity.this.catalogActivityForkNewReplacing(args);
+              return Unit.unit();
+            }
 
-              @Override
-              public Unit onFeedFacetPseudo(final FeedFacetPseudo fp) {
-                final String facet_title =
-                    NullCheck.notNull(resources.getString(R.string.books_sort_by));
+            @Override
+            public Unit onFeedFacetPseudo(final FeedFacetPseudo fp) {
+              final String facet_title =
+                NullCheck.notNull(resources.getString(R.string.books_sort_by));
 
-                final CatalogFeedArgumentsLocalBooks args =
-                    new CatalogFeedArgumentsLocalBooks(
-                        getUpStack(),
-                        facet_title,
-                        fp.getType(),
-                        search_terms,
-                        getLocalFeedTypeSelection());
+              final CatalogFeedArgumentsLocalBooks args =
+                new CatalogFeedArgumentsLocalBooks(
+                  getUpStack(),
+                  facet_title,
+                  fp.getType(),
+                  search_terms,
+                  getLocalFeedTypeSelection());
 
-                CatalogFeedActivity.this.catalogActivityForkNewReplacing(args);
-                return Unit.unit();
-              }
-            };
+              CatalogFeedActivity.this.catalogActivityForkNewReplacing(args);
+              return Unit.unit();
+            }
+          };
 
         final CatalogFacetSelectionListenerType facet_listener = in_selected -> {
           this.log().debug("selected facet: {}", in_selected);
@@ -338,7 +340,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         };
 
         final CatalogFacetButton fb = new CatalogFacetButton(
-            this, NullCheck.notNull(group_name), group_copy, facet_listener);
+          this, NullCheck.notNull(group_name), group_copy, facet_listener);
 
         fb.setLayoutParams(text_view_layout_params);
         facets_view.addView(fb);
@@ -357,9 +359,16 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
   @Override
   public void onFeedRequiresAuthentication(
-      final URI u,
-      final int attempts,
-      final FeedLoaderAuthenticationListenerType listener) {
+    final URI u,
+    final int attempts,
+    final FeedLoaderAuthenticationListenerType listener) {
+
+    // XXX: LFA HACK: We *never* want to show a login screen for accounts with bundled
+    //      credentials.
+    if (accountHasBundledCredentials()) {
+      listener.onAuthenticationNotProvided();
+      return;
+    }
 
     UIThread.runOnUIThread(() -> {
       final Intent i = new Intent(CatalogFeedActivity.this, LoginActivity.class);
@@ -368,9 +377,25 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     });
   }
 
+  private boolean accountHasBundledCredentials() {
+    try {
+      final AccountProvider account_provider =
+        Simplified.getProfilesController()
+          .profileAccountCurrent()
+          .provider();
+
+      AccountBundledCredentialsType bundled =
+        Simplified.getAccountBundledCredentials();
+
+      return bundled.bundledCredentialsFor(account_provider.id()).isSome();
+    } catch (ProfileNoneCurrentException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
   private void configureUpButton(
-      final ImmutableStack<CatalogFeedArgumentsType> up_stack,
-      final String title) {
+    final ImmutableStack<CatalogFeedArgumentsType> up_stack,
+    final String title) {
 
     final ActionBar bar = this.getActionBar();
     if (!up_stack.isEmpty()) {
@@ -389,7 +414,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final Bundle a = i.getExtras();
     if (a != null) {
       final CatalogFeedArgumentsType args =
-          (CatalogFeedArgumentsType) a.getSerializable(CatalogFeedActivity.CATALOG_ARGS);
+        (CatalogFeedArgumentsType) a.getSerializable(CatalogFeedActivity.CATALOG_ARGS);
       if (args != null) {
         return args;
       }
@@ -402,19 +427,19 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     try {
       return new CatalogFeedArgumentsRemote(
-          true,
-          ImmutableStack.empty(),
-          NullCheck.notNull(rr.getString(R.string.feature_app_name)),
-          Simplified.getProfilesController().profileAccountCurrentCatalogRootURI(),
-          false);
+        true,
+        ImmutableStack.empty(),
+        NullCheck.notNull(rr.getString(R.string.feature_app_name)),
+        Simplified.getProfilesController().profileAccountCurrentCatalogRootURI(),
+        false);
     } catch (final ProfileNoneCurrentException e) {
       throw new IllegalStateException(e);
     }
   }
 
   private void loadFeed(
-      final FeedLoaderType feed_loader,
-      final URI u) {
+    final FeedLoaderType feed_loader,
+    final URI u) {
 
     this.log().debug("loading feed: {}", u);
 
@@ -437,7 +462,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
   }
 
   private ImmutableStack<CatalogFeedArgumentsType> newUpStack(
-      final CatalogFeedArgumentsType args) {
+    final CatalogFeedArgumentsType args) {
     final ImmutableStack<CatalogFeedArgumentsType> up_stack = this.getUpStack();
     return up_stack.push(args);
   }
@@ -469,7 +494,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final LayoutInflater inflater = this.getLayoutInflater();
     final FrameLayout content_area = this.getContentFrame();
     final ViewGroup in_progress_layout = NullCheck.notNull(
-        (ViewGroup) inflater.inflate(R.layout.catalog_loading, content_area, false));
+      (ViewGroup) inflater.inflate(R.layout.catalog_loading, content_area, false));
 
     content_area.addView(in_progress_layout);
     content_area.requestLayout();
@@ -494,28 +519,28 @@ public abstract class CatalogFeedActivity extends CatalogActivity
      */
 
     args.matchArguments(
-        new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
-          @Override
-          public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
-            doLoadLocalFeed(c);
-            return Unit.unit();
-          }
+      new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
+        @Override
+        public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
+          doLoadLocalFeed(c);
+          return Unit.unit();
+        }
 
-          @Override
-          public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
-            doLoadRemoteFeed(c);
-            return Unit.unit();
-          }
-        });
+        @Override
+        public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
+          doLoadRemoteFeed(c);
+          return Unit.unit();
+        }
+      });
 
     /*
      * Subscribe to profile change events.
      */
 
     this.profile_event_subscription =
-        Simplified.getProfilesController()
-            .profileEvents()
-            .subscribe(this::onProfileEvent);
+      Simplified.getProfilesController()
+        .profileEvents()
+        .subscribe(this::onProfileEvent);
   }
 
   private void onProfileEvent(final ProfileEvent event) {
@@ -560,8 +585,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
   }
 
   private void onCreateOptionsMenuSearchItem(
-      final Menu menu_nn,
-      final FeedType feed) {
+    final Menu menu_nn,
+    final FeedType feed) {
 
     final MenuItem search_item = menu_nn.findItem(R.id.catalog_action_search);
 
@@ -574,7 +599,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     boolean search_ok = false;
     if (search_opt.isSome()) {
       final Some<FeedSearchType> search_some =
-          (Some<FeedSearchType>) search_opt;
+        (Some<FeedSearchType>) search_opt;
 
       this.search_view = (SearchView) search_item.getActionView();
       this.search_view.setSubmitButtonEnabled(true);
@@ -599,22 +624,22 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       final Resources resources = NullCheck.notNull(this.getResources());
       final FeedSearchType search = search_some.get();
       search_ok = search.matchSearch(
-          new FeedSearchMatcherType<Boolean, UnreachableCodeException>() {
-            @Override
-            public Boolean onFeedSearchOpen1_1(final FeedSearchOpen1_1 fs) {
-              search_view.setOnQueryTextListener(
-                  new OpenSearchQueryHandler(log(), resources, args, feed, fs.getSearch()));
-              // LFA: Temporarily disable catalog search.
-              return false;
-            }
+        new FeedSearchMatcherType<Boolean, UnreachableCodeException>() {
+          @Override
+          public Boolean onFeedSearchOpen1_1(final FeedSearchOpen1_1 fs) {
+            search_view.setOnQueryTextListener(
+              new OpenSearchQueryHandler(log(), resources, args, feed, fs.getSearch()));
+            // LFA: Temporarily disable catalog search.
+            return false;
+          }
 
-            @Override
-            public Boolean onFeedSearchLocal(final FeedSearchLocal f) {
-              search_view.setOnQueryTextListener(
-                  new BooksLocalSearchQueryHandler(log(), resources, args, feed, SORT_BY_TITLE));
-              return true;
-            }
-          });
+          @Override
+          public Boolean onFeedSearchLocal(final FeedSearchLocal f) {
+            search_view.setOnQueryTextListener(
+              new BooksLocalSearchQueryHandler(log(), resources, args, feed, SORT_BY_TITLE));
+            return true;
+          }
+        });
     }
 
     search_item.setEnabled(search_ok);
@@ -644,8 +669,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
   @Override
   public void onFeedLoadFailure(
-      final URI u,
-      final Throwable x) {
+    final URI u,
+    final Throwable x) {
 
     UIThread.runOnUIThread(() -> onFeedLoadingFailureUI(x));
   }
@@ -663,8 +688,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     final LayoutInflater inflater = this.getLayoutInflater();
     final ViewGroup error =
-        NullCheck.notNull((ViewGroup) inflater.inflate(
-            R.layout.catalog_loading_error, content_area, false));
+      NullCheck.notNull((ViewGroup) inflater.inflate(
+        R.layout.catalog_loading_error, content_area, false));
     content_area.addView(error);
     content_area.requestLayout();
 
@@ -674,8 +699,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
   @Override
   public void onFeedLoadSuccess(
-      final URI feed_uri,
-      final FeedType feed_result) {
+    final URI feed_uri,
+    final FeedType feed_result) {
 
     this.log().debug("onFeedLoadSuccess: received feed for {}", feed_uri);
 
@@ -684,7 +709,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     }
 
     UIThread.runOnUIThread(
-        () -> this.configureUpButton(this.getUpStack(), feed_result.getFeedTitle()));
+      () -> this.configureUpButton(this.getUpStack(), feed_result.getFeedTitle()));
 
     feed_result.matchFeed(this);
   }
@@ -711,8 +736,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     final LayoutInflater inflater = this.getLayoutInflater();
     final ViewGroup layout = NullCheck.notNull(
-        (ViewGroup) inflater.inflate(
-            R.layout.catalog_feed_groups_list, content_area, false));
+      (ViewGroup) inflater.inflate(
+        R.layout.catalog_feed_groups_list, content_area, false));
 
     content_area.addView(layout);
     content_area.requestLayout();
@@ -720,11 +745,11 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     this.log().debug("restoring scroll position: {}", this.saved_scroll_pos);
 
     final ListView list = NullCheck.notNull(
-        layout.findViewById(
-            R.id.catalog_feed_blocks_list));
+      layout.findViewById(
+        R.id.catalog_feed_blocks_list));
 
     this.swipe_refresh_layout =
-        NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
+      NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
     this.swipe_refresh_layout.setOnRefreshListener(this::retryFeed);
 
     list.post(() -> list.setSelection(saved_scroll_pos));
@@ -735,27 +760,27 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final ImmutableStack<CatalogFeedArgumentsType> new_up_stack = this.newUpStack(args);
 
     final CatalogFeedLaneListenerType in_lane_listener =
-        new CatalogFeedLaneListenerType() {
-          @Override
-          public void onSelectBook(final FeedEntryOPDS e) {
-            onSelectedBook(new_up_stack, e);
-          }
+      new CatalogFeedLaneListenerType() {
+        @Override
+        public void onSelectBook(final FeedEntryOPDS e) {
+          onSelectedBook(new_up_stack, e);
+        }
 
-          @Override
-          public void onSelectFeed(final FeedGroup in_group) {
-            onSelectedFeedGroup(new_up_stack, in_group);
-          }
-        };
+        @Override
+        public void onSelectFeed(final FeedGroup in_group) {
+          onSelectedFeedGroup(new_up_stack, in_group);
+        }
+      };
 
     final CatalogFeedWithGroups cfl;
     try {
       cfl = new CatalogFeedWithGroups(
-          this,
-          Simplified.getProfilesController().profileAccountCurrent(),
-          Simplified.getScreenSizeInformation(),
-          Simplified.getCoverProvider(),
-          in_lane_listener,
-          feed);
+        this,
+        Simplified.getProfilesController().profileAccountCurrent(),
+        Simplified.getScreenSizeInformation(),
+        Simplified.getCoverProvider(),
+        in_lane_listener,
+        feed);
     } catch (final ProfileNoneCurrentException e) {
       throw new IllegalStateException(e);
     }
@@ -787,12 +812,12 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     final LayoutInflater inflater = this.getLayoutInflater();
     final ViewGroup layout = NullCheck.notNull(
-        (ViewGroup) inflater.inflate(
-            R.layout.catalog_feed_nogroups_empty, content_area, false));
+      (ViewGroup) inflater.inflate(
+        R.layout.catalog_feed_nogroups_empty, content_area, false));
 
     final TextView empty_text = NullCheck.notNull(
-        layout.findViewById(
-            R.id.catalog_feed_nogroups_empty_text));
+      layout.findViewById(
+        R.id.catalog_feed_nogroups_empty_text));
 
     if (this.getArguments().isSearching()) {
       final Resources resources = this.getResources();
@@ -819,8 +844,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     final LayoutInflater inflater = this.getLayoutInflater();
     final ViewGroup layout = NullCheck.notNull(
-        (ViewGroup) inflater.inflate(
-            R.layout.catalog_feed_nogroups, content_area, false));
+      (ViewGroup) inflater.inflate(
+        R.layout.catalog_feed_nogroups, content_area, false));
 
     content_area.addView(layout);
     content_area.requestLayout();
@@ -828,44 +853,44 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     this.log().debug("restoring scroll position: {}", this.saved_scroll_pos);
 
     final Resources resources =
-        NullCheck.notNull(this.getResources());
+      NullCheck.notNull(this.getResources());
 
     final GridView grid_view = NullCheck.notNull(
-        layout.findViewById(
-            R.id.catalog_feed_nogroups_grid));
+      layout.findViewById(
+        R.id.catalog_feed_nogroups_grid));
 
     this.swipe_refresh_layout =
-        NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
+      NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
 
     this.swipe_refresh_layout.setOnRefreshListener(() -> {
       // XXX: Refresh the feed
     });
 
     this.configureFacets(
-        feed_without_groups, layout, Simplified.getScreenSizeInformation(), resources);
+      feed_without_groups, layout, Simplified.getScreenSizeInformation(), resources);
 
     grid_view.post(() -> grid_view.setSelection(CatalogFeedActivity.this.saved_scroll_pos));
     this.list_view = grid_view;
 
     final CatalogFeedArgumentsType args = this.getArguments();
     final ImmutableStack<CatalogFeedArgumentsType> new_up_stack =
-        this.newUpStack(args);
+      this.newUpStack(args);
 
     final CatalogBookSelectionListenerType book_select_listener =
-        (v, e) -> CatalogFeedActivity.this.onSelectedBook(new_up_stack, e);
+      (v, e) -> CatalogFeedActivity.this.onSelectedBook(new_up_stack, e);
 
     final CatalogFeedWithoutGroups without;
     try {
       without = new CatalogFeedWithoutGroups(
-          this,
-          Simplified.getProfilesController().profileAccountCurrent(),
-          Simplified.getCoverProvider(),
-          book_select_listener,
-          Simplified.getBooksRegistry(),
-          Simplified.getBooksController(),
-          Simplified.getProfilesController(),
-          Simplified.getFeedLoader(),
-          feed_without_groups);
+        this,
+        Simplified.getProfilesController().profileAccountCurrent(),
+        Simplified.getCoverProvider(),
+        book_select_listener,
+        Simplified.getBooksRegistry(),
+        Simplified.getBooksController(),
+        Simplified.getProfilesController(),
+        Simplified.getFeedLoader(),
+        feed_without_groups);
     } catch (final ProfileNoneCurrentException e) {
       throw new IllegalStateException(e);
     }
@@ -879,9 +904,9 @@ public abstract class CatalogFeedActivity extends CatalogActivity
      */
 
     this.book_event_subscription =
-        Simplified.getBooksRegistry()
-            .bookEvents()
-            .subscribe(without::onBookEvent);
+      Simplified.getBooksRegistry()
+        .bookEvents()
+        .subscribe(without::onBookEvent);
   }
 
   private void onFeedWithoutGroupsUI(final FeedWithoutGroups f) {
@@ -912,8 +937,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     final LayoutInflater inflater = this.getLayoutInflater();
     final ViewGroup error = NullCheck.notNull(
-        (ViewGroup) inflater.inflate(
-            R.layout.catalog_loading_not_connected, content_area, false));
+      (ViewGroup) inflater.inflate(
+        R.layout.catalog_loading_not_connected, content_area, false));
     content_area.addView(error);
     content_area.requestLayout();
 
@@ -947,20 +972,20 @@ public abstract class CatalogFeedActivity extends CatalogActivity
   }
 
   private void onSelectedBook(
-      final ImmutableStack<CatalogFeedArgumentsType> new_up_stack,
-      final FeedEntryOPDS e) {
+    final ImmutableStack<CatalogFeedArgumentsType> new_up_stack,
+    final FeedEntryOPDS e) {
 
     this.log().debug("onSelectedBook: {}", this);
     CatalogBookDetailActivity.startNewActivity(this, new_up_stack, e);
   }
 
   private void onSelectedFeedGroup(
-      final ImmutableStack<CatalogFeedArgumentsType> new_up_stack,
-      final FeedGroup f) {
+    final ImmutableStack<CatalogFeedArgumentsType> new_up_stack,
+    final FeedGroup f) {
     this.log().debug("onSelectFeed: {}", this);
 
     final CatalogFeedArgumentsRemote remote = new CatalogFeedArgumentsRemote(
-        false, new_up_stack, f.getGroupTitle(), f.getGroupURI(), false);
+      false, new_up_stack, f.getGroupTitle(), f.getGroupURI(), false);
     this.catalogActivityForkNew(remote);
   }
 
@@ -975,26 +1000,26 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final FeedLoaderType loader = Simplified.getFeedLoader();
 
     args.matchArguments(
-        new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
-          @Override
-          public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
-            catalogActivityForkNewReplacing(args);
-            if (swipe_refresh_layout != null) {
-              swipe_refresh_layout.setRefreshing(false);
-            }
-            return Unit.unit();
+      new CatalogFeedArgumentsMatcherType<Unit, UnreachableCodeException>() {
+        @Override
+        public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
+          catalogActivityForkNewReplacing(args);
+          if (swipe_refresh_layout != null) {
+            swipe_refresh_layout.setRefreshing(false);
           }
+          return Unit.unit();
+        }
 
-          @Override
-          public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
-            loader.invalidate(c.getURI());
-            catalogActivityForkNewReplacing(args);
-            if (swipe_refresh_layout != null) {
-              swipe_refresh_layout.setRefreshing(false);
-            }
-            return Unit.unit();
+        @Override
+        public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
+          loader.invalidate(c.getURI());
+          catalogActivityForkNewReplacing(args);
+          if (swipe_refresh_layout != null) {
+            swipe_refresh_layout.setRefreshing(false);
           }
-        });
+          return Unit.unit();
+        }
+      });
   }
 
   /**
@@ -1015,28 +1040,28 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final URI books_uri = URI.create("Books");
 
     final ProfileFeedRequest request =
-        ProfileFeedRequest.builder(
-            books_uri,
-            resources.getString(R.string.books),
-            resources.getString(R.string.books_sort_by),
-            new CatalogFacetPseudoTitleProvider(resources))
-            .setFeedSelection(c.getSelection())
-            .setSearch(c.getSearchTerms())
-            .setFacetActive(c.getFacetType())
-            .build();
+      ProfileFeedRequest.builder(
+        books_uri,
+        resources.getString(R.string.books),
+        resources.getString(R.string.books_sort_by),
+        new CatalogFacetPseudoTitleProvider(resources))
+        .setFeedSelection(c.getSelection())
+        .setSearch(c.getSearchTerms())
+        .setFacetActive(c.getFacetType())
+        .build();
 
     try {
       final ListeningExecutorService exec = Simplified.getBackgroundTaskExecutor();
       FluentFuture
-          .from(Simplified.getProfilesController().profileFeed(request))
-          .transform(feed -> {
-            this.onFeedLoadSuccess(books_uri, feed);
-            return Unit.unit();
-          }, exec)
-          .catching(Exception.class, ex -> {
-            this.onFeedLoadFailure(books_uri, ex);
-            return Unit.unit();
-          }, exec);
+        .from(Simplified.getProfilesController().profileFeed(request))
+        .transform(feed -> {
+          this.onFeedLoadSuccess(books_uri, feed);
+          return Unit.unit();
+        }, exec)
+        .catching(Exception.class, ex -> {
+          this.onFeedLoadFailure(books_uri, ex);
+          return Unit.unit();
+        }, exec);
     } catch (final ProfileNoneCurrentException e) {
       throw new IllegalStateException(e);
     }
@@ -1065,22 +1090,22 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     private final Logger logger;
 
     BooksLocalSearchQueryHandler(
-        final Logger in_logger,
-        final Resources in_resources,
-        final CatalogFeedArgumentsType in_args,
-        final FeedType feed,
-        final FeedFacetPseudo.FacetType in_facet_active) {
+      final Logger in_logger,
+      final Resources in_resources,
+      final CatalogFeedArgumentsType in_args,
+      final FeedType feed,
+      final FeedFacetPseudo.FacetType in_facet_active) {
 
       this.logger =
-          NullCheck.notNull(in_logger, "Logger");
+        NullCheck.notNull(in_logger, "Logger");
       this.resources =
-          NullCheck.notNull(in_resources, "Resources");
+        NullCheck.notNull(in_resources, "Resources");
       this.args =
-          NullCheck.notNull(in_args, "Arguments");
+        NullCheck.notNull(in_args, "Arguments");
       this.feed =
-          NullCheck.notNull(feed, "Feed");
+        NullCheck.notNull(feed, "Feed");
       this.facet_active =
-          NullCheck.notNull(in_facet_active, "Facet");
+        NullCheck.notNull(in_facet_active, "Facet");
     }
 
     @Override
@@ -1095,16 +1120,16 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       final String qnn = NullCheck.notNull(query);
       final CatalogFeedActivity cfa = CatalogFeedActivity.this;
       final ImmutableStack<CatalogFeedArgumentsType> us =
-          ImmutableStack.empty();
+        ImmutableStack.empty();
 
       final String title = this.resources.getString(R.string.catalog_search) + ": " + qnn;
       final CatalogFeedArgumentsLocalBooks new_args =
-          new CatalogFeedArgumentsLocalBooks(
-              us,
-              title,
-              this.facet_active,
-              Option.some(qnn),
-              cfa.getLocalFeedTypeSelection());
+        new CatalogFeedArgumentsLocalBooks(
+          us,
+          title,
+          this.facet_active,
+          Option.some(qnn),
+          cfa.getLocalFeedTypeSelection());
 
       if ("Search".equals(this.feed.getFeedTitle())) {
         cfa.catalogActivityForkNewReplacing(new_args);
@@ -1129,22 +1154,22 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     private final Logger logger;
 
     OpenSearchQueryHandler(
-        final Logger in_logger,
-        final Resources in_resources,
-        final CatalogFeedArgumentsType in_args,
-        final FeedType feed,
-        final OPDSOpenSearch1_1 in_search) {
+      final Logger in_logger,
+      final Resources in_resources,
+      final CatalogFeedArgumentsType in_args,
+      final FeedType feed,
+      final OPDSOpenSearch1_1 in_search) {
 
       this.logger =
-          NullCheck.notNull(in_logger, "Logger");
+        NullCheck.notNull(in_logger, "Logger");
       this.resources =
-          NullCheck.notNull(in_resources, "Resources");
+        NullCheck.notNull(in_resources, "Resources");
       this.args =
-          NullCheck.notNull(in_args, "Arguments");
+        NullCheck.notNull(in_args, "Arguments");
       this.feed =
-          NullCheck.notNull(feed, "Feed");
+        NullCheck.notNull(feed, "Feed");
       this.search =
-          NullCheck.notNull(in_search, "Search");
+        NullCheck.notNull(in_search, "Search");
     }
 
     @Override
@@ -1161,16 +1186,16 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
       final CatalogFeedActivity cfa = CatalogFeedActivity.this;
       final ImmutableStack<CatalogFeedArgumentsType> us =
-          ImmutableStack.empty();
+        ImmutableStack.empty();
 
       String message = "catalog_searched," + qnn;
       Simplified.getAnalyticsController().logToAnalytics(message);
 
       final String title =
-          this.resources.getString(R.string.catalog_search) + ": " + qnn;
+        this.resources.getString(R.string.catalog_search) + ": " + qnn;
 
       final CatalogFeedArgumentsRemote new_args =
-          new CatalogFeedArgumentsRemote(false, us, title, target, true);
+        new CatalogFeedArgumentsRemote(false, us, title, target, true);
 
       if ("Search".equals(this.feed.getFeedTitle())) {
         cfa.catalogActivityForkNewReplacing(new_args);

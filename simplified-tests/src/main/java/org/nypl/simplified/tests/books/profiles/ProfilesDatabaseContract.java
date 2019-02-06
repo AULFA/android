@@ -1,6 +1,8 @@
 package org.nypl.simplified.tests.books.profiles;
 
 import com.io7m.jfunctional.Option;
+import com.io7m.jfunctional.OptionType;
+import com.io7m.jfunctional.Some;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -10,6 +12,11 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
+import org.nypl.simplified.books.accounts.AccountBarcode;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsEmpty;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsType;
+import org.nypl.simplified.books.accounts.AccountPIN;
 import org.nypl.simplified.books.accounts.AccountProvider;
 import org.nypl.simplified.books.accounts.AccountProviderCollection;
 import org.nypl.simplified.books.accounts.AccountProviderCollectionType;
@@ -34,6 +41,8 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -52,13 +61,13 @@ public abstract class ProfilesDatabaseContract {
    */
 
   private static final class CausesContains<T extends Exception>
-      extends BaseMatcher<ProfileDatabaseException> {
+    extends BaseMatcher<ProfileDatabaseException> {
     private final Class<T> exception_type;
     private final String message;
 
     CausesContains(
-        final Class<T> exception_type,
-        final String message) {
+      final Class<T> exception_type,
+      final String message) {
       this.exception_type = exception_type;
       this.message = message;
     }
@@ -87,19 +96,23 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testOpenExistingNotDirectory()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
     FileUtilities.fileWriteUTF8(f_pro, "Hello!");
 
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(IOException.class, "Not a directory"));
-    ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      accountProviders(),
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
   }
 
   @Test
   public final void testOpenExistingBadSubdirectory()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
@@ -109,18 +122,21 @@ public abstract class ProfilesDatabaseContract {
 
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(
-        IOException.class, "Could not parse directory name as profile ID"));
-    ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      IOException.class, "Could not parse directory name as profile ID"));
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      accountProviders(),
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
   }
 
-  private AccountsDatabaseFactoryType accountsDatabases()
-  {
+  private AccountsDatabaseFactoryType accountsDatabases() {
     return AccountsDatabases.get();
   }
 
   @Test
   public final void testOpenExistingJSONMissing()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
@@ -130,12 +146,16 @@ public abstract class ProfilesDatabaseContract {
 
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(IOException.class, "Could not parse profile: "));
-    ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      accountProviders(),
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
   }
 
   @Test
   public final void testOpenExistingJSONUnparseable()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
@@ -147,17 +167,25 @@ public abstract class ProfilesDatabaseContract {
 
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(IOException.class, "Could not parse profile: "));
-    ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      accountProviders(),
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
   }
 
   @Test
   public final void testOpenExistingEmpty()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     Assert.assertEquals(0, db.profiles().size());
     Assert.assertEquals(f_pro, db.directory());
@@ -166,15 +194,18 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testOpenCreateProfiles()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final AccountProviderCollectionType account_providers = accountProviders();
 
     final ProfilesDatabaseType db =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(
-            account_providers, accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers,
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -195,57 +226,60 @@ public abstract class ProfilesDatabaseContract {
     Assert.assertNotEquals(p1.id(), p2.id());
 
     Assert.assertTrue(
-        "Kermit profile exists",
-        p0.directory().isDirectory());
+      "Kermit profile exists",
+      p0.directory().isDirectory());
 
     Assert.assertTrue(
-        "Kermit profile file exists",
-        new File(p0.directory(), "profile.json").isFile());
+      "Kermit profile file exists",
+      new File(p0.directory(), "profile.json").isFile());
 
     Assert.assertTrue(
-        "Gonzo profile exists",
-        p1.directory().isDirectory());
+      "Gonzo profile exists",
+      p1.directory().isDirectory());
 
     Assert.assertTrue(
-        "Gonzo profile file exists",
-        new File(p1.directory(), "profile.json").isFile());
+      "Gonzo profile file exists",
+      new File(p1.directory(), "profile.json").isFile());
 
     Assert.assertTrue(
-        "Beaker profile exists",
-        p1.directory().isDirectory());
+      "Beaker profile exists",
+      p1.directory().isDirectory());
 
     Assert.assertTrue(
-        "Beaker profile file exists",
-        new File(p2.directory(), "profile.json").isFile());
+      "Beaker profile file exists",
+      new File(p2.directory(), "profile.json").isFile());
 
     Assert.assertFalse(p0.isCurrent());
     Assert.assertFalse(p1.isCurrent());
     Assert.assertFalse(p2.isCurrent());
 
     Assert.assertEquals(
-        account_providers.provider(URI.create("http://www.example.com/accounts0/")),
-        p0.accountCurrent().provider());
+      account_providers.provider(URI.create("http://www.example.com/accounts0/")),
+      p0.accountCurrent().provider());
     Assert.assertEquals(
-        account_providers.provider(URI.create("http://www.example.com/accounts0/")),
-        p1.accountCurrent().provider());
+      account_providers.provider(URI.create("http://www.example.com/accounts0/")),
+      p1.accountCurrent().provider());
     Assert.assertEquals(
-        account_providers.provider(URI.create("http://www.example.com/accounts0/")),
-        p2.accountCurrent().provider());
+      account_providers.provider(URI.create("http://www.example.com/accounts0/")),
+      p2.accountCurrent().provider());
 
     Assert.assertTrue(db.currentProfile().isNone());
   }
 
   @Test
   public final void testOpenCreateReopen()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final AccountProviderCollectionType account_providers = accountProviders();
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(
-            account_providers, accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers,
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -254,8 +288,8 @@ public abstract class ProfilesDatabaseContract {
     final ProfileType p2 = db0.createProfile(acc, "Beaker");
 
     final ProfilesDatabaseType db1 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(
-            account_providers, accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers, AccountBundledCredentialsEmpty.getInstance(), accountsDatabases(), f_pro);
 
     final ProfileType pr0 = db1.profiles().get(p0.id());
     final ProfileType pr1 = db1.profiles().get(p1.id());
@@ -276,35 +310,43 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testOpenCreateUpdatePreferences()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
     final ProfileType p0 = db.createProfile(acc, "Kermit");
     p0.preferencesUpdate(
-        p0.preferences()
-            .toBuilder()
-            .setDateOfBirth(new LocalDate(2010, 10, 30))
-            .build());
+      p0.preferences()
+        .toBuilder()
+        .setDateOfBirth(new LocalDate(2010, 10, 30))
+        .build());
 
     Assert.assertEquals(
-        Option.some(new LocalDate(2010, 10, 30)),
-        p0.preferences().dateOfBirth());
+      Option.some(new LocalDate(2010, 10, 30)),
+      p0.preferences().dateOfBirth());
   }
 
   @Test
   public final void testCreateProfileDuplicate()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -317,12 +359,16 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testCreateProfileEmptyDisplayName()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -333,12 +379,16 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testSetCurrent()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -352,12 +402,16 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testSetCurrentNonexistent()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
 
@@ -370,13 +424,17 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testAnonymous()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountEnabled(
-            accountProviders(), accountsDatabases(), exampleAccountProvider(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        exampleAccountProvider(),
+        f_pro);
 
     Assert.assertEquals(1L, db0.profiles().size());
 
@@ -387,13 +445,17 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testAnonymousSetCurrent()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountEnabled(
-            accountProviders(), accountsDatabases(), exampleAccountProvider(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        exampleAccountProvider(),
+        f_pro);
 
     expected.expect(ProfileAnonymousEnabledException.class);
     db0.setProfileCurrent(ProfileID.create(23));
@@ -401,16 +463,21 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testCreateDelete()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
     final AccountProvider acc0 =
-        fakeProvider("http://www.example.com/accounts0/");
+      fakeProvider("http://www.example.com/accounts0/");
     final AccountProvider acc1 =
-        fakeProvider("http://www.example.com/accounts1/");
+      fakeProvider("http://www.example.com/accounts1/");
 
     final ProfileType p0 = db0.createProfile(acc0, "Kermit");
     db0.setProfileCurrent(p0.id());
@@ -423,16 +490,21 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testDeleteUnknownProvider()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
     final AccountProvider acc0 =
-        fakeProvider("http://www.example.com/accounts0/");
+      fakeProvider("http://www.example.com/accounts0/");
     final AccountProvider acc1 =
-        fakeProvider("http://www.example.com/accounts1/");
+      fakeProvider("http://www.example.com/accounts1/");
 
     final ProfileType p0 = db0.createProfile(acc0, "Kermit");
     db0.setProfileCurrent(p0.id());
@@ -443,14 +515,19 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testDeleteLastAccount()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
     final AccountProvider acc0 =
-        fakeProvider("http://www.example.com/accounts0/");
+      fakeProvider("http://www.example.com/accounts0/");
 
     final ProfileType p0 = db0.createProfile(acc0, "Kermit");
     db0.setProfileCurrent(p0.id());
@@ -461,16 +538,21 @@ public abstract class ProfilesDatabaseContract {
 
   @Test
   public final void testSetCurrentAccount()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
     final AccountProvider acc0 =
-        fakeProvider("http://www.example.com/accounts0/");
+      fakeProvider("http://www.example.com/accounts0/");
     final AccountProvider acc1 =
-        fakeProvider("http://www.example.com/accounts1/");
+      fakeProvider("http://www.example.com/accounts1/");
 
     final ProfileType p0 = db0.createProfile(acc0, "Kermit");
     db0.setProfileCurrent(p0.id());
@@ -487,11 +569,16 @@ public abstract class ProfilesDatabaseContract {
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
     final AccountProvider acc0 =
-        fakeProvider("http://www.example.com/accounts0/");
+      fakeProvider("http://www.example.com/accounts0/");
     final AccountProvider acc1 =
-        fakeProvider("http://www.example.com/accounts1/");
+      fakeProvider("http://www.example.com/accounts1/");
 
     final ProfileType p0 = db0.createProfile(acc0, "Kermit");
     db0.setProfileCurrent(p0.id());
@@ -502,28 +589,556 @@ public abstract class ProfilesDatabaseContract {
 
   private static AccountProvider exampleAccountProvider() {
     return AccountProvider.builder()
-        .setCatalogURI(URI.create("http://www.example.com"))
-        .setSupportEmail("postmaster@example.com")
-        .setId(URI.create("urn:com.example"))
-        .setMainColor("#eeeeee")
-        .setLogo(URI.create("http://www.example.com/logo.png"))
-        .setSubtitle("Example Subtitle")
-        .setDisplayName("Example Provider")
-        .build();
+      .setCatalogURI(URI.create("http://www.example.com"))
+      .setSupportEmail("postmaster@example.com")
+      .setId(URI.create("urn:com.example"))
+      .setMainColor("#eeeeee")
+      .setLogo(URI.create("http://www.example.com/logo.png"))
+      .setSubtitle("Example Subtitle")
+      .setDisplayName("Example Provider")
+      .build();
   }
 
   @Test
   public final void testAnonymousNotEnabled()
-      throws Exception {
+    throws Exception {
     final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
     final File f_pro = new File(f_tmp, "profiles");
 
     final ProfilesDatabaseType db0 =
-        ProfilesDatabase.openWithAnonymousAccountDisabled(accountProviders(), accountsDatabases(), f_pro);
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
 
     expected.expect(ProfileAnonymousDisabledException.class);
     expected.expectMessage(StringContains.containsString("The anonymous profile is not enabled"));
     db0.anonymousProfile();
+  }
+
+  /**
+   * Opening a new profile database with the anonymous account enabled results in all account
+   * providers that are marked as "added automatically" creating new accounts.
+   */
+
+  @Test
+  public final void testAddAutomaticallyAnonymousNew()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProvider provider_0 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:0"))
+        .setDisplayName("Provider 0")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:0"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_1 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:1"))
+        .setDisplayName("Provider 1")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:1"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final AccountProvider provider_2 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:2"))
+        .setDisplayName("Provider 2")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:2"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_3 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:3"))
+        .setDisplayName("Provider 3")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:3"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final TreeMap<URI, AccountProvider> providers = new TreeMap<>();
+    providers.put(provider_0.id(), provider_0);
+    providers.put(provider_1.id(), provider_1);
+    providers.put(provider_2.id(), provider_2);
+    providers.put(provider_3.id(), provider_3);
+
+    final AccountProviderCollectionType account_providers =
+      AccountProviderCollection.create(provider_0, providers);
+
+    final AccountAuthenticationCredentials credentials_3 =
+      AccountAuthenticationCredentials.builder(
+        AccountPIN.create("1234"), AccountBarcode.create("abcd"))
+        .build();
+
+    final AccountBundledCredentialsType credentials =
+      new AccountBundledCredentialsType() {
+        private final HashMap<URI, AccountAuthenticationCredentials> map = new HashMap<>();
+
+        {
+          this.map.put(provider_3.id(), credentials_3);
+        }
+
+        @Override
+        public Map<URI, AccountAuthenticationCredentials> bundledCredentials() {
+          return this.map;
+        }
+
+        @Override
+        public OptionType<AccountAuthenticationCredentials> bundledCredentialsFor(
+          URI accountProvider) {
+          return Option.of(this.map.get(accountProvider));
+        }
+      };
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        account_providers,
+        credentials,
+        accountsDatabases(),
+        provider_0,
+        f_pro);
+
+    final SortedMap<URI, AccountType> by_provider = db0.currentProfileUnsafe().accountsByProvider();
+    Assert.assertTrue(
+      "Account for provider 0 exists",
+      by_provider.containsKey(provider_0.id()));
+    Assert.assertTrue(
+      "Account for provider 1 exists",
+      by_provider.containsKey(provider_1.id()));
+    Assert.assertFalse(
+      "Account for provider 2 does not exist",
+      by_provider.containsKey(provider_2.id()));
+    Assert.assertTrue(
+      "Account for provider 3 exists",
+      by_provider.containsKey(provider_3.id()));
+
+    Assert.assertTrue(by_provider.get(provider_0.id()).credentials().isNone());
+    Assert.assertTrue(by_provider.get(provider_1.id()).credentials().isNone());
+    Assert.assertEquals(
+      Option.some(credentials_3), by_provider.get(provider_3.id()).credentials());
+  }
+
+  /**
+   * Opening an existing profile database with the anonymous account enabled results in all account
+   * providers that are marked as "added automatically" creating new accounts. Account providers
+   * that did not exist at the time the original profile database was created get their accounts
+   * created.
+   */
+
+  @Test
+  public final void testAddAutomaticallyAnonymousExistingButNew()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProvider provider_0 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:0"))
+        .setDisplayName("Provider 0")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:0"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_1 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:1"))
+        .setDisplayName("Provider 1")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:1"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final AccountProvider provider_2 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:2"))
+        .setDisplayName("Provider 2")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:2"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_3 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:3"))
+        .setDisplayName("Provider 3")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:3"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final TreeMap<URI, AccountProvider> providers_initial = new TreeMap<>();
+    providers_initial.put(provider_0.id(), provider_0);
+    providers_initial.put(provider_2.id(), provider_2);
+
+    final TreeMap<URI, AccountProvider> providers_later = new TreeMap<>();
+    providers_later.put(provider_0.id(), provider_0);
+    providers_later.put(provider_1.id(), provider_1);
+    providers_later.put(provider_2.id(), provider_2);
+    providers_later.put(provider_3.id(), provider_3);
+
+    final AccountProviderCollectionType account_providers_initial =
+      AccountProviderCollection.create(provider_0, providers_initial);
+
+    final AccountProviderCollectionType account_providers_later =
+      AccountProviderCollection.create(provider_0, providers_later);
+
+    final AccountAuthenticationCredentials credentials_3 =
+      AccountAuthenticationCredentials.builder(
+        AccountPIN.create("1234"), AccountBarcode.create("abcd"))
+        .build();
+
+    final AccountBundledCredentialsType credentials =
+      new AccountBundledCredentialsType() {
+        private final HashMap<URI, AccountAuthenticationCredentials> map = new HashMap<>();
+
+        {
+          this.map.put(provider_3.id(), credentials_3);
+        }
+
+        @Override
+        public Map<URI, AccountAuthenticationCredentials> bundledCredentials() {
+          return this.map;
+        }
+
+        @Override
+        public OptionType<AccountAuthenticationCredentials> bundledCredentialsFor(
+          URI accountProvider) {
+          return Option.of(this.map.get(accountProvider));
+        }
+      };
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        account_providers_initial,
+        credentials,
+        accountsDatabases(),
+        provider_0,
+        f_pro);
+
+    {
+      final SortedMap<URI, AccountType> by_provider =
+        db0.currentProfileUnsafe().accountsByProvider();
+      Assert.assertTrue(
+        "Account for provider 0 exists",
+        by_provider.containsKey(provider_0.id()));
+      Assert.assertFalse(
+        "Account for provider 1 does not exist",
+        by_provider.containsKey(provider_1.id()));
+      Assert.assertFalse(
+        "Account for provider 2 does not exist",
+        by_provider.containsKey(provider_2.id()));
+      Assert.assertFalse(
+        "Account for provider 3 does not exist",
+        by_provider.containsKey(provider_3.id()));
+    }
+
+    final ProfilesDatabaseType db1 =
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        account_providers_later,
+        credentials,
+        accountsDatabases(),
+        provider_0,
+        f_pro);
+
+    {
+      final SortedMap<URI, AccountType> by_provider =
+        db1.currentProfileUnsafe().accountsByProvider();
+      Assert.assertTrue(
+        "Account for provider 0 exists",
+        by_provider.containsKey(provider_0.id()));
+      Assert.assertTrue(
+        "Account for provider 1 exists",
+        by_provider.containsKey(provider_1.id()));
+      Assert.assertFalse(
+        "Account for provider 2 does not exist",
+        by_provider.containsKey(provider_2.id()));
+      Assert.assertTrue(
+        "Account for provider 3 exists",
+        by_provider.containsKey(provider_3.id()));
+
+      Assert.assertTrue(by_provider.get(provider_0.id()).credentials().isNone());
+      Assert.assertTrue(by_provider.get(provider_1.id()).credentials().isNone());
+      Assert.assertEquals(
+        Option.some(credentials_3), by_provider.get(provider_3.id()).credentials());
+    }
+  }
+
+  /**
+   * Opening a new profile database with the anonymous account disabled results in all account
+   * providers that are marked as "added automatically" creating new accounts.
+   */
+
+  @Test
+  public final void testAddAutomaticallyNamedNew()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProvider provider_0 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:0"))
+        .setDisplayName("Provider 0")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:0"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_1 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:1"))
+        .setDisplayName("Provider 1")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:1"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final AccountProvider provider_2 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:2"))
+        .setDisplayName("Provider 2")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:2"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_3 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:3"))
+        .setDisplayName("Provider 3")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:3"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final TreeMap<URI, AccountProvider> providers = new TreeMap<>();
+    providers.put(provider_0.id(), provider_0);
+    providers.put(provider_1.id(), provider_1);
+    providers.put(provider_2.id(), provider_2);
+    providers.put(provider_3.id(), provider_3);
+
+    final AccountProviderCollectionType account_providers =
+      AccountProviderCollection.create(provider_0, providers);
+
+    final AccountAuthenticationCredentials credentials_3 =
+      AccountAuthenticationCredentials.builder(
+        AccountPIN.create("1234"), AccountBarcode.create("abcd"))
+        .build();
+
+    final AccountBundledCredentialsType credentials =
+      new AccountBundledCredentialsType() {
+        private final HashMap<URI, AccountAuthenticationCredentials> map = new HashMap<>();
+
+        {
+          this.map.put(provider_3.id(), credentials_3);
+        }
+
+        @Override
+        public Map<URI, AccountAuthenticationCredentials> bundledCredentials() {
+          return this.map;
+        }
+
+        @Override
+        public OptionType<AccountAuthenticationCredentials> bundledCredentialsFor(
+          URI accountProvider) {
+          return Option.of(this.map.get(accountProvider));
+        }
+      };
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers,
+        credentials,
+        accountsDatabases(),
+        f_pro);
+
+    db0.setProfileCurrent(db0.createProfile(provider_0, "Someone").id());
+
+    final SortedMap<URI, AccountType> by_provider = db0.currentProfileUnsafe().accountsByProvider();
+    Assert.assertTrue(
+      "Account for provider 0 exists",
+      by_provider.containsKey(provider_0.id()));
+    Assert.assertTrue(
+      "Account for provider 1 exists",
+      by_provider.containsKey(provider_1.id()));
+    Assert.assertFalse(
+      "Account for provider 2 does not exist",
+      by_provider.containsKey(provider_2.id()));
+    Assert.assertTrue(
+      "Account for provider 3 exists",
+      by_provider.containsKey(provider_3.id()));
+
+    Assert.assertTrue(by_provider.get(provider_0.id()).credentials().isNone());
+    Assert.assertTrue(by_provider.get(provider_1.id()).credentials().isNone());
+    Assert.assertEquals(
+      Option.some(credentials_3), by_provider.get(provider_3.id()).credentials());
+  }
+
+  /**
+   * Opening an existing profile database with the anonymous account disabled results in all account
+   * providers that are marked as "added automatically" creating new accounts. Account providers
+   * that did not exist at the time the original profile database was created get their accounts
+   * created.
+   */
+
+  @Test
+  public final void testAddAutomaticallyNamedExistingButNew()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProvider provider_0 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:0"))
+        .setDisplayName("Provider 0")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:0"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_1 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:1"))
+        .setDisplayName("Provider 1")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:1"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final AccountProvider provider_2 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:2"))
+        .setDisplayName("Provider 2")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:2"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .build();
+
+    final AccountProvider provider_3 =
+      AccountProvider.builder()
+        .setId(URI.create("urn:3"))
+        .setDisplayName("Provider 3")
+        .setSubtitle("Subtitle")
+        .setLogo(URI.create("urn:3"))
+        .setCatalogURI(URI.create("http://www.example.com"))
+        .setAddAutomatically(true)
+        .build();
+
+    final TreeMap<URI, AccountProvider> providers_initial = new TreeMap<>();
+    providers_initial.put(provider_0.id(), provider_0);
+    providers_initial.put(provider_2.id(), provider_2);
+
+    final TreeMap<URI, AccountProvider> providers_later = new TreeMap<>();
+    providers_later.put(provider_0.id(), provider_0);
+    providers_later.put(provider_1.id(), provider_1);
+    providers_later.put(provider_2.id(), provider_2);
+    providers_later.put(provider_3.id(), provider_3);
+
+    final AccountProviderCollectionType account_providers_initial =
+      AccountProviderCollection.create(provider_0, providers_initial);
+
+    final AccountProviderCollectionType account_providers_later =
+      AccountProviderCollection.create(provider_0, providers_later);
+
+    final AccountAuthenticationCredentials credentials_3 =
+      AccountAuthenticationCredentials.builder(
+        AccountPIN.create("1234"), AccountBarcode.create("abcd"))
+        .build();
+
+    final AccountBundledCredentialsType credentials =
+      new AccountBundledCredentialsType() {
+        private final HashMap<URI, AccountAuthenticationCredentials> map = new HashMap<>();
+
+        {
+          this.map.put(provider_3.id(), credentials_3);
+        }
+
+        @Override
+        public Map<URI, AccountAuthenticationCredentials> bundledCredentials() {
+          return this.map;
+        }
+
+        @Override
+        public OptionType<AccountAuthenticationCredentials> bundledCredentialsFor(
+          URI accountProvider) {
+          return Option.of(this.map.get(accountProvider));
+        }
+      };
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers_initial,
+        credentials,
+        accountsDatabases(),
+        f_pro);
+
+    db0.setProfileCurrent(db0.createProfile(provider_0, "Someone").id());
+
+    {
+      final SortedMap<URI, AccountType> by_provider =
+        db0.currentProfileUnsafe().accountsByProvider();
+      Assert.assertTrue(
+        "Account for provider 0 exists",
+        by_provider.containsKey(provider_0.id()));
+      Assert.assertFalse(
+        "Account for provider 1 does not exist",
+        by_provider.containsKey(provider_1.id()));
+      Assert.assertFalse(
+        "Account for provider 2 does not exist",
+        by_provider.containsKey(provider_2.id()));
+      Assert.assertFalse(
+        "Account for provider 3 does not exist",
+        by_provider.containsKey(provider_3.id()));
+    }
+
+    final ProfilesDatabaseType db1 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers_later,
+        credentials,
+        accountsDatabases(),
+        f_pro);
+
+    db1.setProfileCurrent(
+      ((Some<ProfileType>) db1.findProfileWithDisplayName("Someone"))
+        .get()
+        .id());
+
+    {
+      final SortedMap<URI, AccountType> by_provider =
+        db1.currentProfileUnsafe().accountsByProvider();
+      Assert.assertTrue(
+        "Account for provider 0 exists",
+        by_provider.containsKey(provider_0.id()));
+      Assert.assertTrue(
+        "Account for provider 1 exists",
+        by_provider.containsKey(provider_1.id()));
+      Assert.assertFalse(
+        "Account for provider 2 does not exist",
+        by_provider.containsKey(provider_2.id()));
+      Assert.assertTrue(
+        "Account for provider 3 exists",
+        by_provider.containsKey(provider_3.id()));
+
+      Assert.assertTrue(by_provider.get(provider_0.id()).credentials().isNone());
+      Assert.assertTrue(by_provider.get(provider_1.id()).credentials().isNone());
+      Assert.assertEquals(
+        Option.some(credentials_3), by_provider.get(provider_3.id()).credentials());
+    }
   }
 
   private AccountProviderCollectionType accountProviders() {
@@ -537,12 +1152,12 @@ public abstract class ProfilesDatabaseContract {
 
   private static AccountProvider fakeProvider(final String provider_id) {
     return AccountProvider.builder()
-        .setId(URI.create(provider_id))
-        .setDisplayName("Fake Library")
-        .setSubtitle("Imaginary books")
-        .setLogo(URI.create("http://www.example.com/logo.png"))
-        .setCatalogURI(URI.create("http://www.example.com/accounts0/feed.xml"))
-        .setSupportEmail("postmaster@example.com")
-        .build();
+      .setId(URI.create(provider_id))
+      .setDisplayName("Fake Library")
+      .setSubtitle("Imaginary books")
+      .setLogo(URI.create("http://www.example.com/logo.png"))
+      .setCatalogURI(URI.create("http://www.example.com/accounts0/feed.xml"))
+      .setSupportEmail("postmaster@example.com")
+      .build();
   }
 }

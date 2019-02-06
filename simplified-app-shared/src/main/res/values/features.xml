@@ -61,6 +61,9 @@
   <!-- If true, the application presents selectable profiles. -->
   <bool name="feature_profiles_enabled">false</bool>
 
+  <!-- If true, the application presents a settings option to manage accounts. -->
+  <bool name="feature_manage_accounts">true</bool>
+
   <!-- The default Adobe vendor ID -->
   <string name="feature_adobe_vendor_id">NYPL</string>
 

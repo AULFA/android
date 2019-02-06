@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.io7m.jfunctional.FunctionType;
@@ -32,6 +33,9 @@ import org.nypl.simplified.app.reader.ReaderHTTPServerType;
 import org.nypl.simplified.app.reader.ReaderReadiumEPUBLoader;
 import org.nypl.simplified.app.reader.ReaderReadiumEPUBLoaderType;
 import org.nypl.simplified.assertions.Assertions;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsEmpty;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsJSON;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsType;
 import org.nypl.simplified.books.accounts.AccountProviderCollection;
 import org.nypl.simplified.books.accounts.AccountProvidersJSON;
 import org.nypl.simplified.books.accounts.AccountsDatabases;
@@ -78,6 +82,7 @@ import org.nypl.simplified.tenprint.TenPrintGeneratorType;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
@@ -131,6 +136,7 @@ public final class Simplified extends Application {
   private ListeningExecutorService exec_background;
   private ExecutorService exec_profile_timer;
   private BundledContentResolverType bundled_content_resolver;
+  private AccountBundledCredentialsType bundled_credentials;
 
   /**
    * A specification of whether or not an action bar is wanted in an activity.
@@ -183,6 +189,15 @@ public final class Simplified extends Application {
   public static AccountProviderCollection getAccountProviders() {
     final Simplified i = Simplified.checkInitialized();
     return i.account_providers;
+  }
+
+  /**
+   * @return The account providers
+   */
+
+  public static AccountBundledCredentialsType getAccountBundledCredentials() {
+    final Simplified i = Simplified.checkInitialized();
+    return i.bundled_credentials;
   }
 
   /**
@@ -399,6 +414,7 @@ public final class Simplified extends Application {
   private static ProfilesDatabaseType createProfileDatabase(
       final Resources resources,
       final AccountProviderCollection account_providers,
+      final AccountBundledCredentialsType account_bundled_credentials,
       final File directory)
       throws ProfileDatabaseException {
 
@@ -412,6 +428,7 @@ public final class Simplified extends Application {
       LOG.debug("opening profile database with anonymous profile");
       return ProfilesDatabase.openWithAnonymousAccountEnabled(
           account_providers,
+          account_bundled_credentials,
           AccountsDatabases.get(),
           account_providers.providerDefault(),
           directory);
@@ -419,7 +436,10 @@ public final class Simplified extends Application {
 
     LOG.debug("opening profile database without anonymous profile");
     return ProfilesDatabase.openWithAnonymousAccountDisabled(
-        account_providers, AccountsDatabases.get(), directory);
+        account_providers,
+        account_bundled_credentials,
+        AccountsDatabases.get(),
+        directory);
   }
 
   private static BookCoverProviderType createCoverProvider(
@@ -640,9 +660,20 @@ public final class Simplified extends Application {
     }
 
     try {
+      LOG.debug("initializing bundled credentials");
+      this.bundled_credentials = createBundledCredentials(asset_manager);
+    } catch (final FileNotFoundException e) {
+      LOG.debug("could not initialize bundled credentials: ", e);
+      this.bundled_credentials = AccountBundledCredentialsEmpty.getInstance();
+    } catch (final IOException e) {
+      LOG.debug("could not initialize bundled credentials: ", e);
+      throw new IllegalStateException("could not initialize bundled credentials", e);
+    }
+
+    try {
       LOG.debug("initializing profiles and accounts");
       this.profiles = createProfileDatabase(
-          resources, this.account_providers, this.directory_profiles);
+        resources, this.account_providers, this.bundled_credentials, this.directory_profiles);
     } catch (final ProfileDatabaseException e) {
       throw new IllegalStateException("Could not initialize profile database", e);
     }
@@ -715,6 +746,14 @@ public final class Simplified extends Application {
 
     LOG.debug("finished booting");
     Simplified.INSTANCE = this;
+  }
+
+  private AccountBundledCredentialsType createBundledCredentials(
+    final AssetManager asset_manager) throws IOException {
+
+    try (final InputStream stream = asset_manager.open("account_bundled_credentials.json")) {
+      return AccountBundledCredentialsJSON.deserializeFromStream(new ObjectMapper(), stream);
+    }
   }
 
   private static final class NetworkConnectivity implements NetworkConnectivityType {

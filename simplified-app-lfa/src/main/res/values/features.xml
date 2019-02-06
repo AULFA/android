@@ -16,6 +16,9 @@
   <!-- If true, the application presents selectable profiles. -->
   <bool name="feature_profiles_enabled">true</bool>
 
+  <!-- If true, the application presents a settings option to manage accounts. -->
+  <bool name="feature_manage_accounts">false</bool>
+
   <!-- If true, a Holds tab is shown. -->
   <!-- This can be disabled for book collections that do not have holds. -->
   <bool name="feature_holds_enabled">false</bool>

@@ -158,6 +158,12 @@ public abstract class AccountProvider implements Comparable<AccountProvider> {
   public abstract OptionType<String> styleNameOverride();
 
   /**
+   * @return {@code true} iff the account should be added by default
+   */
+
+  public abstract boolean addAutomatically();
+
+  /**
    * Determine the correct catalog URI to use for readers of a given age.
    * @param age The age of the reader
    * @return The correct catalog URI for the given age
@@ -294,6 +300,14 @@ public abstract class AccountProvider implements Comparable<AccountProvider> {
     public abstract Builder setSupportsHelpCenter(boolean supports);
 
     /**
+     * @see #addAutomatically()
+     * @param auto {@code true} iff the account should be added automatically
+     * @return The current builder
+     */
+
+    public abstract Builder setAddAutomatically(boolean auto);
+
+    /**
      * @see #catalogURI()
      * @param uri The default catalog URI
      * @return The current builder
@@ -409,6 +423,7 @@ public abstract class AccountProvider implements Comparable<AccountProvider> {
     b.setSupportsReservations(false);
     b.setSupportsCardCreator(false);
     b.setSupportsHelpCenter(false);
+    b.setAddAutomatically(false);
     b.setSupportEmail(Option.<String>none());
     b.setCatalogURIForOver13s(Option.<URI>none());
     b.setCatalogURIForUnder13s(Option.<URI>none());

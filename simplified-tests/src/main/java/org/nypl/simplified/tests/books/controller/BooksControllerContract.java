@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.accounts.AccountBarcode;
+import org.nypl.simplified.books.accounts.AccountBundledCredentialsEmpty;
 import org.nypl.simplified.books.accounts.AccountEvent;
 import org.nypl.simplified.books.accounts.AccountPIN;
 import org.nypl.simplified.books.accounts.AccountProvider;
@@ -82,7 +83,8 @@ import java.util.concurrent.Executors;
 
 public abstract class BooksControllerContract {
 
-  @Rule public ExpectedException expected = ExpectedException.none();
+  @Rule
+  public ExpectedException expected = ExpectedException.none();
 
   private ExecutorService executor_downloads;
   private ExecutorService executor_books;
@@ -99,13 +101,13 @@ public abstract class BooksControllerContract {
 
   private static AccountProvider fakeProvider(final String provider_id) {
     return AccountProvider.builder()
-        .setId(URI.create(provider_id))
-        .setDisplayName("Fake Library")
-        .setSubtitle("Imaginary books")
-        .setLogo(URI.create("http://example.com/logo.png"))
-        .setCatalogURI(URI.create("http://example.com/accounts0/feed.xml"))
-        .setSupportEmail("postmaster@example.com")
-        .build();
+      .setId(URI.create(provider_id))
+      .setDisplayName("Fake Library")
+      .setSubtitle("Imaginary books")
+      .setLogo(URI.create("http://example.com/logo.png"))
+      .setCatalogURI(URI.create("http://example.com/accounts0/feed.xml"))
+      .setSupportEmail("postmaster@example.com")
+      .build();
   }
 
   private static AccountProviderCollection accountProviders(final Unit unit) {
@@ -128,59 +130,59 @@ public abstract class BooksControllerContract {
 
   private static AccountProvider fakeAuthProvider(final String uri) {
     return fakeProvider(uri)
-        .toBuilder()
-        .setAuthentication(Option.some(AccountProviderAuthenticationDescription.builder()
-            .setLoginURI(URI.create(uri))
-            .setPassCodeLength(4)
-            .setPassCodeMayContainLetters(true)
-            .build()))
-        .build();
+      .toBuilder()
+      .setAuthentication(Option.some(AccountProviderAuthenticationDescription.builder()
+        .setLoginURI(URI.create(uri))
+        .setPassCodeLength(4)
+        .setPassCodeMayContainLetters(true)
+        .build()))
+      .build();
   }
 
   private static OptionType<AccountAuthenticationCredentials> correctCredentials() {
     return Option.of(
-        AccountAuthenticationCredentials.builder(
-            AccountPIN.create("1234"), AccountBarcode.create("abcd"))
-            .build());
+      AccountAuthenticationCredentials.builder(
+        AccountPIN.create("1234"), AccountBarcode.create("abcd"))
+        .build());
   }
 
   private BooksControllerType controller(
-      final ExecutorService exec,
-      final HTTPType http,
-      final BookRegistryType books,
-      final ProfilesDatabaseType profiles,
-      final DownloaderType downloader,
-      final FunctionType<Unit, AccountProviderCollection> account_providers,
-      final ExecutorService timer_exec) {
+    final ExecutorService exec,
+    final HTTPType http,
+    final BookRegistryType books,
+    final ProfilesDatabaseType profiles,
+    final DownloaderType downloader,
+    final FunctionType<Unit, AccountProviderCollection> account_providers,
+    final ExecutorService timer_exec) {
 
     final OPDSFeedParserType parser =
-        OPDSFeedParser.newParser(OPDSAcquisitionFeedEntryParser.newParser());
+      OPDSFeedParser.newParser(OPDSAcquisitionFeedEntryParser.newParser());
     final OPDSFeedTransportType<OptionType<HTTPAuthType>> transport =
-        FeedHTTPTransport.newTransport(http);
+      FeedHTTPTransport.newTransport(http);
     final BundledContentResolverType bundled_content = uri -> {
       throw new FileNotFoundException(uri.toString());
     };
     final FeedLoaderType feed_loader =
-        FeedLoader.newFeedLoader(exec, books, bundled_content, parser, transport, OPDSSearchParser.newParser());
+      FeedLoader.newFeedLoader(exec, books, bundled_content, parser, transport, OPDSSearchParser.newParser());
 
     final File analytics_directory =
-        new File("/tmp/aulfa-android-tests");
+      new File("/tmp/aulfa-android-tests");
 
     final AnalyticsLogger analytics_logger =
-        AnalyticsLogger.create(analytics_directory);
+      AnalyticsLogger.create(analytics_directory);
 
     return Controller.create(
-        exec,
-        http,
-        parser,
-        feed_loader,
-        downloader,
-        profiles,
-        analytics_logger,
-        books,
-        bundled_content,
-        account_providers,
-        timer_exec);
+      exec,
+      http,
+      parser,
+      feed_loader,
+      downloader,
+      profiles,
+      analytics_logger,
+      books,
+      bundled_content,
+      account_providers,
+      timer_exec);
   }
 
   @Before
@@ -216,7 +218,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncRemoteNon401() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -225,15 +227,15 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultError<>(
-            400,
-            "BAD REQUEST",
-            0L,
-            new HashMap<>(),
-            0L,
-            new ByteArrayInputStream(new byte[0]),
-            Option.none()));
+      "urn:fake-auth:0",
+      new HTTPResultError<>(
+        400,
+        "BAD REQUEST",
+        0L,
+        new HashMap<>(),
+        0L,
+        new ByteArrayInputStream(new byte[0]),
+        Option.none()));
 
     this.expected.expect(ExecutionException.class);
     this.expected.expectCause(IsInstanceOf.instanceOf(IOException.class));
@@ -250,7 +252,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncRemote401() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -261,15 +263,15 @@ public abstract class BooksControllerContract {
     Assert.assertTrue(account.credentials().isSome());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultError<>(
-            401,
-            "UNAUTHORIZED",
-            0L,
-            new HashMap<>(),
-            0L,
-            new ByteArrayInputStream(new byte[0]),
-            Option.none()));
+      "urn:fake-auth:0",
+      new HTTPResultError<>(
+        401,
+        "UNAUTHORIZED",
+        0L,
+        new HashMap<>(),
+        0L,
+        new ByteArrayInputStream(new byte[0]),
+        Option.none()));
 
     controller.booksSync(account).get();
 
@@ -286,7 +288,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncWithoutAuthSupport() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeProvider("urn:fake:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -309,7 +311,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncMissingCredentials() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -331,7 +333,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncBadFeed() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -340,14 +342,14 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            new ByteArrayInputStream(new byte[]{0x23, 0x10, 0x39, 0x59}),
-            4L,
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        new ByteArrayInputStream(new byte[]{0x23, 0x10, 0x39, 0x59}),
+        4L,
+        new HashMap<>(),
+        0L));
 
     this.expected.expect(ExecutionException.class);
     this.expected.expectCause(IsInstanceOf.instanceOf(OPDSParseException.class));
@@ -364,7 +366,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncNewEntries() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -373,14 +375,14 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksSyncNewEntries.xml"),
-            resourceSize("testBooksSyncNewEntries.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksSyncNewEntries.xml"),
+        resourceSize("testBooksSyncNewEntries.xml"),
+        new HashMap<>(),
+        0L));
 
     this.book_registry.bookEvents().subscribe(this.book_events::add);
 
@@ -389,27 +391,27 @@ public abstract class BooksControllerContract {
     Assert.assertEquals(3L, this.book_registry.books().size());
 
     this.book_registry.bookOrException(
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
     this.book_registry.bookOrException(
-        BookID.create("f9a7536a61caa60f870b3fbe9d4304b2d59ea03c71cbaee82609e3779d1e6e0f"));
+      BookID.create("f9a7536a61caa60f870b3fbe9d4304b2d59ea03c71cbaee82609e3779d1e6e0f"));
     this.book_registry.bookOrException(
-        BookID.create("251cc5f69cd2a329bb6074b47a26062e59f5bb01d09d14626f41073f63690113"));
+      BookID.create("251cc5f69cd2a329bb6074b47a26062e59f5bb01d09d14626f41073f63690113"));
 
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        0,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
+      BookStatusEvent.class,
+      this.book_events,
+      0,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        1,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
+      BookStatusEvent.class,
+      this.book_events,
+      1,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        2,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
+      BookStatusEvent.class,
+      this.book_events,
+      2,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
   }
 
   /**
@@ -422,7 +424,7 @@ public abstract class BooksControllerContract {
   public final void testBooksSyncRemoveEntries() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -435,23 +437,23 @@ public abstract class BooksControllerContract {
      */
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksSyncNewEntries.xml"),
-            resourceSize("testBooksSyncNewEntries.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksSyncNewEntries.xml"),
+        resourceSize("testBooksSyncNewEntries.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     this.book_registry.bookOrException(
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
     this.book_registry.bookOrException(
-        BookID.create("f9a7536a61caa60f870b3fbe9d4304b2d59ea03c71cbaee82609e3779d1e6e0f"));
+      BookID.create("f9a7536a61caa60f870b3fbe9d4304b2d59ea03c71cbaee82609e3779d1e6e0f"));
     this.book_registry.bookOrException(
-        BookID.create("251cc5f69cd2a329bb6074b47a26062e59f5bb01d09d14626f41073f63690113"));
+      BookID.create("251cc5f69cd2a329bb6074b47a26062e59f5bb01d09d14626f41073f63690113"));
 
     this.book_registry.bookEvents().subscribe(this.book_events::add);
 
@@ -460,36 +462,36 @@ public abstract class BooksControllerContract {
      */
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksSyncRemoveEntries.xml"),
-            resourceSize("testBooksSyncRemoveEntries.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksSyncRemoveEntries.xml"),
+        resourceSize("testBooksSyncRemoveEntries.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
     Assert.assertEquals(1L, this.book_registry.books().size());
 
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        0,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
+      BookStatusEvent.class,
+      this.book_events,
+      0,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        1,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
+      BookStatusEvent.class,
+      this.book_events,
+      1,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        2,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
+      BookStatusEvent.class,
+      this.book_events,
+      2,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
 
     this.book_registry.bookOrException(
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f"));
 
     checkBookIsNotInRegistry("f9a7536a61caa60f870b3fbe9d4304b2d59ea03c71cbaee82609e3779d1e6e0f");
     checkBookIsNotInRegistry("251cc5f69cd2a329bb6074b47a26062e59f5bb01d09d14626f41073f63690113");
@@ -514,7 +516,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeCorrectURI() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -523,24 +525,24 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI.xml"),
-            resourceSize("testBooksRevokeCorrectURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI.xml"),
+        resourceSize("testBooksRevokeCorrectURI.xml"),
+        new HashMap<>(),
+        0L));
 
     this.http.addResponse(
-        "urn:book:0:revoke",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI_Response.xml"),
-            resourceSize("testBooksRevokeCorrectURI_Response.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:book:0:revoke",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI_Response.xml"),
+        resourceSize("testBooksRevokeCorrectURI_Response.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
@@ -548,15 +550,15 @@ public abstract class BooksControllerContract {
     controller.bookRevoke(account, BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f")).get();
 
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        0,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
+      BookStatusEvent.class,
+      this.book_events,
+      0,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_CHANGED));
     EventAssertions.isTypeAndMatches(
-        BookStatusEvent.class,
-        this.book_events,
-        1,
-        e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
+      BookStatusEvent.class,
+      this.book_events,
+      1,
+      e -> Assert.assertEquals(e.type(), BookStatusEvent.Type.BOOK_REMOVED));
 
     checkBookIsNotInRegistry("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
   }
@@ -571,7 +573,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeWithoutCredentials() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -580,30 +582,30 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI.xml"),
-            resourceSize("testBooksRevokeCorrectURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI.xml"),
+        resourceSize("testBooksRevokeCorrectURI.xml"),
+        new HashMap<>(),
+        0L));
 
     this.http.addResponse(
-        "urn:book:0:revoke",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI_Response.xml"),
-            resourceSize("testBooksRevokeCorrectURI_Response.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:book:0:revoke",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI_Response.xml"),
+        resourceSize("testBooksRevokeCorrectURI_Response.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
     account.setCredentials(Option.none());
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     try {
       controller.bookRevoke(account, book_id).get();
@@ -613,8 +615,8 @@ public abstract class BooksControllerContract {
     }
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
   }
 
   /**
@@ -627,7 +629,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeWithoutURI() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -636,19 +638,19 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeWithoutURI.xml"),
-            resourceSize("testBooksRevokeWithoutURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeWithoutURI.xml"),
+        resourceSize("testBooksRevokeWithoutURI.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     try {
       controller.bookRevoke(account, book_id).get();
@@ -658,8 +660,8 @@ public abstract class BooksControllerContract {
     }
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
   }
 
   /**
@@ -672,7 +674,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeEmptyFeed() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -681,29 +683,29 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI.xml"),
-            resourceSize("testBooksRevokeCorrectURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI.xml"),
+        resourceSize("testBooksRevokeCorrectURI.xml"),
+        new HashMap<>(),
+        0L));
 
     this.http.addResponse(
-        "urn:book:0:revoke",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeEmptyFeed.xml"),
-            resourceSize("testBooksRevokeEmptyFeed.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:book:0:revoke",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeEmptyFeed.xml"),
+        resourceSize("testBooksRevokeEmptyFeed.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     try {
       controller.bookRevoke(account, book_id).get();
@@ -713,8 +715,8 @@ public abstract class BooksControllerContract {
     }
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
   }
 
   /**
@@ -727,7 +729,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeGarbage() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -736,29 +738,29 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI.xml"),
-            resourceSize("testBooksRevokeCorrectURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI.xml"),
+        resourceSize("testBooksRevokeCorrectURI.xml"),
+        new HashMap<>(),
+        0L));
 
     this.http.addResponse(
-        "urn:book:0:revoke",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            new ByteArrayInputStream(new byte[0]),
-            0L,
-            new HashMap<>(),
-            0L));
+      "urn:book:0:revoke",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        new ByteArrayInputStream(new byte[0]),
+        0L,
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     try {
       controller.bookRevoke(account, book_id).get();
@@ -768,8 +770,8 @@ public abstract class BooksControllerContract {
     }
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
   }
 
   /**
@@ -782,7 +784,7 @@ public abstract class BooksControllerContract {
   public final void testBooksDelete() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -791,26 +793,26 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksDelete.xml"),
-            resourceSize("testBooksDelete.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksDelete.xml"),
+        resourceSize("testBooksDelete.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     Assert.assertTrue(
-        "Book must not have a saved EPUB file",
-        this.book_registry.bookOrException(book_id)
-            .book()
-            .file()
-            .isNone());
+      "Book must not have a saved EPUB file",
+      this.book_registry.bookOrException(book_id)
+        .book()
+        .file()
+        .isNone());
 
     /*
      * Manually reach into the database and create a book in order to have something to delete.
@@ -820,15 +822,15 @@ public abstract class BooksControllerContract {
       final BookDatabaseEntryType database_entry = account.bookDatabase().entry(book_id);
       database_entry.writeEPUB(File.createTempFile("book", ".epub"));
       this.book_registry.update(
-          BookWithStatus.create(
-              database_entry.book(), BookStatus.fromBook(database_entry.book())));
+        BookWithStatus.create(
+          database_entry.book(), BookStatus.fromBook(database_entry.book())));
     }
 
     final OptionType<File> created_file =
-        this.book_registry.bookOrException(book_id).book().file();
+      this.book_registry.bookOrException(book_id).book().file();
     Assert.assertTrue(
-        "Book must have a saved EPUB file",
-        created_file.isSome());
+      "Book must have a saved EPUB file",
+      created_file.isSome());
 
     final File file = ((Some<File>) created_file).get();
     Assert.assertTrue("EPUB must exist", file.isFile());
@@ -837,11 +839,9 @@ public abstract class BooksControllerContract {
     controller.bookDelete(account, book_id).get();
 
     Assert.assertTrue(
-        "Book must not have a saved EPUB file",
-        this.book_registry.bookOrException(book_id)
-            .book()
-            .file()
-            .isNone());
+      "Book must not have a saved EPUB file",
+      this.book_registry.book(book_id)
+        .isNone());
 
     Assert.assertFalse("EPUB must not exist", file.exists());
   }
@@ -856,7 +856,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeDismissOK() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -865,29 +865,29 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksRevokeCorrectURI.xml"),
-            resourceSize("testBooksRevokeCorrectURI.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksRevokeCorrectURI.xml"),
+        resourceSize("testBooksRevokeCorrectURI.xml"),
+        new HashMap<>(),
+        0L));
 
     this.http.addResponse(
-        "urn:book:0:revoke",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            new ByteArrayInputStream(new byte[0]),
-            0L,
-            new HashMap<>(),
-            0L));
+      "urn:book:0:revoke",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        new ByteArrayInputStream(new byte[0]),
+        0L,
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     try {
       controller.bookRevoke(account, book_id).get();
@@ -897,14 +897,14 @@ public abstract class BooksControllerContract {
     }
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusRevokeFailed.class));
 
     controller.bookRevokeFailedDismiss(account, book_id).get();
 
     Assert.assertThat(
-        this.book_registry.bookOrException(book_id).status(),
-        IsInstanceOf.instanceOf(BookStatusLoaned.class));
+      this.book_registry.bookOrException(book_id).status(),
+      IsInstanceOf.instanceOf(BookStatusLoaned.class));
   }
 
   /**
@@ -917,7 +917,7 @@ public abstract class BooksControllerContract {
   public final void testBooksRevokeDismissHasNotFailed() throws Exception {
 
     final BooksControllerType controller =
-        controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
+      controller(this.executor_books, http, this.book_registry, this.profiles, this.downloader, BooksControllerContract::accountProviders, this.executor_timer);
 
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
@@ -926,19 +926,19 @@ public abstract class BooksControllerContract {
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
-        "urn:fake-auth:0",
-        new HTTPResultOK<>(
-            "OK",
-            200,
-            resource("testBooksSyncNewEntries.xml"),
-            resourceSize("testBooksSyncNewEntries.xml"),
-            new HashMap<>(),
-            0L));
+      "urn:fake-auth:0",
+      new HTTPResultOK<>(
+        "OK",
+        200,
+        resource("testBooksSyncNewEntries.xml"),
+        resourceSize("testBooksSyncNewEntries.xml"),
+        new HashMap<>(),
+        0L));
 
     controller.booksSync(account).get();
 
     final BookID book_id =
-        BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
+      BookID.create("39434e1c3ea5620fdcc2303c878da54cc421175eb09ce1a6709b54589eb8711f");
 
     final BookStatusType status_before = this.book_registry.bookOrException(book_id).status();
     Assert.assertThat(status_before, IsInstanceOf.instanceOf(BookStatusLoaned.class));
@@ -969,10 +969,11 @@ public abstract class BooksControllerContract {
   }
 
   private ProfilesDatabaseType profilesDatabaseWithoutAnonymous(final File dir_profiles)
-      throws ProfileDatabaseException {
+    throws ProfileDatabaseException {
     return ProfilesDatabase.openWithAnonymousAccountDisabled(
-        accountProviders(Unit.unit()),
-        AccountsDatabases.get(),
-        dir_profiles);
+      accountProviders(Unit.unit()),
+      AccountBundledCredentialsEmpty.getInstance(),
+      AccountsDatabases.get(),
+      dir_profiles);
   }
 }
