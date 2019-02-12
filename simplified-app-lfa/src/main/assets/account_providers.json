@@ -41,7 +41,7 @@
     "supportsCardCreator": false,
     "supportsHelpCenter": false,
     "addAutomatically": true,
-    "catalogUrl": "https://lfabooksthattravel.cantookstation.com/catalog.atom",
+    "catalogUrl": "https://lfabooksthattravel.cantookstation.com/catalog/featuredresources.atom",
     "mainColor": "#ec1c24"
   },
   {
