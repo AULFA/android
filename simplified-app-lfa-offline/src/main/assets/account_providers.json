@@ -1,0 +1,17 @@
+[
+  {
+    "id": "urn:provider:com.cantookstation.lfa.bundled",
+    "name": "Offline Catalogue",
+    "subtitle": "A catalogue that can be browsed offline",
+    "logo": "simplified-asset:bundled.png",
+    "supportsSimplyESync": false,
+    "supportsBarcodeScanner": false,
+    "supportsBarcodeDisplay": false,
+    "supportsReservations": false,
+    "supportsCardCreator": false,
+    "supportsHelpCenter": false,
+    "addAutomatically": true,
+    "catalogUrl": "simplified-bundled:feeds/7A0A560E3AF8DDDD996E01FD43C618413A8A2B6CC118933F950C3618939EE1CD.atom",
+    "mainColor": "#ec1c24"
+  }
+]

@@ -1,0 +1,7 @@
+[
+  {
+    "id":    "urn:provider:com.cantookstation.lfa.bundled",
+    "short": "offline",
+    "zip":   "bundles/offline.zip"
+  }
+]

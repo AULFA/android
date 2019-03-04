@@ -1,0 +1,63 @@
+apply plugin: 'com.android.application'
+
+android {
+  compileSdkVersion 27
+  buildToolsVersion "27.0.2"
+  packagingOptions {
+    exclude 'META-INF/LICENSE'
+  }
+  signingConfigs {
+    release {
+      keyAlias findProperty("au.org.libraryforall.keyAlias")
+      keyPassword findProperty("au.org.libraryforall.keyPassword")
+      storeFile file("keystore.jks")
+      storePassword findProperty("au.org.libraryforall.storePassword")
+    }
+  }
+  buildTypes {
+    release {
+      signingConfig signingConfigs.release
+    }
+  }
+  lintOptions {
+    checkReleaseBuilds false
+  }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+description = 'simplified-app-lfa'
+
+def jsonFile   = file("${project.rootDir}/simplified-app-lfa-offline/bundles.json")
+def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+
+parsedJson.each { bundle ->
+  def zipFile   = file("${project.rootDir}/simplified-app-lfa-offline/${bundle.zip}")
+  def outputDir = file("src/main/assets/")
+  def taskName  = "unzipBundled_${bundle.short}"
+
+  logger.lifecycle("instantiating task {} to unzip {} to {}", taskName, zipFile, outputDir)
+  task (taskName, type: Copy) {
+    from zipTree(zipFile)
+    into outputDir
+  }
+}
+
+task copyCredentials(type: Copy) {
+  from "${project.rootDir}/simplified-app-lfa-offline/credentials.json"
+  rename { name -> "account_bundled_credentials.json" }
+  into "${project.rootDir}/simplified-app-lfa-offline/src/main/assets/"
+}
+
+afterEvaluate {
+  android.applicationVariants.all { variant ->
+    variant.javaCompiler.dependsOn(tasks.matching { Task task -> task.name.startsWith("unzipBundled_") })
+    variant.javaCompiler.dependsOn(copyCredentials)
+  }
+}
+
+dependencies {
+  compile project(':simplified-app-shared')
+}
