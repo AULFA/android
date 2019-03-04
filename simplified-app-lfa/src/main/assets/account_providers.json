@@ -45,21 +45,6 @@
     "mainColor": "#ec1c24"
   },
   {
-    "id": "urn:provider:com.cantookstation.lfalaos",
-    "name": "Laos",
-    "subtitle": "Books in Lao",
-    "logo": "simplified-asset:logos/laos.png",
-    "supportsSimplyESync": false,
-    "supportsBarcodeScanner": false,
-    "supportsBarcodeDisplay": false,
-    "supportsReservations": false,
-    "supportsCardCreator": false,
-    "supportsHelpCenter": false,
-    "addAutomatically": true,
-    "catalogUrl": "https://lfalaos.cantookstation.com/catalog.atom",
-    "mainColor": "#ec1c24"
-  },
-  {
     "id": "urn:provider:la.dp.openbookshelf",
     "name": "Open Bookshelf",
     "subtitle": "Open Bookshelf",
