@@ -134,6 +134,12 @@ public abstract class ProfilesDatabaseContract {
     return AccountsDatabases.get();
   }
 
+  /**
+   * Missing profile definitions no longer cause failures.
+   *
+   * @throws Exception On errors
+   */
+
   @Test
   public final void testOpenExistingJSONMissing()
     throws Exception {
@@ -144,8 +150,6 @@ public abstract class ProfilesDatabaseContract {
     final File f_0 = new File(f_pro, "0");
     f_0.mkdirs();
 
-    expected.expect(ProfileDatabaseException.class);
-    expected.expect(new CausesContains<>(IOException.class, "Could not parse profile: "));
     ProfilesDatabase.openWithAnonymousAccountDisabled(
       accountProviders(),
       AccountBundledCredentialsEmpty.getInstance(),

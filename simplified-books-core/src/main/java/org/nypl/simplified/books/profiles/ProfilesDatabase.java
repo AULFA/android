@@ -290,6 +290,11 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
     final File profile_dir = new File(directory, profile_id_name);
     final File profile_file = new File(profile_dir, "profile.json");
+    if (!profile_file.isFile()) {
+      LOG.error("[{}]: {} is not a file", id, profile_file);
+      return null;
+    }
+
     final ProfileDescription desc;
 
     try {
@@ -437,8 +442,15 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
         createAutomaticAccounts(id, account_providers, account_bundled_credentials, accounts);
 
-        final AccountType account =
-          accounts.createAccount(account_provider);
+        final AccountType account;
+        final SortedMap<URI, AccountType> by_provider = accounts.accountsByProvider();
+        if (by_provider.containsKey(account_provider.id())) {
+          account = by_provider.get(account_provider.id());
+        } else {
+          LOG.debug("[{}]: creating default account: {}", id.id(), account_provider.id());
+          account = accounts.createAccount(account_provider);
+        }
+
         final OptionType<AccountAuthenticationCredentials> credentials_opt =
           account_bundled_credentials.bundledCredentialsFor(account_provider.id());
         account.setCredentials(credentials_opt);
@@ -465,6 +477,8 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     final AccountProviderCollectionType account_providers,
     final AccountBundledCredentialsType account_bundled_credentials,
     final AccountsDatabaseType accounts) throws AccountsDatabaseException {
+
+    LOG.debug("[{}]: creating automatic accounts", profile.id());
 
     for (final AccountProvider auto_provider : account_providers.providers().values()) {
       if (auto_provider.addAutomatically()) {
