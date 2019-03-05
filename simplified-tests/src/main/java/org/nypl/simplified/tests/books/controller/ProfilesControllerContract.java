@@ -260,7 +260,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
 
     this.http.addResponse(
       "urn:fake-auth:0",
@@ -284,8 +284,7 @@ public abstract class ProfilesControllerContract {
     EventAssertions.isType(ProfileCreationSucceeded.class, this.profile_events, 0);
     EventAssertions.isType(ProfileSelected.class, this.profile_events, 1);
 
-    EventAssertions.isType(AccountCreationSucceeded.class, this.account_events, 0);
-    EventAssertions.isType(AccountLoginFailed.class, this.account_events, 1);
+    EventAssertions.isType(AccountLoginFailed.class, this.account_events, 0);
 
     Assert.assertTrue(
       "Credentials must not be saved",
@@ -312,7 +311,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
 
     this.http.addResponse(
       "urn:fake-auth:0",
@@ -335,8 +334,7 @@ public abstract class ProfilesControllerContract {
     EventAssertions.isType(ProfileCreationSucceeded.class, this.profile_events, 0);
     EventAssertions.isType(ProfileSelected.class, this.profile_events, 1);
 
-    EventAssertions.isType(AccountCreationSucceeded.class, this.account_events, 0);
-    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 1);
+    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 0);
 
     Assert.assertEquals(
       "Credentials must be saved",
@@ -364,7 +362,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
 
     this.http.addResponse(
       "urn:fake-auth:0",
@@ -387,8 +385,7 @@ public abstract class ProfilesControllerContract {
     EventAssertions.isType(ProfileCreationSucceeded.class, this.profile_events, 0);
     EventAssertions.isType(ProfileSelected.class, this.profile_events, 1);
 
-    EventAssertions.isType(AccountCreationSucceeded.class, this.account_events, 0);
-    EventAssertions.isType(AccountLoginFailed.class, this.account_events, 1);
+    EventAssertions.isType(AccountLoginFailed.class, this.account_events, 0);
 
     Assert.assertTrue(
       "Credentials must not be saved",
@@ -415,7 +412,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
 
     this.http.addResponse(
       "urn:fake-auth:0",
@@ -437,8 +434,7 @@ public abstract class ProfilesControllerContract {
     EventAssertions.isType(ProfileCreationSucceeded.class, this.profile_events, 0);
     EventAssertions.isType(ProfileSelected.class, this.profile_events, 1);
 
-    EventAssertions.isType(AccountCreationSucceeded.class, this.account_events, 0);
-    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 1);
+    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 0);
 
     Assert.assertEquals(
       "Credentials must be saved",
@@ -466,7 +462,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeProvider("urn:fake:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
 
     final AccountAuthenticationCredentials credentials =
       AccountAuthenticationCredentials.builder(
@@ -478,8 +474,7 @@ public abstract class ProfilesControllerContract {
     EventAssertions.isType(ProfileCreationSucceeded.class, this.profile_events, 0);
     EventAssertions.isType(ProfileSelected.class, this.profile_events, 1);
 
-    EventAssertions.isType(AccountCreationSucceeded.class, this.account_events, 0);
-    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 1);
+    EventAssertions.isType(AccountLoginSucceeded.class, this.account_events, 0);
 
     Assert.assertTrue(
       "Credentials must not be saved",
@@ -503,7 +498,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeProvider("urn:fake:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
     controller.profileEvents().subscribe(this.profile_events::add);
 
     controller.profileBookmarkSet(
@@ -552,7 +547,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeProvider("urn:fake:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
     controller.profileEvents().subscribe(this.profile_events::add);
 
     controller.profilePreferencesUpdate(profiles.currentProfileUnsafe().preferences()).get();
@@ -600,7 +595,7 @@ public abstract class ProfilesControllerContract {
     final AccountProvider provider = fakeProvider("urn:fake:0");
     controller.profileCreate(provider, "Kermit", "Female", LocalDate.now()).get();
     controller.profileSelect(profiles.profiles().firstKey()).get();
-    controller.profileAccountCreate(provider.id()).get();
+    controller.profileAccountSelectByProvider(provider.id()).get();
     controller.profileEvents().subscribe(this.profile_events::add);
 
     final FeedWithoutGroups feed =

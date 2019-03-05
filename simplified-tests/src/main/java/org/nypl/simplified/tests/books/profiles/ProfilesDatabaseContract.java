@@ -1141,6 +1141,88 @@ public abstract class ProfilesDatabaseContract {
     }
   }
 
+  /**
+   * If an account provider disappears, the profile database opens but the missing account
+   * is not present.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testOpenCreateReopenMissingAccountProvider()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProviderCollectionType account_providers = accountProviders();
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers,
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
+    final AccountProvider acc = fakeProvider("http://www.example.com/accounts0/");
+
+    final ProfileType p0 = db0.createProfile(acc, "Kermit");
+    p0.createAccount(account_providers.provider(URI.create("http://www.example.com/accounts1/")));
+
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      accountProvidersMissingOne(),
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
+  }
+
+  /**
+   * If an account provider disappears, and the profile only contained a single account that
+   * has now disappeared, a new account is created.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testOpenCreateReopenMissingAccountProviderNew()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProviderCollectionType account_providers_no_zero = accountProvidersMissingZero();
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        account_providers_no_zero,
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
+    final ProfileType p0 =
+      db0.createProfile(account_providers_no_zero.providerDefault(), "Kermit");
+
+    final AccountProviderCollectionType account_providers_no_one = accountProvidersMissingOne();
+
+    ProfilesDatabase.openWithAnonymousAccountDisabled(
+      account_providers_no_one,
+      AccountBundledCredentialsEmpty.getInstance(),
+      accountsDatabases(),
+      f_pro);
+  }
+
+  private AccountProviderCollectionType accountProvidersMissingZero() {
+    final AccountProvider p1 = fakeProvider("http://www.example.com/accounts1/");
+    final SortedMap<URI, AccountProvider> providers = new TreeMap<>();
+    providers.put(p1.id(), p1);
+    return AccountProviderCollection.create(p1, providers);
+  }
+
+  private AccountProviderCollectionType accountProvidersMissingOne() {
+    final AccountProvider p0 = fakeProvider("http://www.example.com/accounts0/");
+    final SortedMap<URI, AccountProvider> providers = new TreeMap<>();
+    providers.put(p0.id(), p0);
+    return AccountProviderCollection.create(p0, providers);
+  }
+
   private AccountProviderCollectionType accountProviders() {
     final AccountProvider p0 = fakeProvider("http://www.example.com/accounts0/");
     final AccountProvider p1 = fakeProvider("http://www.example.com/accounts1/");

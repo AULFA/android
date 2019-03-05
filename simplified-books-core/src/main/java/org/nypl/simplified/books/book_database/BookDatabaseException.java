@@ -22,8 +22,41 @@ public final class BookDatabaseException extends Exception {
   public BookDatabaseException(
       final String message,
       final List<Exception> causes) {
-    super(NullCheck.notNull(message, "Message"));
-    this.causes = NullCheck.notNull(causes, "Causes");
+    super(makeMessage(message, causes));
+    for (final Exception cause : causes) {
+      this.addSuppressed(cause);
+    }
+    this.causes = causes;
+  }
+
+  private static String makeMessage(
+    final String message,
+    final List<Exception> causes) {
+    StringBuilder sb = new StringBuilder(256);
+    sb.append(message);
+    sb.append("\n");
+
+    for (final Exception cause : causes) {
+      recursivelyAppend(sb, cause, 0);
+    }
+    return sb.toString();
+  }
+
+  private static void recursivelyAppend(StringBuilder sb, Throwable cause, int depth) {
+    if (cause == null) {
+      return;
+    }
+
+    for (int index = 0; index < depth; ++index) {
+      sb.append(" ");
+    }
+
+    sb.append("  Cause: ");
+    sb.append(cause.getClass().getName());
+    sb.append(": ");
+    sb.append(cause.getMessage());
+    sb.append("\n");
+    recursivelyAppend(sb, cause.getCause(), depth + 1);
   }
 
   /**

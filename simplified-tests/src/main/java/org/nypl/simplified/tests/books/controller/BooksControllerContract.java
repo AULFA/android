@@ -223,7 +223,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -257,7 +257,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     Assert.assertTrue(account.credentials().isSome());
@@ -293,7 +293,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeProvider("urn:fake:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     Assert.assertTrue(account.credentials().isSome());
@@ -316,7 +316,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
 
     Assert.assertTrue(account.credentials().isNone());
     controller.booksSync(account).get();
@@ -338,7 +338,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -371,7 +371,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -429,7 +429,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     /*
@@ -521,7 +521,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -578,7 +578,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -634,7 +634,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -679,7 +679,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -734,7 +734,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -789,7 +789,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -861,7 +861,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(
@@ -922,7 +922,7 @@ public abstract class BooksControllerContract {
     final AccountProvider provider = fakeAuthProvider("urn:fake-auth:0");
     final ProfileType profile = this.profiles.createProfile(provider, "Kermit");
     this.profiles.setProfileCurrent(profile.id());
-    final AccountType account = profile.createAccount(provider);
+    final AccountType account = profile.selectAccount(provider);
     account.setCredentials(correctCredentials());
 
     this.http.addResponse(

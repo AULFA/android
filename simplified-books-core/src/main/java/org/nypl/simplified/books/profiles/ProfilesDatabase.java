@@ -308,6 +308,15 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
       createAutomaticAccounts(profile_id, account_providers, account_bundled_credentials, accounts);
 
+      if (accounts.accounts().isEmpty()) {
+        LOG.debug("profile is empty, creating a default account");
+        accounts.createAccount(account_providers.providerDefault());
+      }
+
+      Assertions.checkPrecondition(
+        !accounts.accounts().isEmpty(),
+        "Accounts database must not be empty");
+
       final AccountType account = accounts.accounts().get(accounts.accounts().firstKey());
       return new Profile(null, profile_id, profile_dir, desc, accounts, account);
     } catch (final AccountsDatabaseException e) {
