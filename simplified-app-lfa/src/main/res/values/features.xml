@@ -5,15 +5,15 @@
   <string name="feature_app_name">LFA</string>
 
   <!-- The main app color -->
-  <color name="feature_main_color">#ec1c24</color>
+  <color name="feature_main_color">#14234F</color>
 
   <color name="app_main_color">@color/feature_main_color</color>
 
   <!-- A pale version of the configurable main color. -->
-  <color name="feature_main_color_pale">#FF1C24</color>
+  <color name="feature_main_color_pale">#2d3867</color>
 
   <!-- The configurable secondary color, used for branding. -->
-  <color name="feature_secondary_color">#ec1c24</color>
+  <color name="feature_secondary_color">#14234F</color>
 
   <!-- If true, the application presents selectable profiles. -->
   <bool name="feature_profiles_enabled">true</bool>

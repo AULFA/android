@@ -132,7 +132,7 @@ public abstract class ProfilesControllerContract {
       new File("/tmp/aulfa-android-tests");
 
     final AnalyticsLogger analytics_logger =
-      AnalyticsLogger.create(analytics_directory);
+      AnalyticsLogger.create(new MockingHTTP(), Thread::new, analytics_directory);
 
     return Controller.create(
       task_exec,

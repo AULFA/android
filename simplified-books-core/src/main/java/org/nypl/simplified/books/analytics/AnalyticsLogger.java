@@ -1,12 +1,13 @@
 package org.nypl.simplified.books.analytics;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.Unit;
-import com.io7m.jnull.NullCheck;
 
 import org.nypl.simplified.books.core.LogUtilities;
-import org.nypl.simplified.http.core.HTTP;
 import org.nypl.simplified.http.core.HTTPAuthBasic;
 import org.nypl.simplified.http.core.HTTPAuthType;
 import org.nypl.simplified.http.core.HTTPResultError;
@@ -15,168 +16,192 @@ import org.nypl.simplified.http.core.HTTPResultMatcherType;
 import org.nypl.simplified.http.core.HTTPResultOKType;
 import org.nypl.simplified.http.core.HTTPResultType;
 import org.nypl.simplified.http.core.HTTPType;
-import org.nypl.simplified.json.core.JSONSerializerUtilities;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.URI;
-import java.nio.CharBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by Skullbonez on 3/11/2018.
- *
+ * <p>
  * This logger is to be AS FAILSAFE AS POSSIBLE.
  * Silent failures are allowed here.  We want this
  * to be a "best effort" logger - it is not to
  * crash the app!
- *
  */
 
-public class AnalyticsLogger {
+public final class AnalyticsLogger {
 
   private static final Logger LOG = LogUtilities.getLog(AnalyticsLogger.class);
 
-  private final String analytics_server_uri = "http://ec2-18-217-127-216.us-east-2.compute.amazonaws.com:8080/upload.log";
-  private final String log_file_name = "analytics_log.txt";
-  private final int log_file_size_limit =  1024 * 1024 * 10;
-  private final int log_file_push_limit = 1024 * 2;
+  public static final String ANALYTICS_SERVER_URI =
+    "http://ec2-18-217-127-216.us-east-2.compute.amazonaws.com:8080/upload.log";
+
+  private static final String ANALYTICS_SERVER_TOKEN =
+    ".S23gLhfW/n:#CPD";
+  private static final String LOG_FILE_NAME =
+    "analytics_log.txt";
+  private static final int LOG_FILE_SIZE_LIMIT =
+    1024 * 1024 * 10;
+  private static final int LOG_FILE_PUSH_LIMIT =
+    1024 * 2;
+
+  private final HTTPType http;
+  private final ListeningExecutorService executor;
+  private final File log_file_name;
   private BufferedWriter analytics_output = null;
-  private File directory_analytics = null;
+  private final File directory_analytics;
   private boolean log_size_limit_reached = false;
   private AtomicBoolean is_logging_paused = new AtomicBoolean(false);
 
   private AnalyticsLogger(
-      File in_directory_analytics)
-  {
-    directory_analytics = NullCheck.notNull(in_directory_analytics, "analytics");
+    final HTTPType in_http,
+    final ListeningExecutorService in_executor,
+    final File in_directory_analytics) {
+    this.http =
+      Objects.requireNonNull(in_http, "in_http");
+    this.executor =
+      Objects.requireNonNull(in_executor, "in_executor");
+    this.directory_analytics =
+      Objects.requireNonNull(in_directory_analytics, "analytics");
+    this.log_file_name =
+      new File(this.directory_analytics, LOG_FILE_NAME);
+
     init();
   }
 
   public static AnalyticsLogger create(
-      final File directory_analytics)
-  {
-    return new AnalyticsLogger(directory_analytics);
+    final HTTPType in_http,
+    final ThreadFactory in_thread_factory,
+    final File directory_analytics) {
+
+    Objects.requireNonNull(in_http, "http");
+    Objects.requireNonNull(in_thread_factory, "thread_factory");
+    Objects.requireNonNull(directory_analytics, "directory_analytics");
+
+    return new AnalyticsLogger(
+      in_http,
+      MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor(in_thread_factory)),
+      directory_analytics);
   }
 
   private void init() {
-    if ( log_size_limit_reached ) {
+    if (this.log_size_limit_reached) {
       // Don't bother trying to re-init if the log is full.
       return;
     }
+
     try {
-      File log_file = new File(directory_analytics, log_file_name);
       // Stop logging after 10MB (future releases will transmit then delete this file)
-      if (log_file.length() < log_file_size_limit) {
-        FileWriter logWriter = new FileWriter(log_file, true);
-        analytics_output = new BufferedWriter(logWriter);
+      if (this.log_file_name.length() < LOG_FILE_SIZE_LIMIT) {
+        final FileWriter logWriter = new FileWriter(this.log_file_name, true);
+        this.analytics_output = new BufferedWriter(logWriter);
       } else {
-        log_size_limit_reached = true;
+        this.log_size_limit_reached = true;
       }
     } catch (Exception e) {
       LOG.debug("Ignoring exception: init raised: ", e);
     }
   }
 
-  private String readLogFile(String file) throws IOException {
-    BufferedReader reader;
-    reader = new BufferedReader(new FileReader(file));
-    String line = null;
-    StringBuilder stringBuilder = new StringBuilder();
-    String ls = System.getProperty("line.separator");
+  private byte[] compressAndReadLogFile(File file) throws IOException {
 
-    try {
-      while ((line = reader.readLine()) != null) {
-        stringBuilder.append(line);
-        stringBuilder.append(ls);
+    final byte[] buffer = new byte[4096];
+    try (final ByteArrayOutputStream output = new ByteArrayOutputStream(LOG_FILE_SIZE_LIMIT / 10)) {
+      try (final GZIPOutputStream gzip = new GZIPOutputStream(output)) {
+        try (final InputStream input = new FileInputStream(this.log_file_name)) {
+          while (true) {
+            final int r = input.read(buffer);
+            if (r == -1) {
+              break;
+            }
+            gzip.write(buffer, 0, r);
+          }
+        }
+        gzip.flush();
+        gzip.finish();
       }
 
-      return stringBuilder.toString();
-    } catch ( Exception e ) {
-        LOG.debug("Ignoring exception: readLogFile raised: ", e);
-    } finally {
-      reader.close();
+      return output.toByteArray();
     }
-
-    return "";
   }
 
-  private void clearLogFile(String file) throws FileNotFoundException {
-    PrintWriter writer = new PrintWriter(file);
-    writer.print("");
-    writer.close();
+  private void clearLogFile(final File file) throws IOException {
+    try (final FileOutputStream ignored = new FileOutputStream(file)) {
+      // Do nothing, just truncate the file
+    }
   }
 
-  public void writeToAnalyticsServer(String deviceId) {
+  public ListenableFuture<?> writeToAnalyticsServer(String deviceId) {
+    return this.executor.submit(() -> {
+      this.is_logging_paused.set(true);
 
-    Thread t = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        is_logging_paused.set(true);
+      final OptionType<HTTPAuthType> auth =
+        Option.some(HTTPAuthBasic.create(deviceId, ANALYTICS_SERVER_TOKEN));
 
-        final HTTPType http = HTTP.newHTTP();
-        final OptionType<HTTPAuthType> auth =
-            Option.some((HTTPAuthType) HTTPAuthBasic.create(deviceId, ".S23gLhfW/n:#CPD"));
+      final HTTPResultType<InputStream> result;
 
-        final HTTPResultType<InputStream> result;
+      try {
+        byte[] log_data = compressAndReadLogFile(this.log_file_name);
+        LOG.debug("compressed data size: {}", log_data.length);
 
-        try {
-          String logFile = readLogFile(directory_analytics + "/" + log_file_name);
-          if ( logFile.length() > 0 ) {
-            result = http.post(auth, new URI(analytics_server_uri), logFile.getBytes(), "application/json");
-            result.matchResult(
+        if (log_data.length > 0) {
+          result = this.http.post(auth, new URI(ANALYTICS_SERVER_URI), log_data, "application/json");
+          result.matchResult(
+            new HTTPResultMatcherType<InputStream, Unit, Exception>() {
+              @Override
+              public Unit onHTTPError(final HTTPResultError<InputStream> error) {
+                return Unit.unit();
+              }
 
-                new HTTPResultMatcherType<InputStream, Unit, Exception>() {
-                  @Override
-                  public Unit onHTTPError(final HTTPResultError<InputStream> error) throws Exception {
-                    return Unit.unit();
-                  }
+              @Override
+              public Unit onHTTPException(final HTTPResultException<InputStream> exception) {
+                return Unit.unit();
+              }
 
-                  @Override
-                  public Unit onHTTPException(final HTTPResultException<InputStream> exception) throws Exception {
-                    return Unit.unit();
-                  }
-
-                  @Override
-                  public Unit onHTTPOK(final HTTPResultOKType<InputStream> result) throws Exception {
-                    // Clear the log file.  Start logging from scratch.
-                    clearLogFile(directory_analytics + "/" + log_file_name);
-                    return Unit.unit();
-                  }
-                }
-            );
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        } finally {
-          is_logging_paused.set(false);
+              @Override
+              public Unit onHTTPOK(final HTTPResultOKType<InputStream> result) throws Exception {
+                // Clear the log file.  Start logging from scratch.
+                clearLogFile(log_file_name);
+                return Unit.unit();
+              }
+            }
+          );
         }
+      } catch (Exception e) {
+        LOG.error("error during analytics send: ", e);
+      } finally {
+        this.is_logging_paused.set(false);
       }
     });
-
-    t.start();
   }
 
   public void attemptToPushAnalytics(String deviceId) {
-    if ( analytics_output == null ) {
+    if (this.analytics_output == null) {
       init();
     }
-    if ( analytics_output != null && !is_logging_paused.get() ) {
+
+    if (this.analytics_output != null && !this.is_logging_paused.get()) {
       try {
-        File log_file = new File(directory_analytics, log_file_name);
+        File log_file = new File(this.directory_analytics, LOG_FILE_NAME);
         long len = log_file.length();
         // If over 50kb, push log file
-        if (len > log_file_push_limit) {
+        if (len > LOG_FILE_PUSH_LIMIT) {
           writeToAnalyticsServer(deviceId);
         }
       } catch (Exception e) {
@@ -186,14 +211,14 @@ public class AnalyticsLogger {
   }
 
   public void logToAnalytics(String message) {
-    if ( analytics_output == null ) {
+    if (this.analytics_output == null) {
       init();
     }
-    if ( analytics_output != null && !is_logging_paused.get() ) {
+    if (this.analytics_output != null && !this.is_logging_paused.get()) {
       try {
         String date_str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,").format(new Date());
-        analytics_output.write(date_str + message + "\n");
-        analytics_output.flush();  // Make small synchronous additions for now
+        this.analytics_output.write(date_str + message + "\n");
+        this.analytics_output.flush();  // Make small synchronous additions for now
       } catch (Exception e) {
         LOG.debug("Ignoring exception: logToAnalytics raised: ", e);
       }

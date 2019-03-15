@@ -169,7 +169,7 @@ public abstract class BooksControllerContract {
       new File("/tmp/aulfa-android-tests");
 
     final AnalyticsLogger analytics_logger =
-      AnalyticsLogger.create(analytics_directory);
+      AnalyticsLogger.create(new MockingHTTP(), Thread::new, analytics_directory);
 
     return Controller.create(
       exec,

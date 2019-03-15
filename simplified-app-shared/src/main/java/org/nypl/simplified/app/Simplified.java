@@ -346,9 +346,13 @@ public final class Simplified extends Application {
 
     LOG.debug("creating named thread pool: {} ({} threads at priority {})", base, count, priority);
 
-    final ThreadFactory tf = Executors.defaultThreadFactory();
+    return NullCheck.notNull(
+      Executors.newFixedThreadPool(count, createNamedThreadFactory(base, priority)));
+  }
 
-    final ThreadFactory named = new ThreadFactory() {
+  private static ThreadFactory createNamedThreadFactory(String base, int priority) {
+    final ThreadFactory tf = Executors.defaultThreadFactory();
+    return new ThreadFactory() {
       private int id;
 
       @Override
@@ -373,8 +377,6 @@ public final class Simplified extends Application {
         return t;
       }
     };
-
-    return NullCheck.notNull(Executors.newFixedThreadPool(count, named));
   }
 
   public static int getCurrentTheme(final WantActionBar bar) {
@@ -680,7 +682,10 @@ public final class Simplified extends Application {
 
     try {
       LOG.debug("initializing analytics log");
-      analytics_logger = AnalyticsLogger.create(this.directory_analytics);
+      analytics_logger = AnalyticsLogger.create(
+        this.http,
+        Simplified.createNamedThreadFactory("analytics", 19),
+        this.directory_analytics);
     } catch (Exception e) {
       LOG.debug("Ignoring exception: AnalyticsLogger.create raised: ", e);
     }
