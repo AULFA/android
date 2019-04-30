@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="catalog_search">ຊອກຫາປຶ້ມຂອງຂ້ອຍ</string>
+  <string name="books_sort_by">ຈັດລຽງຕາມ</string>
+  <string name="books_sort_by_author">ຊື່ຜູ້ຂຽນ</string>
+  <string name="books_sort_by_title">ຊື່ໜັງສື</string>
+  <string name="catalog_accessibility_book_read">ອ່ານ</string>
+  <string name="catalog_book_read">ອ່ານ</string>
+  <string name="catalog_book_download">ດາວໂຫຼດ</string>
+  <string name="catalog">ແຄັດຕາລັອກ</string>
+  <string name="catalog_book_add">ເພີ່ມໃສ່ໃນປຶ້ມຂອງຂ້ອຍ</string>
+  <string name="catalog_download_failed">ບໍ່ສາມາດດາວໂຫຼດໄດ້</string>
+  <string name="catalog_book_error_retry">ລອງໃໝ່ດຽວນີ້</string>
+  <string name="catalog_book_error_retry_now">ລອງໃໝ່ດຽວນີ້</string>
+  <string name="catalog_book_error_download_later">ດາວໂຫຼດໃນພາຍຫຼັງ</string>
+  <string name="reader_toc">ສາລະບານ</string>
+  <string name="books">ປຶ້ມຂອງຂ້ອຍ</string>
+  <string name="settings_about">ກ່ຽວກັບ</string>
+  <string name="settings">ກ່ຽວກັບ</string>
+  <string name="settings_eula">ຂໍ້ຕົກລົງຜູ້ນໍາໃຊ້</string>
+  <string name="settings_licence_software">ລິຂະສິດຊອບແວ</string>
+  <string name="settings_application_version">ແອັບພລີເຄຊັ່ນສະບັບທີ</string>
+  <string name="versions_revision">ສ້າງ</string>
+  <string name="versions_version">ສະບັບທີ</string>
+  <string name="profiles_switch">ປ່ຽນປະຫວັດຜູ້ນໍາໃຊ້</string>
+  <string name="profiles_switch_confirm">ທ່ານໝັ້ນໃຈທີ່ຈະປ່ຽນປະຫວັດຜູ້ນໍາໃຊ້ແທ້ບໍ່?</string>
+  <string name="profiles_title">ປະຫວັດຜູ້ນໍາໃຊ້</string>
+  <string name="profiles_select">ກະລຸນາເລືອກປະຫວັດຜູ້ນໍາໃຊ້ທີ່ມີຢູ່ແລ້ວ ຫຼື ສ້າງປະຫວັດຜູ້ນໍາໃຊ້ໃໝ່</string>
+  <string name="profiles_create">ສ້າງ</string>
+  <string name="profiles_please_enter">ກະລຸນາໃສ່ຊື່, ເພດ ແລະ ວັນເດືອນປີເກີດຂອງທ່ານ</string>
+  <string name="profiles_name_field">ຊື່</string>
+
+</resources>
