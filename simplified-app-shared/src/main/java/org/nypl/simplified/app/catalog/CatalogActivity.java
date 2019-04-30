@@ -5,11 +5,12 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.FrameLayout;
+
 import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnreachableCodeException;
 
-import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.NavigationDrawerActivity;
+import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.utilities.FadeUtilities;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.stack.ImmutableStack;

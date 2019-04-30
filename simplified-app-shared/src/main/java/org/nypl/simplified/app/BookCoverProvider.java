@@ -19,12 +19,12 @@ import com.squareup.picasso.RequestCreator;
 import org.nypl.simplified.app.catalog.CatalogBookCoverGeneratorRequestHandler;
 import org.nypl.simplified.app.catalog.CatalogBookCoverGeneratorType;
 import org.nypl.simplified.app.utilities.UIThread;
+import org.nypl.simplified.books.book_database.BookID;
 import org.nypl.simplified.books.book_registry.BookRegistryReadableType;
 import org.nypl.simplified.books.book_registry.BookWithStatus;
-import org.nypl.simplified.books.book_database.BookID;
 import org.nypl.simplified.books.bundled_content.BundledURIs;
-import org.nypl.simplified.books.feeds.FeedEntryOPDS;
 import org.nypl.simplified.books.core.LogUtilities;
+import org.nypl.simplified.books.feeds.FeedEntryOPDS;
 import org.nypl.simplified.opds.core.OPDSAcquisitionFeedEntry;
 import org.slf4j.Logger;
 

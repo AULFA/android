@@ -3,9 +3,7 @@ package org.nypl.simplified.app.catalog;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.res.Resources;
-import android.view.ContextThemeWrapper;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.io7m.jnull.NullCheck;
 

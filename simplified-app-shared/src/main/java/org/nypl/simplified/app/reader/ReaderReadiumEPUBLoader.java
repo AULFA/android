@@ -5,11 +5,8 @@ import android.content.Context;
 import com.bugsnag.android.Severity;
 import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.OptionPartialVisitorType;
-import com.io7m.jfunctional.OptionType;
-import com.io7m.jfunctional.OptionVisitorType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
 
 import org.nypl.drm.core.AdobeAdeptContentFilterType;
 import org.nypl.drm.core.AdobeAdeptContentRightsClientType;

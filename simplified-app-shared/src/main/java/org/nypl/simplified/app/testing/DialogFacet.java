@@ -3,7 +3,9 @@ package org.nypl.simplified.app.testing;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.os.Bundle;
+
 import com.io7m.jnull.Nullable;
+
 import org.nypl.simplified.app.catalog.CatalogFacetDialog;
 import org.nypl.simplified.books.feeds.FeedFacetPseudo;
 import org.nypl.simplified.books.feeds.FeedFacetPseudo.FacetType;

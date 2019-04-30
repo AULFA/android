@@ -1,6 +1,5 @@
 package org.nypl.simplified.app;
 
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
 import com.io7m.jnull.NullCheck;

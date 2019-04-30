@@ -21,8 +21,8 @@ import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnimplementedCodeException;
 
-import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.NavigationDrawerActivity;
+import org.nypl.simplified.app.R;
 import org.nypl.simplified.books.feeds.FeedEntryOPDS;
 
 /**

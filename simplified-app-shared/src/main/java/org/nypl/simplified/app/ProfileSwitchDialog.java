@@ -7,16 +7,12 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
-
-import org.nypl.simplified.books.core.LogUtilities;
-import org.slf4j.Logger;
 
 /**
  * A dialog requesting confirmation of the user's intent to switch profiles.

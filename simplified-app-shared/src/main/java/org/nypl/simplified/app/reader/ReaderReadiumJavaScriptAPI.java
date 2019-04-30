@@ -8,14 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.ScrollMode;
-import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings
-  .SyntheticSpreadMode;
-import org.nypl.simplified.app.utilities.TextUtilities;
+import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.SyntheticSpreadMode;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.books.reader.ReaderBookLocation;

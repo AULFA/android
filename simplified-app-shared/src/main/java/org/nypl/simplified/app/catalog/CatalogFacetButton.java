@@ -6,7 +6,6 @@ import android.widget.Button;
 
 import com.io7m.jnull.NullCheck;
 
-import org.nypl.simplified.app.R;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.feeds.FeedFacetType;
 

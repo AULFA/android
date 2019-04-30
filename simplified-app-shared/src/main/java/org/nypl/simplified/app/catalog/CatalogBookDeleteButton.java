@@ -3,14 +3,9 @@ package org.nypl.simplified.app.catalog;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.res.Resources;
-import android.view.ContextThemeWrapper;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.io7m.jnull.NullCheck;
-import com.io7m.jnull.Nullable;
-import com.io7m.junreachable.UnimplementedCodeException;
 
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.books.accounts.AccountType;

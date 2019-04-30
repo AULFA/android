@@ -10,8 +10,6 @@ import android.view.View;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.ProcedureType;
 import com.io7m.jnull.NullCheck;
-import com.tenmiles.helpstack.HSHelpStack;
-import com.tenmiles.helpstack.gears.HSDeskGear;
 
 import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.core.DocumentStoreType;

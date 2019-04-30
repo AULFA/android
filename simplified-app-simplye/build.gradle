@@ -7,14 +7,23 @@ android {
     exclude 'META-INF/LICENSE'
   }
   signingConfigs {
+    debug {
+      keyAlias findProperty("au.org.libraryforall.keyAlias")
+      keyPassword findProperty("au.org.libraryforall.keyPassword")
+      storeFile file("${project.rootDir}/lfa-keystore.jks")
+      storePassword findProperty("au.org.libraryforall.storePassword")
+    }
     release {
-      keyAlias findProperty("org.librarysimplified.simplye.keyAlias")
-      keyPassword findProperty("org.librarysimplified.simplye.keyPassword")
-      storeFile file("keystore.jks")
-      storePassword findProperty("org.librarysimplified.simplye.storePassword")
+      keyAlias findProperty("au.org.libraryforall.keyAlias")
+      keyPassword findProperty("au.org.libraryforall.keyPassword")
+      storeFile file("${project.rootDir}/lfa-keystore.jks")
+      storePassword findProperty("au.org.libraryforall.storePassword")
     }
   }
   buildTypes {
+    debug {
+      signingConfig signingConfigs.debug
+    }
     release {
       signingConfig signingConfigs.release
     }

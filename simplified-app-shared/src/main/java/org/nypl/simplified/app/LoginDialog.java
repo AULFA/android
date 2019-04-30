@@ -40,13 +40,10 @@ import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.accounts.AccountAuthenticationProvider;
 import org.nypl.simplified.books.accounts.AccountBarcode;
 import org.nypl.simplified.books.accounts.AccountEventLogin;
-import org.nypl.simplified.books.accounts.AccountProvider;
-import org.nypl.simplified.books.accounts.AccountProviderAuthenticationDescription;
-import org.nypl.simplified.books.accounts.AccountProviderCollection;
-import org.nypl.simplified.books.accounts.AccountType;
-import org.nypl.simplified.books.accounts.AccountsDatabaseNonexistentProviderException;
-import org.nypl.simplified.books.controller.ProfilesControllerType;
 import org.nypl.simplified.books.accounts.AccountPIN;
+import org.nypl.simplified.books.accounts.AccountProviderAuthenticationDescription;
+import org.nypl.simplified.books.accounts.AccountType;
+import org.nypl.simplified.books.controller.ProfilesControllerType;
 import org.nypl.simplified.books.core.AuthenticationDocumentType;
 import org.nypl.simplified.books.core.DocumentStoreType;
 import org.nypl.simplified.books.core.EULAType;
@@ -56,7 +53,8 @@ import org.slf4j.Logger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.nypl.simplified.books.accounts.AccountEventLogin.*;
+import static org.nypl.simplified.books.accounts.AccountEventLogin.AccountLoginFailed;
+import static org.nypl.simplified.books.accounts.AccountEventLogin.AccountLoginSucceeded;
 
 /**
  * A reusable login dialog.

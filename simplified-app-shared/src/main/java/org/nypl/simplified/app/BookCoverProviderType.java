@@ -1,7 +1,9 @@
 package org.nypl.simplified.app;
 
 import android.widget.ImageView;
+
 import com.squareup.picasso.Callback;
+
 import org.nypl.simplified.books.feeds.FeedEntryOPDS;
 
 /**

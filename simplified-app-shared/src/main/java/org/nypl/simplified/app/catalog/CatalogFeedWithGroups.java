@@ -14,7 +14,6 @@ import com.io7m.jnull.Nullable;
 
 import org.nypl.simplified.app.BookCoverProviderType;
 import org.nypl.simplified.app.ScreenSizeInformationType;
-import org.nypl.simplified.books.accounts.AccountProvider;
 import org.nypl.simplified.books.accounts.AccountType;
 import org.nypl.simplified.books.feeds.FeedGroup;
 import org.nypl.simplified.books.feeds.FeedWithGroups;

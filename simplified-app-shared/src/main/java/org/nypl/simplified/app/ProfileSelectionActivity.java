@@ -16,9 +16,7 @@ import android.widget.TextView;
 
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.OptionType;
-import com.io7m.jfunctional.OptionVisitorType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
@@ -33,7 +31,6 @@ import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.observable.ObservableSubscriptionType;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

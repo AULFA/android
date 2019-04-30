@@ -1,43 +1,30 @@
 package org.nypl.simplified.app;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.provider.Settings;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
-import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnimplementedCodeException;
 import com.io7m.junreachable.UnreachableCodeException;
-import org.nypl.drm.core.AdobeAdeptConnectorFactory;
-import org.nypl.drm.core.AdobeAdeptConnectorFactoryType;
-import org.nypl.drm.core.AdobeAdeptConnectorParameters;
-import org.nypl.drm.core.AdobeAdeptContentFilterFactory;
-import org.nypl.drm.core.AdobeAdeptContentFilterFactoryType;
+
 import org.nypl.drm.core.AdobeAdeptContentFilterType;
-import org.nypl.drm.core.AdobeAdeptExecutor;
 import org.nypl.drm.core.AdobeAdeptExecutorType;
-import org.nypl.drm.core.AdobeAdeptNetProvider;
-import org.nypl.drm.core.AdobeAdeptNetProviderType;
-import org.nypl.drm.core.AdobeAdeptResourceProvider;
-import org.nypl.drm.core.AdobeAdeptResourceProviderType;
 import org.nypl.drm.core.DRMException;
 import org.nypl.drm.core.DRMUnsupportedException;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.json.core.JSONParserUtilities;
-import org.nypl.simplified.multilibrary.Account;
 import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;

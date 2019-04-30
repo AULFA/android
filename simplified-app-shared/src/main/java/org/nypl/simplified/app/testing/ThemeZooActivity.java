@@ -3,8 +3,10 @@ package org.nypl.simplified.app.testing;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ProgressBar;
+
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
+
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.utilities.UIThread;
 

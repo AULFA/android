@@ -2,8 +2,6 @@ package org.nypl.simplified.app.utilities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;

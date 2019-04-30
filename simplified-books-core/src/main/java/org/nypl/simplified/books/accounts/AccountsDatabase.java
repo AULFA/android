@@ -3,7 +3,6 @@ package org.nypl.simplified.books.accounts;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.Unit;
-import com.io7m.jnull.NullCheck;
 
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.book_database.BookDatabaseException;
@@ -21,6 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -53,13 +53,13 @@ public final class AccountsDatabase implements AccountsDatabaseType {
     final BookDatabaseFactoryType book_databases) {
 
     this.directory =
-      NullCheck.notNull(directory, "directory");
+      Objects.requireNonNull(directory, "directory");
     this.accounts =
-      NullCheck.notNull(accounts, "accounts");
+      Objects.requireNonNull(accounts, "accounts");
     this.accounts_by_provider =
-      NullCheck.notNull(accounts_by_provider, "accounts_by_provider");
+      Objects.requireNonNull(accounts_by_provider, "accounts_by_provider");
     this.book_databases =
-      NullCheck.notNull(book_databases, "book databases");
+      Objects.requireNonNull(book_databases, "book databases");
     this.accounts_read =
       castMap(Collections.unmodifiableSortedMap(accounts));
     this.accounts_by_provider_read =
@@ -82,9 +82,9 @@ public final class AccountsDatabase implements AccountsDatabaseType {
     final File directory)
     throws AccountsDatabaseException {
 
-    NullCheck.notNull(book_databases, "Book databases");
-    NullCheck.notNull(directory, "Directory");
-    NullCheck.notNull(account_providers, "Account providers");
+    Objects.requireNonNull(book_databases, "Book databases");
+    Objects.requireNonNull(directory, "Directory");
+    Objects.requireNonNull(account_providers, "Account providers");
 
     LOG.debug("opening account database: {}", directory);
 
@@ -227,6 +227,23 @@ public final class AccountsDatabase implements AccountsDatabaseType {
     return (SortedMap<K, VB>) m;
   }
 
+  private static void writeDescription(
+    final File account_lock,
+    final File account_file,
+    final File account_file_tmp,
+    final AccountDescription desc)
+    throws IOException {
+
+    FileLocking.withFileThreadLocked(
+      account_lock, 1000L, ignored -> {
+        FileUtilities.fileWriteUTF8Atomically(
+          account_file,
+          account_file_tmp,
+          AccountDescriptionJSON.serializeToString(new ObjectMapper(), desc));
+        return Unit.unit();
+      });
+  }
+
   @Override
   public File directory() {
     return this.directory;
@@ -250,7 +267,7 @@ public final class AccountsDatabase implements AccountsDatabaseType {
   public AccountType createAccount(final AccountProvider account_provider)
     throws AccountsDatabaseException {
 
-    NullCheck.notNull(account_provider, "Account provider");
+    Objects.requireNonNull(account_provider, "Account provider");
 
     final AccountID next;
     synchronized (this.accounts_lock) {
@@ -310,7 +327,7 @@ public final class AccountsDatabase implements AccountsDatabaseType {
   public AccountID deleteAccountByProvider(final AccountProvider account_provider)
     throws AccountsDatabaseException {
 
-    NullCheck.notNull(account_provider, "Account provider");
+    Objects.requireNonNull(account_provider, "Account provider");
 
     LOG.debug("delete account by provider: {}", account_provider.id());
 
@@ -333,32 +350,15 @@ public final class AccountsDatabase implements AccountsDatabaseType {
     }
   }
 
-  private static void writeDescription(
-    final File account_lock,
-    final File account_file,
-    final File account_file_tmp,
-    final AccountDescription desc)
-    throws IOException {
-
-    FileLocking.withFileThreadLocked(
-      account_lock, 1000L, ignored -> {
-        FileUtilities.fileWriteUTF8Atomically(
-          account_file,
-          account_file_tmp,
-          AccountDescriptionJSON.serializeToString(new ObjectMapper(), desc));
-        return Unit.unit();
-      });
-  }
-
   private static final class Account implements AccountType {
 
     private final AccountID id;
     private final File directory;
     private final Object description_lock;
-    private @GuardedBy("description_lock")
-    AccountDescription description;
     private final BookDatabaseType book_database;
     private final AccountProvider provider;
+    private @GuardedBy("description_lock")
+    AccountDescription description;
 
     Account(
       final AccountID id,
@@ -368,15 +368,15 @@ public final class AccountsDatabase implements AccountsDatabaseType {
       final BookDatabaseType book_database) {
 
       this.id =
-        NullCheck.notNull(id, "id");
+        Objects.requireNonNull(id, "id");
       this.directory =
-        NullCheck.notNull(directory, "directory");
+        Objects.requireNonNull(directory, "directory");
       this.description =
-        NullCheck.notNull(description, "description");
+        Objects.requireNonNull(description, "description");
       this.book_database =
-        NullCheck.notNull(book_database, "book database");
+        Objects.requireNonNull(book_database, "book database");
       this.provider =
-        NullCheck.notNull(provider, "provider");
+        Objects.requireNonNull(provider, "provider");
 
       this.description_lock = new Object();
     }

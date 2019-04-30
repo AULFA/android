@@ -2,6 +2,7 @@ package org.nypl.simplified.app.catalog;
 
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jnull.NullCheck;
+
 import org.nypl.simplified.books.core.BooksFeedSelection;
 import org.nypl.simplified.books.feeds.FeedFacetPseudo;
 import org.nypl.simplified.books.feeds.FeedFacetPseudo.FacetType;
