@@ -629,8 +629,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
           public Boolean onFeedSearchOpen1_1(final FeedSearchOpen1_1 fs) {
             search_view.setOnQueryTextListener(
               new OpenSearchQueryHandler(log(), resources, args, feed, fs.getSearch()));
-            // LFA: Temporarily disable catalog search.
-            return false;
+            return true;
           }
 
           @Override
