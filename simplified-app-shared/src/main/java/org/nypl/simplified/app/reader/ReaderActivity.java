@@ -495,6 +495,8 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
 
   @Override
   public void onEPUBLoadFailed(final Throwable ex) {
+    LOG.error("onEPUBLoadFailed: ", ex);
+
     ErrorDialogUtilities.showErrorWithRunnable(
         this,
         LOG,
