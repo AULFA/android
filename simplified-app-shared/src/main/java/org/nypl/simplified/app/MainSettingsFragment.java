@@ -15,13 +15,13 @@ import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.core.DocumentStoreType;
 import org.nypl.simplified.books.core.SyncedDocumentType;
 
-class MainSettingsFragment extends PreferenceFragment implements LoginListenerType {
+public class MainSettingsFragment extends PreferenceFragment implements LoginListenerType {
 
   /**
    * Construct an Fragment.
    */
 
-  MainSettingsFragment() {
+  public MainSettingsFragment() {
 
   }
 
