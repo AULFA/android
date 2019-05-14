@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.ScrollMode;
 import org.nypl.simplified.app.reader.ReaderReadiumViewerSettings.SyntheticSpreadMode;
+import org.nypl.simplified.app.utilities.TextUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.books.reader.ReaderBookLocation;
@@ -83,22 +84,20 @@ public final class ReaderReadiumJavaScriptAPI implements ReaderReadiumJavaScript
           /*
            * The received value is inside one layer of quoting, so it's necessary to first strip
            * off that layer before the result can be parsed as a JSON object.
-           *
-           * XXX: Readium sometimes passes the literal string "null" here. This needs to be
-           * dealt with.
            */
 
-          final JsonNode unquoted =
-              this.object_mapper.readTree(value);
+          final String unquoted =
+            TextUtilities.unquote(value);
           final ReaderBookLocation location =
-              ReaderBookLocationJSON.deserializeFromString(this.object_mapper, unquoted.asText());
+              ReaderBookLocationJSON.deserializeFromString(this.object_mapper, unquoted);
 
           l.onCurrentPageReceived(location);
         } catch (final Throwable x) {
           try {
+            LOG.error("{}: ", x.getMessage(), x);
             l.onCurrentPageError(x);
           } catch (final Throwable x1) {
-            LOG.error("{}", x1.getMessage(), x1);
+            LOG.error("{}: ", x1.getMessage(), x1);
           }
         }
       });
