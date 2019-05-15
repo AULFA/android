@@ -510,17 +510,17 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
     this.epub_container = c;
     final Package p = NullCheck.notNull(c.getDefaultPackage());
 
-    final TextView in_title_text = NullCheck.notNull(this.view_title_text);
-    UIThread.runOnUIThread(() -> in_title_text.setText(NullCheck.notNull(p.getTitle())));
-
     /*
      * Configure the TOC button.
      */
 
-    final View in_toc = NullCheck.notNull(this.view_toc);
-    in_toc.setOnClickListener(view -> {
-      final ReaderTOC sent_toc = ReaderTOC.fromPackage(p);
-      ReaderTOCActivity.startActivityForResult(this, this.account, sent_toc);
+    UIThread.runOnUIThread(() -> {
+      this.view_toc.setOnClickListener(view -> {
+        final ReaderTOC sent_toc = ReaderTOC.fromPackage(p);
+        ReaderTOCActivity.startActivityForResult(this, this.account, sent_toc);
+      });
+
+      this.view_title_text.setText(NullCheck.notNull(p.getTitle()));
     });
 
     /*
