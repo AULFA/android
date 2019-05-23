@@ -1,11 +1,38 @@
 apply plugin: 'com.android.application'
 
+def buildVersion() {
+  def propsFile = file("version.properties")
+  def Properties props = new Properties()
+  def code
+  if (propsFile.canRead()) {
+    props.load(new FileInputStream(propsFile))
+    code = props['VERSION_CODE'].toInteger()
+  } else {
+    throw new FileNotFoundException("Could not read ${propsFile}")
+  }
+
+  props['VERSION_CODE'] = (code + 1).toString()
+  props.store(new FileOutputStream(propsFile), "")
+  logger.info("incrementing build version ${code} -> ${code + 1}")
+  return code
+}
+
 android {
   compileSdkVersion 27
   buildToolsVersion "27.0.2"
+
   packagingOptions {
     exclude 'META-INF/LICENSE'
   }
+
+  defaultConfig {
+    minSdkVersion androidMinimumSDKVersion
+    targetSdkVersion androidTargetSDKVersion
+    versionName = VERSION_NAME
+    versionCode = buildVersion()
+    setProperty("archivesBaseName", "lfa-${VERSION_NAME}-${versionCode}")
+  }
+
   signingConfigs {
     debug {
       keyAlias findProperty("au.org.libraryforall.keyAlias")
@@ -20,6 +47,7 @@ android {
       storePassword findProperty("au.org.libraryforall.storePassword")
     }
   }
+
   buildTypes {
     debug {
       signingConfig signingConfigs.debug
@@ -28,9 +56,11 @@ android {
       signingConfig signingConfigs.release
     }
   }
+
   lintOptions {
     checkReleaseBuilds false
   }
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8

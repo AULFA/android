@@ -20,6 +20,12 @@ plugins {
   id 'org.ajoberstar.grgit' version '2.1.1'
 }
 
+ext {
+  androidCompileSDKVersion = 28
+  androidMinimumSDKVersion = 21
+  androidTargetSDKVersion  = 28
+}
+
 allprojects {
   group = 'org.nypl.simplified'
   version = '2.1.1'
