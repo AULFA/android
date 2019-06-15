@@ -23,6 +23,8 @@ import org.nypl.simplified.books.profiles.ProfileNoneCurrentException;
 import org.nypl.simplified.observable.ObservableSubscriptionType;
 import org.nypl.simplified.stack.ImmutableStack;
 
+import java.net.URI;
+
 /**
  * An activity showing a full-screen book detail page.
  */
@@ -31,6 +33,8 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
 
   private static final String CATALOG_BOOK_DETAIL_FEED_ENTRY_ID =
       "org.nypl.simplified.app.CatalogBookDetailActivity.feed_entry";
+  private static final String CATALOG_BOOK_DETAIL_FEED_SOURCE_ID =
+    "org.nypl.simplified.app.CatalogBookDetailActivity.feed_source";
 
   private @Nullable CatalogBookDetailView view;
   private ObservableSubscriptionType<BookStatusEvent> book_subscription;
@@ -56,6 +60,7 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
       final Bundle b,
       final boolean drawer_open,
       final ImmutableStack<CatalogFeedArgumentsType> up_stack,
+      final URI feedSource,
       final FeedEntryOPDS e) {
 
     NullCheck.notNull(b, "Bundle");
@@ -65,6 +70,7 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
     NavigationDrawerActivity.setActivityArguments(b, drawer_open);
     CatalogActivity.setActivityArguments(b, up_stack);
     b.putSerializable(CatalogBookDetailActivity.CATALOG_BOOK_DETAIL_FEED_ENTRY_ID, e);
+    b.putSerializable(CatalogBookDetailActivity.CATALOG_BOOK_DETAIL_FEED_SOURCE_ID, feedSource);
   }
 
   /**
@@ -78,6 +84,7 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
   public static void startNewActivity(
       final Activity from,
       final ImmutableStack<CatalogFeedArgumentsType> up_stack,
+      final URI feedSource,
       final FeedEntryOPDS e) {
 
     NullCheck.notNull(from, "Activity");
@@ -85,7 +92,7 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
     NullCheck.notNull(e, "Entry");
 
     final Bundle b = new Bundle();
-    CatalogBookDetailActivity.setActivityArguments(b, false, up_stack, e);
+    CatalogBookDetailActivity.setActivityArguments(b, false, up_stack, feedSource, e);
     final Intent i = new Intent(from, CatalogBookDetailActivity.class);
     i.putExtras(b);
     from.startActivity(i);
@@ -95,6 +102,12 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
     final Intent i = NullCheck.notNull(this.getIntent());
     final Bundle a = NullCheck.notNull(i.getExtras());
     return NullCheck.notNull((FeedEntryOPDS) a.getSerializable(CATALOG_BOOK_DETAIL_FEED_ENTRY_ID));
+  }
+
+  private URI getFeedSource() {
+    final Intent i = NullCheck.notNull(this.getIntent());
+    final Bundle a = NullCheck.notNull(i.getExtras());
+    return NullCheck.notNull((URI) a.getSerializable(CATALOG_BOOK_DETAIL_FEED_SOURCE_ID));
   }
 
   @Override
@@ -136,6 +149,7 @@ public final class CatalogBookDetailActivity extends CatalogActivity {
             Simplified.getBooksRegistry(),
             profiles,
             Simplified.getBooksController(),
+            this.getFeedSource(),
             entry);
 
     this.view = detail_view;

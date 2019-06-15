@@ -54,21 +54,21 @@ public final class BookCoverProvider implements BookCoverProviderType {
   private final Picasso picasso;
 
   private BookCoverProvider(
-      final Picasso in_picasso,
-      final BookRegistryReadableType in_book_registry,
-      final CatalogBookCoverGeneratorType in_cover_generator) {
+    final Picasso in_picasso,
+    final BookRegistryReadableType in_book_registry,
+    final CatalogBookCoverGeneratorType in_cover_generator) {
 
     this.picasso =
-        NullCheck.notNull(in_picasso, "Picasso");
+      NullCheck.notNull(in_picasso, "Picasso");
     this.books_registry =
-        NullCheck.notNull(in_book_registry, "Book Registry");
+      NullCheck.notNull(in_book_registry, "Book Registry");
     this.cover_gen =
-        NullCheck.notNull(in_cover_generator, "Cover generator");
+      NullCheck.notNull(in_cover_generator, "Cover generator");
   }
 
   private static URI generateCoverURI(
-      final FeedEntryOPDS e,
-      final CatalogBookCoverGeneratorType cg) {
+    final FeedEntryOPDS e,
+    final CatalogBookCoverGeneratorType cg) {
 
     final OPDSAcquisitionFeedEntry eo = e.getFeedEntry();
     final String title = eo.getTitle();
@@ -83,48 +83,55 @@ public final class BookCoverProvider implements BookCoverProviderType {
   }
 
   private static void load(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h,
-      final @Nullable Callback c,
-      final Picasso p,
-      final CatalogBookCoverGeneratorType cg,
-      final String tag,
-      final OptionType<URI> uri_opt) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h,
+    final @Nullable Callback c,
+    final Picasso p,
+    final CatalogBookCoverGeneratorType cg,
+    final String tag,
+    final OptionType<URI> uri_opt) {
 
     final URI uri_generated = BookCoverProvider.generateCoverURI(e, cg);
     if (uri_opt.isSome()) {
       final URI uri_specified = ((Some<URI>) uri_opt).get();
 
-      LOG.debug("{}: {}: loading specified uri {}", tag, e.getBookID(), uri_specified);
+      final URI targetURI;
+      if (!uri_specified.isAbsolute()) {
+        targetURI = source.resolve(uri_specified);
+      } else {
+        targetURI = uri_specified;
+      }
+
+      LOG.debug("{}: {}: loading specified uri {}", tag, e.getBookID(), targetURI);
 
       final RequestCreator r = p.load(uri_specified.toString());
       r.tag(tag);
       r.resize(w, h);
       r.into(
-          i, new Callback() {
-            @Override
-            public void onError() {
-              LOG.debug("{}: {}: failed to load uri {}, falling back to generation",
-                  tag, e.getBookID(), uri_specified);
+        i, new Callback() {
+          @Override
+          public void onError() {
+            LOG.debug("{}: {}: failed to load uri {}, falling back to generation",
+              tag, e.getBookID(), targetURI);
 
-              final RequestCreator fallback_r = p.load(uri_generated.toString());
-              fallback_r.tag(tag);
-              fallback_r.resize(w, h);
-              fallback_r.into(i, c);
-            }
+            final RequestCreator fallback_r = p.load(uri_generated.toString());
+            fallback_r.tag(tag);
+            fallback_r.resize(w, h);
+            fallback_r.into(i, c);
+          }
 
-            @Override
-            public void onSuccess() {
-              if (c != null) {
-                c.onSuccess();
-              }
+          @Override
+          public void onSuccess() {
+            if (c != null) {
+              c.onSuccess();
             }
-          });
+          }
+        });
     } else {
       LOG.debug("{}: {}: loading generated uri {}", tag, e.getBookID(), uri_generated);
-
       final RequestCreator r = p.load(uri_generated.toString());
       r.tag(tag);
       r.resize(w, h);
@@ -143,10 +150,10 @@ public final class BookCoverProvider implements BookCoverProviderType {
    */
 
   public static BookCoverProviderType newCoverProvider(
-      final Context in_c,
-      final BookRegistryReadableType in_book_registry,
-      final CatalogBookCoverGeneratorType in_generator,
-      final ExecutorService in_exec) {
+    final Context in_c,
+    final BookRegistryReadableType in_book_registry,
+    final CatalogBookCoverGeneratorType in_generator,
+    final ExecutorService in_exec) {
 
     NullCheck.notNull(in_c, "Context");
     NullCheck.notNull(in_book_registry, "Book provider");
@@ -178,17 +185,17 @@ public final class BookCoverProvider implements BookCoverProviderType {
       @Override
       public OptionType<URI> some(final Some<BookWithStatus> some_book) {
         return some_book.get().book().cover().accept(
-            new OptionVisitorType<File, OptionType<URI>>() {
-              @Override
-              public OptionType<URI> none(final None<File> none) {
-                return eo.getCover();
-              }
+          new OptionVisitorType<File, OptionType<URI>>() {
+            @Override
+            public OptionType<URI> none(final None<File> none) {
+              return eo.getCover();
+            }
 
-              @Override
-              public OptionType<URI> some(final Some<File> some_file) {
-                return Option.some(some_file.get().toURI());
-              }
-            });
+            @Override
+            public OptionType<URI> some(final Some<File> some_file) {
+              return Option.some(some_file.get().toURI());
+            }
+          });
       }
     });
   }
@@ -206,38 +213,40 @@ public final class BookCoverProvider implements BookCoverProviderType {
       @Override
       public OptionType<URI> some(final Some<BookWithStatus> some_book) {
         return some_book.get().book().cover().accept(
-            new OptionVisitorType<File, OptionType<URI>>() {
-              @Override
-              public OptionType<URI> none(final None<File> none) {
-                return eo.getThumbnail();
-              }
+          new OptionVisitorType<File, OptionType<URI>>() {
+            @Override
+            public OptionType<URI> none(final None<File> none) {
+              return eo.getThumbnail();
+            }
 
-              @Override
-              public OptionType<URI> some(final Some<File> some_file) {
-                return Option.some(some_file.get().toURI());
-              }
-            });
+            @Override
+            public OptionType<URI> some(final Some<File> some_file) {
+              return Option.some(some_file.get().toURI());
+            }
+          });
       }
     });
   }
 
   @Override
   public void loadCoverInto(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h) {
     NullCheck.notNull(e);
     NullCheck.notNull(i);
-    this.loadCoverIntoActual(e, i, w, h, null);
+    this.loadCoverIntoActual(source, e, i, w, h, null);
   }
 
   private void loadCoverIntoActual(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h,
-      final @Nullable Callback c) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h,
+    final @Nullable Callback c) {
     final OPDSAcquisitionFeedEntry eo = e.getFeedEntry();
 
     LOG.debug("{}: loadCoverInto {}", e.getBookID(), eo.getID());
@@ -245,22 +254,9 @@ public final class BookCoverProvider implements BookCoverProviderType {
     UIThread.checkIsUIThread();
 
     final OptionType<URI> uri_opt =
-        this.getCoverURI(e).map(BookCoverProvider::mapToFileURIIfNecessary);
+      this.getCoverURI(e).map(BookCoverProvider::mapToFileURIIfNecessary);
 
-    BookCoverProvider.load(e, i, w, h, c, this.picasso, this.cover_gen, COVER_TAG, uri_opt);
-  }
-
-  @Override
-  public void loadCoverIntoWithCallback(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h,
-      final Callback c) {
-    NullCheck.notNull(e);
-    NullCheck.notNull(i);
-    NullCheck.notNull(c);
-    this.loadCoverIntoActual(e, i, w, h, c);
+    BookCoverProvider.load(source, e, i, w, h, c, this.picasso, this.cover_gen, COVER_TAG, uri_opt);
   }
 
   @Override
@@ -275,21 +271,23 @@ public final class BookCoverProvider implements BookCoverProviderType {
 
   @Override
   public void loadThumbnailInto(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h) {
     NullCheck.notNull(e);
     NullCheck.notNull(i);
-    this.loadThumbnailIntoActual(e, i, w, h, null);
+    this.loadThumbnailIntoActual(source, e, i, w, h, null);
   }
 
   private void loadThumbnailIntoActual(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h,
-      final @Nullable Callback c) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h,
+    final @Nullable Callback c) {
     final OPDSAcquisitionFeedEntry eo = e.getFeedEntry();
 
     LOG.debug("{}: loadThumbnailInto {}", e.getBookID(), eo.getID());
@@ -297,9 +295,10 @@ public final class BookCoverProvider implements BookCoverProviderType {
     UIThread.checkIsUIThread();
 
     final OptionType<URI> uri_opt =
-        this.getThumbnailURI(e).map(BookCoverProvider::mapToFileURIIfNecessary);
+      this.getThumbnailURI(e)
+        .map(BookCoverProvider::mapToFileURIIfNecessary);
 
-    BookCoverProvider.load(e, i, w, h, c, this.picasso, this.cover_gen, THUMBNAIL_TAG, uri_opt);
+    BookCoverProvider.load(source, e, i, w, h, c, this.picasso, this.cover_gen, THUMBNAIL_TAG, uri_opt);
   }
 
   /**
@@ -315,14 +314,15 @@ public final class BookCoverProvider implements BookCoverProviderType {
 
   @Override
   public void loadThumbnailIntoWithCallback(
-      final FeedEntryOPDS e,
-      final ImageView i,
-      final int w,
-      final int h,
-      final Callback c) {
+    final URI source,
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h,
+    final Callback c) {
     NullCheck.notNull(e);
     NullCheck.notNull(i);
     NullCheck.notNull(c);
-    this.loadThumbnailIntoActual(e, i, w, h, c);
+    this.loadThumbnailIntoActual(source, e, i, w, h, c);
   }
 }

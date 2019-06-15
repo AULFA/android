@@ -61,7 +61,9 @@ import org.nypl.simplified.opds.core.OPDSAcquisition;
 import org.nypl.simplified.opds.core.OPDSAcquisitionFeedEntry;
 import org.slf4j.Logger;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -106,6 +108,7 @@ public final class CatalogFeedBookCellView extends FrameLayout implements
   private final TextView cell_downloading_failed_label;
   private final BooksControllerType books_controller;
   private final ProfilesControllerType profiles_controller;
+  private final URI feedSource;
   private CatalogBookSelectionListenerType book_selection_listener;
 
   /**
@@ -117,7 +120,8 @@ public final class CatalogFeedBookCellView extends FrameLayout implements
       final BookCoverProviderType in_cover_provider,
       final BooksControllerType in_books_controller,
       final ProfilesControllerType in_profiles_controller,
-      final BookRegistryReadableType in_books_registry) {
+      final BookRegistryReadableType in_books_registry,
+      final URI feedSource) {
 
     super(in_activity);
 
@@ -131,6 +135,8 @@ public final class CatalogFeedBookCellView extends FrameLayout implements
         NullCheck.notNull(in_books_controller, "Books controller");
     this.profiles_controller =
         NullCheck.notNull(in_profiles_controller, "Profiles controller");
+    this.feedSource =
+        Objects.requireNonNull(feedSource, "feedSource");
 
     this.book_selection_listener = (v, e) -> LOG.debug("doing nothing for {}", e);
 
@@ -262,6 +268,7 @@ public final class CatalogFeedBookCellView extends FrameLayout implements
     };
 
     this.cover_provider.loadThumbnailIntoWithCallback(
+        this.feedSource,
         in_e,
         this.cell_cover_image,
         (int) ((double) in_image_height * 0.75),
