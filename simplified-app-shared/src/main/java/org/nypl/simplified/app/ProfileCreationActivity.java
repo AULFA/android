@@ -3,7 +3,6 @@ package org.nypl.simplified.app;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -56,7 +55,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   }
 
   @Override
-  protected void onCreate(final @Nullable Bundle state) {
+  protected void onCreate(final Bundle state) {
     // This activity is too tall for many phones in landscape mode.
     this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 

@@ -9,7 +9,6 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,7 +61,6 @@ import org.nypl.simplified.books.profiles.ProfileDatabaseException;
 import org.nypl.simplified.books.profiles.ProfilesDatabase;
 import org.nypl.simplified.books.profiles.ProfilesDatabaseType;
 import org.nypl.simplified.bugsnag.IfBugsnag;
-import org.nypl.simplified.cardcreator.CardCreator;
 import org.nypl.simplified.downloader.core.DownloaderHTTP;
 import org.nypl.simplified.downloader.core.DownloaderType;
 import org.nypl.simplified.files.DirectoryUtilities;
@@ -100,7 +98,6 @@ public final class Simplified extends Application {
   private static final Logger LOG = LogUtilities.getLog(Simplified.class);
   private static volatile Simplified INSTANCE;
 
-  private CardCreator cardcreator;
   private ExecutorService exec_catalog_feeds;
   private ExecutorService exec_covers;
   private ExecutorService exec_downloader;
@@ -171,15 +168,6 @@ public final class Simplified extends Application {
       throw new IllegalStateException("Application is not yet initialized");
     }
     return i;
-  }
-
-  /**
-   * @return The Card Creator
-   */
-
-  public static CardCreator getCardCreator() {
-    final Simplified i = Simplified.checkInitialized();
-    return i.cardcreator;
   }
 
   /**
@@ -308,7 +296,6 @@ public final class Simplified extends Application {
     return i.httpd;
   }
 
-  @NonNull
   private static File determineDiskDataDirectory(
       final Context context) {
 
@@ -457,7 +444,6 @@ public final class Simplified extends Application {
         in_exec_covers);
   }
 
-  @NonNull
   private static OPDSFeedParserType createFeedParser() {
     return OPDSFeedParser.newParser(OPDSAcquisitionFeedEntryParser.newParser());
   }
@@ -738,16 +724,6 @@ public final class Simplified extends Application {
 
     LOG.debug("initializing network connectivity checker");
     this.network_connectivity = new NetworkConnectivity(this);
-
-    LOG.debug("initializing CardCreator");
-    this.cardcreator =
-        new CardCreator(
-            asset_manager,
-            resources.getString(R.string.feature_environment),
-            resources);
-
-    LOG.debug("initializing HelpStack");
-    this.helpstack = Helpstack.get(this, asset_manager);
 
     LOG.debug("finished booting");
     Simplified.INSTANCE = this;

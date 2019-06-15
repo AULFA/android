@@ -1,17 +1,4 @@
-apply plugin: 'com.android.library'
-
-android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.2"
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-}
-
-description = 'simplified-tenprint'
-
 dependencies {
-  compile 'com.io7m.jnull:io7m-jnull-core:[1.0.0, 2.0.0)'
-  compile project(':simplified-assert')
+  api 'com.io7m.jnull:io7m-jnull-core:[1.0.0, 2.0.0)'
+  api project(':simplified-assert')
 }

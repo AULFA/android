@@ -39,19 +39,11 @@ public final class LoginActivity extends Activity {
     super.onCreate(state);
     this.setContentView(R.layout.login_view);
 
-    final Resources rr = NullCheck.notNull(this.getResources());
-    final boolean clever_enabled = rr.getBoolean(R.bool.feature_auth_provider_clever);
-
     final ImageButton barcode = NullCheck.notNull(findViewById(R.id.login_with_barcode));
     barcode.setOnClickListener(view -> this.onLoginWithBarcode());
 
     final ImageButton clever = NullCheck.notNull(findViewById(R.id.login_with_clever));
-    if (clever_enabled) {
-      clever.setOnClickListener(view -> this.onLoginWithClever());
-      clever.setVisibility(View.VISIBLE);
-    } else {
-      clever.setVisibility(View.GONE);
-    }
+    clever.setVisibility(View.GONE);
   }
 
   private void openCatalog() {
@@ -63,11 +55,6 @@ public final class LoginActivity extends Activity {
 
   public void onLoginWithBarcode() {
     throw new UnimplementedCodeException();
-  }
-
-  public void onLoginWithClever() {
-    final Intent i = new Intent(this, CleverLoginActivity.class);
-    this.startActivityForResult(i, 1);
   }
 
   @Override

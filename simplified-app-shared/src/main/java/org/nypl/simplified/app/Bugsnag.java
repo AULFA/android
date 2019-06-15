@@ -21,7 +21,7 @@ public final class Bugsnag
   private static final Logger LOG;
 
   static {
-    LOG = LogUtilities.getLog(Helpstack.class);
+    LOG = LogUtilities.getLog(Bugsnag.class);
   }
 
   /**

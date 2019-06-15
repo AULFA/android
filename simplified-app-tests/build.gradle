@@ -1,15 +1,3 @@
-apply plugin: 'com.android.application'
-
-android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.2"
-  packagingOptions {
-    exclude 'META-INF/LICENSE'
-  }
-}
-
-description = 'simplified-app-tests'
-
 dependencies {
-  compile project(':simplified-app-shared')
+  api project(':simplified-app-shared')
 }

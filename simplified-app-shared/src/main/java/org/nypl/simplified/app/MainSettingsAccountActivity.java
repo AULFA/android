@@ -31,8 +31,6 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
-import com.tenmiles.helpstack.HSHelpStack;
-import com.tenmiles.helpstack.gears.HSDeskGear;
 
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
@@ -242,53 +240,9 @@ public final class MainSettingsAccountActivity extends NavigationDrawerActivity 
     this.account_name_text.setText(this.account.provider().displayName());
     this.account_subtitle_text.setText(this.account.provider().subtitle());
 
-    /*
-     * Show the "Support Center" section if the provider offers one.
-     */
-
-    if (this.account.provider().supportEmail().isSome()) {
-      this.report_issue.setVisibility(View.VISIBLE);
-      this.report_issue.setOnClickListener(view -> {
-        final Intent intent = new Intent(MainSettingsAccountActivity.this, ReportIssueActivity.class);
-        final Bundle b = new Bundle();
-        b.putSerializable("selected_account", this.account.id());
-        intent.putExtras(b);
-        this.startActivity(intent);
-      });
-    } else {
-      this.report_issue.setVisibility(View.GONE);
-    }
-
-    /*
-     * Show the "Help Center" section if the provider offers one.
-     */
-
-    if (this.account.provider().supportsHelpCenter()) {
-      this.support_center.setVisibility(View.VISIBLE);
-      this.support_center.setOnClickListener(view -> {
-        final HSHelpStack stack = HSHelpStack.getInstance(MainSettingsAccountActivity.this);
-        final HSDeskGear gear = new HSDeskGear(" ", " ", null);
-        stack.setGear(gear);
-        stack.showHelp(MainSettingsAccountActivity.this);
-      });
-    } else {
-      this.support_center.setVisibility(View.GONE);
-    }
-
-    /*
-     * Show the "Card Creator" section if the provider supports it.
-     */
-
-    if (this.account.provider().supportsCardCreator()) {
-      this.table_signup.setVisibility(View.VISIBLE);
-      this.signup.setOnClickListener(v -> {
-        final Intent cardcreator = new Intent(this, CardCreatorActivity.class);
-        this.startActivity(cardcreator);
-      });
-      this.signup.setText(R.string.need_card_button);
-    } else {
-      this.table_signup.setVisibility(View.GONE);
-    }
+    this.report_issue.setVisibility(View.GONE);
+    this.support_center.setVisibility(View.GONE);
+    this.table_signup.setVisibility(View.GONE);
 
     /*
      * Configure the barcode and PIN entry section. This will be hidden entirely if the

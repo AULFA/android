@@ -2,7 +2,6 @@ package org.nypl.simplified.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.controller.ProfilesControllerType;
@@ -39,7 +38,7 @@ public abstract class ProfileTimeOutActivity extends SimplifiedActivity {
   }
 
   @Override
-  protected void onCreate(final @Nullable Bundle state) {
+  protected void onCreate(final Bundle state) {
     super.onCreate(state);
 
     /*

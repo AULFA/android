@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +55,7 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
   }
 
   @Override
-  protected void onCreate(final @Nullable Bundle state) {
+  protected void onCreate(final Bundle state) {
 
     this.setTheme(Simplified.getCurrentTheme(WANT_NO_ACTION_BAR));
     super.onCreate(state);

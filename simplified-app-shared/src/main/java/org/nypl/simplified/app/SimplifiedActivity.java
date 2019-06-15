@@ -3,7 +3,6 @@ package org.nypl.simplified.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,7 @@ public abstract class SimplifiedActivity extends Activity {
   private static int ACTIVITY_COUNT;
 
   @Override
-  protected void onCreate(final @Nullable Bundle state) {
+  protected void onCreate(final Bundle state) {
     super.onCreate(state);
     this.overridePendingTransition(R.anim.activity_open, R.anim.activity_close);
     ACTIVITY_COUNT += 1;
@@ -83,7 +82,7 @@ public abstract class SimplifiedActivity extends Activity {
   public void startActivityForResult(
       final Intent intent,
       final int requestCode,
-      final @Nullable  Bundle options) {
+      final Bundle options) {
     super.startActivityForResult(intent, requestCode, options);
     this.overridePendingTransition(R.anim.activity_open, R.anim.activity_close);
   }
@@ -97,7 +96,7 @@ public abstract class SimplifiedActivity extends Activity {
   @Override
   public void startActivity(
       final Intent intent,
-      final @Nullable  Bundle options) {
+      final Bundle options) {
     super.startActivity(intent, options);
     this.overridePendingTransition(R.anim.activity_open, R.anim.activity_close);
   }

@@ -18,16 +18,11 @@ def buildVersion() {
 }
 
 android {
-  compileSdkVersion 27
-  buildToolsVersion "27.0.2"
-
   packagingOptions {
     exclude 'META-INF/LICENSE'
   }
 
   defaultConfig {
-    minSdkVersion androidMinimumSDKVersion
-    targetSdkVersion androidTargetSDKVersion
     versionName = VERSION_NAME
     versionCode = buildVersion()
     setProperty("archivesBaseName", "lfa-offline-${VERSION_NAME}-${versionCode}")
@@ -67,8 +62,6 @@ android {
   }
 }
 
-description = 'simplified-app-lfa'
-
 def jsonFile   = file("${project.rootDir}/simplified-app-lfa-offline/bundles.json")
 def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
 
@@ -98,5 +91,5 @@ afterEvaluate {
 }
 
 dependencies {
-  compile project(':simplified-app-shared')
+  api project(':simplified-app-shared')
 }

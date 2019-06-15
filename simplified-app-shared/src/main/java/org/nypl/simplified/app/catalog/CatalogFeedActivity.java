@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -105,7 +104,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
   FeedType feed;
 
   private AbsListView list_view;
-  private SwipeRefreshLayout swipe_refresh_layout;
   private ListenableFuture<FeedType> loading;
   private ViewGroup progress_layout;
   private int saved_scroll_pos;
@@ -747,10 +745,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       layout.findViewById(
         R.id.catalog_feed_blocks_list));
 
-    this.swipe_refresh_layout =
-      NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
-    this.swipe_refresh_layout.setOnRefreshListener(this::retryFeed);
-
     list.post(() -> list.setSelection(saved_scroll_pos));
     list.setDividerHeight(0);
     this.list_view = list;
@@ -857,13 +851,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final GridView grid_view = NullCheck.notNull(
       layout.findViewById(
         R.id.catalog_feed_nogroups_grid));
-
-    this.swipe_refresh_layout =
-      NullCheck.notNull(layout.findViewById(R.id.swipe_refresh_layout));
-
-    this.swipe_refresh_layout.setOnRefreshListener(() -> {
-      // XXX: Refresh the feed
-    });
 
     this.configureFacets(
       feed_without_groups, layout, Simplified.getScreenSizeInformation(), resources);
@@ -1003,9 +990,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         @Override
         public Unit onFeedArgumentsLocalBooks(final CatalogFeedArgumentsLocalBooks c) {
           catalogActivityForkNewReplacing(args);
-          if (swipe_refresh_layout != null) {
-            swipe_refresh_layout.setRefreshing(false);
-          }
           return Unit.unit();
         }
 
@@ -1013,9 +997,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         public Unit onFeedArgumentsRemote(final CatalogFeedArgumentsRemote c) {
           loader.invalidate(c.getURI());
           catalogActivityForkNewReplacing(args);
-          if (swipe_refresh_layout != null) {
-            swipe_refresh_layout.setRefreshing(false);
-          }
           return Unit.unit();
         }
       });

@@ -119,10 +119,10 @@ public final class MainSettingsAccountsActivity extends NavigationDrawerActivity
             final AccountProvider account = NullCheck.notNull(adapter_accounts_array.get(position));
             final TextView item_title_view = NullCheck.notNull(v.findViewById(android.R.id.text1));
             item_title_view.setText(account.displayName());
-            item_title_view.setTextColor(R.color.text_black);
+            item_title_view.setTextColor(0xff000000);
             final TextView item_subtitle_view = NullCheck.notNull(v.findViewById(android.R.id.text2));
             item_subtitle_view.setText(account.subtitle());
-            item_subtitle_view.setTextColor(R.color.text_black);
+            item_subtitle_view.setTextColor(0xff000000);
             final ImageView icon_view = NullCheck.notNull(v.findViewById(R.id.cellIcon));
             SimplifiedIconViews.configureIconViewFromURI(getAssets(), icon_view, account.logo());
             return v;
@@ -198,12 +198,12 @@ public final class MainSettingsAccountsActivity extends NavigationDrawerActivity
       final TextView title_text =
           NullCheck.notNull(current_account_view.findViewById(android.R.id.text1));
       title_text.setText(account_provider.displayName());
-      title_text.setTextColor(R.color.text_black);
+      title_text.setTextColor(0xff000000);
 
       final TextView subtitle_text =
           NullCheck.notNull(current_account_view.findViewById(android.R.id.text2));
       subtitle_text.setText(account_provider.subtitle());
-      subtitle_text.setTextColor(R.color.text_black);
+      subtitle_text.setTextColor(0xff000000);
 
       final ImageView icon_view =
           NullCheck.notNull(current_account_view.findViewById(R.id.cellIcon));

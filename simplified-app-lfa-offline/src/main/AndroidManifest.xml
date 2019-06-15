@@ -45,12 +45,6 @@
       >
     </activity>
 
-    <activity android:name="org.nypl.simplified.app.CardCreatorActivity"
-          android:configChanges="orientation|screenSize"
-          android:label="Card Creator"
-          android:contentDescription="Card Creator">
-    </activity>
-
     <activity
       android:name="org.nypl.simplified.app.LoginActivity"
       android:configChanges="orientation|screenSize"
@@ -128,13 +122,6 @@
       android:exported="false">
     </activity>
 
-    <!-- Welcome -->
-    <activity
-      android:name="org.nypl.simplified.app.MainWelcomeActivity"
-      android:configChanges="orientation|screenSize"
-      android:exported="true">
-    </activity>
-
     <!-- EULA -->
     <activity
       android:name="org.nypl.simplified.app.MainEULAActivity"
@@ -173,60 +160,6 @@
       android:contentDescription="@string/reader_toc"
       >
     </activity>
-
-    <!-- HelpStack -->
-    <activity
-      android:name="com.tenmiles.helpstack.activities.HomeActivity"
-      android:label="@string/hs_help_title" android:exported="false"
-      tools:replace="android:label">
-      <intent-filter>
-        <action android:name="com.tenmiles.helpstack.ShowHelp"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.NewIssueActivity"
-      android:windowSoftInputMode="adjustResize"
-      android:label="@string/hs_issuebutton_title"
-      android:contentDescription="@string/hs_issuebutton_title">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.NewUserActivity"
-      android:windowSoftInputMode="adjustResize">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.IssueDetailActivity"
-      android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.ArticleActivity">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.SectionActivity">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.ImageAttachmentDisplayActivity">
-    </activity>
-    <activity
-      android:name="com.tenmiles.helpstack.activities.EditAttachmentActivity"
-      android:screenOrientation="portrait">
-    </activity>
-    <activity
-      android:name="org.nypl.simplified.app.ReportIssueActivity"
-      android:windowSoftInputMode="adjustResize"
-      android:label="@string/hs_issuebutton_title"
-      android:contentDescription="@string/hs_issuebutton_title">
-    </activity>
-
-    <receiver
-      android:name="com.tenmiles.helpstack.service.AttachmentDownloadReceiver"
-      android:enabled="true">
-      <intent-filter>
-        <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
-        <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
-        <category android:name="android.intent.category.DEFAULT" />
-      </intent-filter>
-    </receiver>
   </application>
 
 </manifest>

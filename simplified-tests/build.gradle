@@ -1,24 +1,11 @@
-apply plugin: 'com.android.library'
-
-android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.2"
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-}
-
-description = 'simplified-tests'
-
 dependencies {
-  compile project(':simplified-books-core')
-  compile project(':simplified-files')
-  compile project(':simplified-http-core')
-  compile project(':simplified-opds-core')
-  compile project(':simplified-rfc3339-core')
-  compile project(':simplified-observable')
-  compile 'junit:junit:4.12'
+  api project(':simplified-books-core')
+  api project(':simplified-files')
+  api project(':simplified-http-core')
+  api project(':simplified-opds-core')
+  api project(':simplified-rfc3339-core')
+  api project(':simplified-observable')
+  api 'junit:junit:4.12'
   testCompile 'ch.qos.logback:logback-classic:1.2.3'
   testCompile 'junit:junit:4.12'
 }

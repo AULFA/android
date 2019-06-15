@@ -1,7 +1,7 @@
 package org.nypl.simplified.tests.android.rfc3339;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.runner.RunWith;
 import org.nypl.simplified.tests.rfc3339.RFC3339FormatterContract;

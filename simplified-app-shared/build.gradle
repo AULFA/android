@@ -1,58 +1,43 @@
-description = 'simplified-app-shared'
-
-apply plugin: 'com.android.library'
-apply plugin: 'net.ltgt.apt'
-
 android {
-  compileSdkVersion 26
-  buildToolsVersion "26.0.2"
   useLibrary 'org.apache.http.legacy'
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
-  packagingOptions {
-    exclude 'META-INF/LICENSE'
-  }
 }
 
 dependencies {
-  compile project(':simplified-books-core')
-  compile project(':simplified-http-core')
-  compile project(':simplified-json-core')
-  compile project(':simplified-opds-core')
-  compile project(':simplified-stack')
-  compile project(':simplified-tenprint')
-  compile project(':simplified-volley')
-  compile project(':simplified-prefs')
-  compile project(':simplified-multilibrary')
-  compile project(':simplified-circ-analytics')
-  compile project(':simplified-bugsnag')
-  compile project(':simplified-cardcreator')
-  compile project(':simplified-datepicker')
-  compile 'org.nypl.drm:nypl-drm-core:1.0.0'
-  compile 'com.io7m.jnull:io7m-jnull-core:[1.0.0, 2.0.0)'
-  compile 'com.android.support:support-v4:26.1.0'
-  compile 'org.nypl.readium:readium-sdk-android-runtime:0.25.0'
-  compile 'org.nypl.readium:readium-shared-js:0.27.0'
-  compile 'com.koushikdutta.async:androidasync:2.2.1'
-  compile 'com.squareup.picasso:picasso:2.5.2'
-  compile 'com.nanohttpd:nanohttpd:2.2.0'
-  compile 'org.slf4j:slf4j-api:1.7.25'
-  compile 'org.nypl.helpstack:helpstack-android:1.4.0'
-  compile 'com.bugsnag:bugsnag-android:3.9.0'
-  compile 'commons-lang:commons-lang:2.6'
-  compile 'com.google.code.gson:gson:2.8.1'
-  compile 'joda-time:joda-time:2.9.9'
-  compile 'javax.annotation:javax.annotation-api:1.2-b01'
-  compile 'com.github.ronaldsmartin:Material-ViewPagerIndicator:1.0.4'
+  api project(':simplified-books-core')
+  api project(':simplified-http-core')
+  api project(':simplified-json-core')
+  api project(':simplified-opds-core')
+  api project(':simplified-stack')
+  api project(':simplified-tenprint')
+  api project(':simplified-volley')
+  api project(':simplified-prefs')
+  api project(':simplified-multilibrary')
+  api project(':simplified-bugsnag')
+  api project(':simplified-datepicker')
+  api 'org.nypl.drm:nypl-drm-core:1.0.0'
+  api 'com.io7m.jnull:io7m-jnull-core:[1.0.0, 2.0.0)'
+
+  api "androidx.core:core-ktx:1.0.2"
+  api "androidx.appcompat:appcompat:1.1.0-beta01"
+
+  api 'org.nypl.readium:readium-sdk-android-runtime:0.25.0'
+  api 'org.nypl.readium:readium-shared-js:0.27.0'
+
+  api 'com.koushikdutta.async:androidasync:2.2.1'
+  api 'com.squareup.picasso:picasso:2.5.2'
+  api 'com.nanohttpd:nanohttpd:2.2.0'
+
+  api 'org.slf4j:slf4j-api:1.7.25'
+
+  api 'com.bugsnag:bugsnag-android:3.9.0'
+
+  api 'commons-lang:commons-lang:2.6'
+  api 'com.google.code.gson:gson:2.8.1'
+
+  api 'joda-time:joda-time:2.9.9'
+
+  api 'javax.annotation:javax.annotation-api:1.2-b01'
+
   compileOnly 'com.google.auto.value:auto-value:1.5'
   annotationProcessor 'com.google.auto.value:auto-value:1.5'
 }
-
-task generateRevisionProperties {
-  description = 'Generate a revision.properties file'
-  new File("$projectDir/src/main/assets/revision.properties").text = "revision = " + grgit.head().id
-}
-
-preBuild.dependsOn generateRevisionProperties
