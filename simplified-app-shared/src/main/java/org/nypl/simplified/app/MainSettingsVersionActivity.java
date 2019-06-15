@@ -1,5 +1,6 @@
 package org.nypl.simplified.app;
 
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -54,13 +55,12 @@ public final class MainSettingsVersionActivity extends NavigationDrawerActivity 
         NullCheck.notNull(this.findViewById(R.id.settings_version_version),
             "this.findViewById(R.id.settings_version_version)");
 
-    this.text_build.setText(BuildRevision.revision(this.getAssets()));
+    this.text_build.setText(BuildConfig.GIT_COMMIT);
 
     try {
+      PackageInfo info = this.getPackageManager().getPackageInfo(getPackageName(), 0);
       this.text_version.setText(
-          this.getPackageManager()
-              .getPackageInfo(getPackageName(), 0)
-              .versionName);
+        String.format("%s (%d) [%s]", info.versionName, info.versionCode, BuildConfig.BUILD_TYPE));
     } catch (final PackageManager.NameNotFoundException e) {
       LOG.error("Unable to fetch version: ", e);
     }

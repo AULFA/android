@@ -1,5 +1,18 @@
+def getGitHash = { ->
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'git', 'rev-parse', 'HEAD'
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
+}
+
 android {
   useLibrary 'org.apache.http.legacy'
+
+  defaultConfig {
+    buildConfigField "String", "GIT_COMMIT", "\"${getGitHash()}\""
+  }
 }
 
 dependencies {
