@@ -46,8 +46,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-loanable.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-loanable.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
     final OPDSAvailabilityLoanable expected = OPDSAvailabilityLoanable.get();
@@ -59,8 +60,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-loaned-indefinite.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-loaned-indefinite.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -80,8 +82,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-loaned-timed.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-loaned-timed.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -102,8 +105,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-holdable.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-holdable.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
     final OPDSAvailabilityHoldable expected = OPDSAvailabilityHoldable.get();
@@ -116,8 +120,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-held-indefinite.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-held-indefinite.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -138,8 +143,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-held-timed.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-held-timed.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -161,8 +167,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-held-indefinite-queued.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-held-indefinite-queued.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -183,8 +190,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-held-timed-queued.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-held-timed-queued.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -206,8 +214,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-heldready.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-heldready.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -225,8 +234,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-heldready-timed.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-heldready-timed.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -245,8 +255,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-open-access.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-open-access.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 
@@ -263,8 +274,9 @@ public abstract class OPDSFeedEntryParserContract {
       throws Exception {
     final OPDSAcquisitionFeedEntryParserType parser = this.getParser();
     final OPDSAcquisitionFeedEntry e = parser.parseEntryStream(
-        OPDSFeedEntryParserContract.getResource(
-            "entry-availability-heldready-specific0.xml"));
+      URI.create("http://www.example.com"),
+      OPDSFeedEntryParserContract.getResource(
+          "entry-availability-heldready-specific0.xml"));
 
     final OPDSAvailabilityType availability = e.getAvailability();
 

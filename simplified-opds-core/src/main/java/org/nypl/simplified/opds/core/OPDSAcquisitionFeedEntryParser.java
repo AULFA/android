@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The default implementation of the {@link OPDSAcquisitionFeedEntryParserType}
@@ -80,7 +81,20 @@ public final class OPDSAcquisitionFeedEntryParser
     return new OPDSAcquisitionFeedEntryParser();
   }
 
+  private static URI resolveURI(
+    final URI sourceURI,
+    final URI targetURI)
+  {
+    if (!targetURI.isAbsolute()) {
+      final URI resolved = sourceURI.resolve(targetURI);
+      LOG.debug("resolved {} -> {}", targetURI, resolved);
+      return resolved;
+    }
+    return targetURI;
+  }
+
   private static OPDSAcquisitionFeedEntry parseAcquisitionEntry(
+    final URI source,
     final Element e)
     throws OPDSParseException, ParseException, URISyntaxException
   {
@@ -92,10 +106,10 @@ public final class OPDSAcquisitionFeedEntryParser
       OPDSAcquisitionFeedEntry.newBuilder(
         id, title, updated, OPDSAvailabilityLoanable.get());
 
-    final List<Element> e_links = OPDSXML.getChildElementsWithNameNonEmpty(
-      e, OPDSFeedConstants.ATOM_URI, "link");
+    final List<Element> e_links =
+      OPDSXML.getChildElementsWithNameNonEmpty(e, OPDSFeedConstants.ATOM_URI, "link");
 
-    /**
+    /*
      * First, locate a revocation link, if any. This is required to be found
      * first as it needs to be used later in availability information.
      */
@@ -107,7 +121,7 @@ public final class OPDSAcquisitionFeedEntryParser
         if (rel_text.equals(OPDSFeedConstants.REVOKE_URI_TEXT)) {
           if (e_link.hasAttribute("href")) {
             final URI u = new URI(e_link.getAttribute("href"));
-            revoke = Option.some(u);
+            revoke = Option.some(resolveURI(source, u));
             break;
           }
         }
@@ -132,7 +146,7 @@ public final class OPDSAcquisitionFeedEntryParser
           final String link_title =
             NullCheck.notNull(e_link.getAttribute("title"));
           final URI uri = new URI(uri_text);
-          eb.addGroup(uri, link_title);
+          eb.addGroup(resolveURI(source, uri), link_title);
           continue;
         }
 
@@ -140,7 +154,7 @@ public final class OPDSAcquisitionFeedEntryParser
           final String uri_text =
             NullCheck.notNull(e_link.getAttribute("href"));
           final URI uri = new URI(uri_text);
-          eb.setIssuesOption(Option.some(uri));
+          eb.setIssuesOption(Option.some(resolveURI(source, uri)));
           continue;
         }
 
@@ -148,20 +162,20 @@ public final class OPDSAcquisitionFeedEntryParser
           final String uri_text =
             NullCheck.notNull(e_link.getAttribute("href"));
           final URI uri = new URI(uri_text);
-          eb.setAlternateOption(Option.some(uri));
+          eb.setAlternateOption(Option.some(resolveURI(source, uri)));
 
           final String uri_text_analytics =
             uri_text.replace("/works/", "/analytics/");
 
           final URI uri_analytics = new URI(uri_text_analytics);
-          eb.setAnalyticsOption(Option.some(uri_analytics));
+          eb.setAnalyticsOption(Option.some(resolveURI(source, uri_analytics)));
           continue;
         }
 
         if (rel_text.equals(OPDSFeedConstants.RELATED_REL_TEXT)) {
           if (e_link.hasAttribute("href")) {
             final URI u = new URI(e_link.getAttribute("href"));
-            eb.setRelatedOption(Option.some(u));
+            eb.setRelatedOption(Option.some(resolveURI(source, u)));
             continue;
           }
         }
@@ -169,7 +183,7 @@ public final class OPDSAcquisitionFeedEntryParser
         if (rel_text.equals(OPDSFeedConstants.ANNOTATION_URI_TEXT)) {
           if (e_link.hasAttribute("href")) {
             final URI u = new URI(e_link.getAttribute("href"));
-            eb.setAnnotationsOption(Option.some(u));
+            eb.setAnnotationsOption(Option.some(resolveURI(source, u)));
             continue;
           }
         }
@@ -181,7 +195,7 @@ public final class OPDSAcquisitionFeedEntryParser
         if (rel_text.equals(OPDSFeedConstants.THUMBNAIL_URI_TEXT)) {
           if (e_link.hasAttribute("href")) {
             final URI u = new URI(e_link.getAttribute("href"));
-            eb.setThumbnailOption(Option.some(u));
+            eb.setThumbnailOption(Option.some(resolveURI(source, u)));
             continue;
           }
         }
@@ -193,7 +207,7 @@ public final class OPDSAcquisitionFeedEntryParser
         if (rel_text.equals(OPDSFeedConstants.IMAGE_URI_TEXT)) {
           if (e_link.hasAttribute("href")) {
             final URI u = new URI(e_link.getAttribute("href"));
-            eb.setCoverOption(Option.some(u));
+            eb.setCoverOption(Option.some(resolveURI(source, u)));
             continue;
           }
         }
@@ -211,7 +225,7 @@ public final class OPDSAcquisitionFeedEntryParser
             final String uri_text = NullCheck.notNull(v.getURI().toString());
             if (rel_text.equals(uri_text)) {
               final URI href = new URI(e_link.getAttribute("href"));
-              eb.addAcquisition(new OPDSAcquisition(v, href));
+              eb.addAcquisition(new OPDSAcquisition(v, resolveURI(source, href)));
               open_access = open_access || v == Type.ACQUISITION_OPEN_ACCESS;
               break;
             }
@@ -422,13 +436,15 @@ public final class OPDSAcquisitionFeedEntryParser
   }
 
   @Override public OPDSAcquisitionFeedEntry parseEntry(
+    final URI source,
     final Element e)
     throws OPDSParseException
   {
+    Objects.requireNonNull(source, "source");
     NullCheck.notNull(e);
 
     try {
-      return OPDSAcquisitionFeedEntryParser.parseAcquisitionEntry(e);
+      return OPDSAcquisitionFeedEntryParser.parseAcquisitionEntry(source, e);
     } catch (final ParseException ex) {
       throw new OPDSParseException(ex);
     } catch (final URISyntaxException ex) {
@@ -437,9 +453,11 @@ public final class OPDSAcquisitionFeedEntryParser
   }
 
   @Override public OPDSAcquisitionFeedEntry parseEntryStream(
+    final URI source,
     final InputStream s)
     throws OPDSParseException
   {
+    Objects.requireNonNull(source, "source");
     NullCheck.notNull(s);
 
     try {
@@ -448,7 +466,7 @@ public final class OPDSAcquisitionFeedEntryParser
       final DocumentBuilder db = dbf.newDocumentBuilder();
       final Document d = NullCheck.notNull(db.parse(s));
       final Element e = NullCheck.notNull(d.getDocumentElement());
-      return this.parseEntry(e);
+      return this.parseEntry(source, e);
     } catch (final ParserConfigurationException ex) {
       throw new OPDSParseException(ex);
     } catch (final SAXException ex) {

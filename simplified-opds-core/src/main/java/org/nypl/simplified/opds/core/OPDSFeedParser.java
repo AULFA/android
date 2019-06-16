@@ -52,6 +52,18 @@ public final class OPDSFeedParser implements OPDSFeedParserType
     this.entry_parser = NullCheck.notNull(in_entry_parser);
   }
 
+  private static URI resolveURI(
+    final URI sourceURI,
+    final URI targetURI)
+  {
+    if (!targetURI.isAbsolute()) {
+      final URI resolved = sourceURI.resolve(targetURI);
+      LOG.debug("resolved {} -> {}", targetURI, resolved);
+      return resolved;
+    }
+    return targetURI;
+  }
+
   /**
    * @param in_entry_parser A feed entry parser
    *
@@ -65,6 +77,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
   }
 
   private static OptionType<OPDSFacet> parseFacet(
+    final URI source,
     final Element e)
     throws URISyntaxException
   {
@@ -100,7 +113,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
         }
 
         final OPDSFacet f =
-          new OPDSFacet(in_active, new URI(href), group, title);
+          new OPDSFacet(in_active, resolveURI(source, new URI(href)), group, title);
         return Option.some(f);
       }
     }
@@ -109,6 +122,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
   }
 
   private static OptionType<URI> parseNextLink(
+    final URI source,
     final Element e)
     throws URISyntaxException
   {
@@ -122,7 +136,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
     if ("next".equals(rel)) {
       if (e.hasAttribute("href")) {
         final URI uri = new URI(e.getAttribute("href"));
-        return Option.some(uri);
+        return Option.some(resolveURI(source, uri));
       }
     }
 
@@ -130,6 +144,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
   }
 
   private static OptionType<OPDSSearchLink> parseSearchLink(
+    final URI source,
     final Element e)
     throws URISyntaxException
   {
@@ -147,7 +162,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
       final String h = NullCheck.notNull(e.getAttribute("href"));
 
       if ("search".equals(r)) {
-        final URI u = NullCheck.notNull(new URI(h));
+        final URI u = NullCheck.notNull(resolveURI(source, new URI(h)));
         final OPDSSearchLink sl = new OPDSSearchLink(t, u);
         return Option.some(sl);
       }
@@ -166,7 +181,9 @@ public final class OPDSFeedParser implements OPDSFeedParserType
     return NullCheck.notNull(db.parse(s));
   }
 
-  private static OptionType<URI> parseTermsOfService(final Element e)
+  private static OptionType<URI> parseTermsOfService(
+    final URI source,
+    final Element e)
     throws URISyntaxException
   {
     NullCheck.notNull(e);
@@ -184,14 +201,16 @@ public final class OPDSFeedParser implements OPDSFeedParserType
       final String h = NullCheck.notNull(e.getAttribute("href"));
 
       if ("terms-of-service".equals(r)) {
-        return Option.some(new URI(h));
+        return Option.some(resolveURI(source, new URI(h)));
       }
     }
 
     return Option.none();
   }
 
-  private static OptionType<URI> parseAbout(final Element e)
+  private static OptionType<URI> parseAbout(
+    final URI source,
+    final Element e)
           throws URISyntaxException
   {
     NullCheck.notNull(e);
@@ -209,14 +228,16 @@ public final class OPDSFeedParser implements OPDSFeedParserType
       final String h = NullCheck.notNull(e.getAttribute("href"));
 
       if ("about".equals(r)) {
-        return Option.some(new URI(h));
+        return Option.some(resolveURI(source, new URI(h)));
       }
     }
 
     return Option.none();
   }
 
-  private static OptionType<URI> parsePrivacyPolicy(final Element e)
+  private static OptionType<URI> parsePrivacyPolicy(
+    final URI source,
+    final Element e)
     throws URISyntaxException
   {
     NullCheck.notNull(e);
@@ -234,7 +255,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
       final String h = NullCheck.notNull(e.getAttribute("href"));
 
       if ("privacy-policy".equals(r)) {
-        return Option.some(new URI(h));
+        return Option.some(resolveURI(source, new URI(h)));
       }
     }
 
@@ -317,7 +338,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
     final String title = "Entry";
     final OPDSAcquisitionFeedBuilderType b =
       OPDSAcquisitionFeed.newBuilder(uri, id, updated, title);
-    b.addEntry(this.entry_parser.parseEntry(e));
+    b.addEntry(this.entry_parser.parseEntry(uri, e));
     return b.build();
   }
 
@@ -362,7 +383,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
 
           {
             final OptionType<OPDSSearchLink> search_opt =
-              OPDSFeedParser.parseSearchLink(e);
+              OPDSFeedParser.parseSearchLink(uri, e);
             if (search_opt.isSome()) {
               b.setSearchOption(search_opt);
               continue;
@@ -374,7 +395,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
            */
 
           {
-            final OptionType<URI> next_opt = OPDSFeedParser.parseNextLink(e);
+            final OptionType<URI> next_opt = OPDSFeedParser.parseNextLink(uri, e);
             if (next_opt.isSome()) {
               b.setNextOption(next_opt);
               continue;
@@ -387,7 +408,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
 
           {
             final OptionType<OPDSFacet> facet_opt =
-              OPDSFeedParser.parseFacet(e);
+              OPDSFeedParser.parseFacet(uri, e);
             if (facet_opt.isSome()) {
               b.addFacet(((Some<OPDSFacet>) facet_opt).get());
               continue;
@@ -400,7 +421,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
 
           {
             final OptionType<URI> about_opt =
-                    OPDSFeedParser.parseAbout(e);
+                    OPDSFeedParser.parseAbout(uri, e);
             if (about_opt.isSome()) {
               b.setAboutOption(about_opt);
               continue;
@@ -413,7 +434,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
 
           {
             final OptionType<URI> tos_opt =
-              OPDSFeedParser.parseTermsOfService(e);
+              OPDSFeedParser.parseTermsOfService(uri, e);
             if (tos_opt.isSome()) {
               b.setTermsOfServiceOption(tos_opt);
               continue;
@@ -425,7 +446,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
            */
 
           {
-            final OptionType<URI> pp_opt = OPDSFeedParser.parsePrivacyPolicy(e);
+            final OptionType<URI> pp_opt = OPDSFeedParser.parsePrivacyPolicy(uri, e);
             if (pp_opt.isSome()) {
               b.setPrivacyPolicyOption(pp_opt);
               continue;
@@ -486,7 +507,7 @@ public final class OPDSFeedParser implements OPDSFeedParserType
         if (OPDSXML.nodeHasName(
           (Element) child, OPDSFeedConstants.ATOM_URI, "entry")) {
           final Element e = OPDSXML.nodeAsElement(child);
-          b.addEntry(this.entry_parser.parseEntry(e));
+          b.addEntry(this.entry_parser.parseEntry(uri, e));
 //          continue;
         }
       }
