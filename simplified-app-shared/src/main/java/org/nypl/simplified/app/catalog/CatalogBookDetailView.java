@@ -70,7 +70,6 @@ import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -118,7 +117,6 @@ public final class CatalogBookDetailView
   private final BookRegistryReadableType books_registry;
   private final ProfilesControllerType profiles_controller;
   private final AccountType account;
-  private final URI feedSource;
 
   /**
    * Construct a detail view.
@@ -132,7 +130,6 @@ public final class CatalogBookDetailView
       final BookRegistryReadableType in_books_registry,
       final ProfilesControllerType in_profiles_controller,
       final BooksControllerType in_books_controller,
-      final URI feedSource,
       final FeedEntryOPDS in_entry) {
 
     this.activity =
@@ -147,8 +144,6 @@ public final class CatalogBookDetailView
         NullCheck.notNull(in_books_registry, "Books registry");
     this.entry =
         new AtomicReference<>(NullCheck.notNull(in_entry, "Entry"));
-    this.feedSource =
-        Objects.requireNonNull(feedSource, "feedSource");
 
     NullCheck.notNull(in_books_registry, "Books registry");
     this.scroll_view = new ScrollView(in_activity);
@@ -266,7 +261,7 @@ public final class CatalogBookDetailView
     header_title.setText(eo.getTitle());
     CatalogBookDetailView.configureViewTextAuthor(eo, header_authors);
     CatalogBookDetailView.configureViewTextMeta(resources, eo, header_meta);
-    in_cover_provider.loadCoverInto(feedSource, in_entry, header_cover, cover_width, cover_height);
+    in_cover_provider.loadCoverInto(in_entry, header_cover, cover_width, cover_height);
   }
 
   private static void configureButtonsHeight(

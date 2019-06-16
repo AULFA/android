@@ -36,7 +36,6 @@ import org.nypl.simplified.books.feeds.FeedType;
 import org.nypl.simplified.books.feeds.FeedWithGroups;
 import org.nypl.simplified.books.feeds.FeedWithoutGroups;
 import org.nypl.simplified.http.core.HTTPAuthType;
-import org.nypl.simplified.stack.ImmutableStack;
 import org.slf4j.Logger;
 
 import java.net.URI;
@@ -71,23 +70,27 @@ public final class CatalogFeedWithoutGroups
   private final BookRegistryReadableType books_registry;
   private final BooksControllerType books_controller;
   private final ProfilesControllerType profiles_controller;
+  private final AccountType account;
 
   /**
    * Construct a view.
    */
 
   public CatalogFeedWithoutGroups(
-    final Activity in_activity,
-    final BookCoverProviderType in_book_cover_provider,
-    final CatalogBookSelectionListenerType in_book_selection_listener,
-    final BookRegistryReadableType in_book_registry,
-    final BooksControllerType in_book_controller,
-    final ProfilesControllerType in_profiles_controller,
-    final FeedLoaderType in_feed_loader,
-    final FeedWithoutGroups in_feed) {
+      final Activity in_activity,
+      final AccountType in_account,
+      final BookCoverProviderType in_book_cover_provider,
+      final CatalogBookSelectionListenerType in_book_selection_listener,
+      final BookRegistryReadableType in_book_registry,
+      final BooksControllerType in_book_controller,
+      final ProfilesControllerType in_profiles_controller,
+      final FeedLoaderType in_feed_loader,
+      final FeedWithoutGroups in_feed) {
 
     this.activity =
         NullCheck.notNull(in_activity, "Activity");
+    this.account =
+        NullCheck.notNull(in_account, "Account");
     this.book_cover_provider =
         NullCheck.notNull(in_book_cover_provider, "Cover provider");
     this.book_select_listener =
@@ -171,8 +174,7 @@ public final class CatalogFeedWithoutGroups
           this.book_cover_provider,
           this.books_controller,
           this.profiles_controller,
-          this.books_registry,
-          this.feed.getFeedURI());
+          this.books_registry);
     }
 
     cv.viewConfigure(e, this.book_select_listener);
@@ -232,24 +234,12 @@ public final class CatalogFeedWithoutGroups
     return null;
   }
 
-  private ListenableFuture<FeedType> loadNextActual(final URI inputURI) {
-    LOG.debug("loading: {}", inputURI);
-
-    /*
-     * Feeds may contain relative URIs. We need to resolve them against whatever was the
-     * previous URI, if applicable.
-     */
-
-    URI targetURI = inputURI;
-    if (!inputURI.isAbsolute()) {
-      URI previousURI = this.feed.getFeedURI();
-      targetURI = previousURI.resolve(inputURI);
-    }
-
+  private ListenableFuture<FeedType> loadNextActual(final URI next) {
+    LOG.debug("loading: {}", next);
     final OptionType<HTTPAuthType> none = Option.none();
     final ListenableFuture<FeedType> r =
-        this.feed_loader.fromURIWithBookRegistryEntries(targetURI, none, this);
-    this.loading.set(Pair.pair(r, targetURI));
+        this.feed_loader.fromURIWithBookRegistryEntries(next, none, this);
+    this.loading.set(Pair.pair(r, next));
     return r;
   }
 

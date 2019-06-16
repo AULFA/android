@@ -99,7 +99,7 @@ public final class CatalogFeedWithGroups implements ListAdapter, OnScrollListene
           this.lane_listener);
     }
 
-    view.configureForGroup(this.feed.getFeedURI(), group);
+    view.configureForGroup(group);
     return view;
   }
 

@@ -25,7 +25,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
-import com.io7m.jfunctional.Pair;
 import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
@@ -436,37 +435,11 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     }
   }
 
-  private URI getCurrentFeedURI()
-  {
-    final ImmutableStack<CatalogFeedArgumentsType> currentStack = this.getUpStack();
-    if (!currentStack.isEmpty()) {
-      CatalogFeedArgumentsType top = currentStack.pop().getLeft();
-      if (top instanceof CatalogFeedArgumentsRemote) {
-        CatalogFeedArgumentsRemote remote = (CatalogFeedArgumentsRemote) top;
-        return remote.getURI();
-      }
-    }
-    return null;
-  }
-
   private void loadFeed(
     final FeedLoaderType feed_loader,
-    final URI inputURI) {
+    final URI u) {
 
-    this.log().debug("requested feed: {}", inputURI);
-
-    /*
-     * Feeds may contain relative URIs. We need to resolve them against whatever was the
-     * previous URI, if applicable.
-     */
-
-    URI targetURI = inputURI;
-    if (!inputURI.isAbsolute()) {
-      URI previousURI = getCurrentFeedURI();
-      if (previousURI != null) {
-        targetURI = previousURI.resolve(inputURI);
-      }
-    }
+    this.log().debug("loading feed: {}", u);
 
     final OptionType<HTTPAuthType> auth;
     try {
@@ -478,8 +451,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       throw new IllegalStateException(e);
     }
 
-    this.log().debug("loading feed: {}", targetURI);
-    this.loading = feed_loader.fromURIWithBookRegistryEntries(targetURI, auth, this);
+    this.loading = feed_loader.fromURIWithBookRegistryEntries(u, auth, this);
   }
 
   @Override
@@ -893,16 +865,21 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final CatalogBookSelectionListenerType book_select_listener =
       (v, e) -> CatalogFeedActivity.this.onSelectedBook(new_up_stack, e);
 
-    final CatalogFeedWithoutGroups without =
-      new CatalogFeedWithoutGroups(
-      this,
-      Simplified.getCoverProvider(),
-      book_select_listener,
-      Simplified.getBooksRegistry(),
-      Simplified.getBooksController(),
-      Simplified.getProfilesController(),
-      Simplified.getFeedLoader(),
-      feed_without_groups);
+    final CatalogFeedWithoutGroups without;
+    try {
+      without = new CatalogFeedWithoutGroups(
+        this,
+        Simplified.getProfilesController().profileAccountCurrent(),
+        Simplified.getCoverProvider(),
+        book_select_listener,
+        Simplified.getBooksRegistry(),
+        Simplified.getBooksController(),
+        Simplified.getProfilesController(),
+        Simplified.getFeedLoader(),
+        feed_without_groups);
+    } catch (final ProfileNoneCurrentException e) {
+      throw new IllegalStateException(e);
+    }
 
     grid_view.setAdapter(without);
     grid_view.setOnScrollListener(without);
@@ -985,24 +962,7 @@ public abstract class CatalogFeedActivity extends CatalogActivity
     final FeedEntryOPDS e) {
 
     this.log().debug("onSelectedBook: {}", this);
-
-    /*
-     * We need the current feed URI so that images in the detail activity can be resolved
-     * against it if they happen to use relative URIs. If the current feed does not refer
-     * to something that was fetched via a URI (ie. it's a locally-generated feed), then
-     * the images in it should not be using relative URIs and therefore it's safe to just
-     * make up a nonsensical URI to pass in.
-     */
-
-    final URI currentURI = this.getCurrentFeedURI();
-    final URI targetURI;
-    if (currentURI != null) {
-      targetURI = currentURI;
-    } else {
-      targetURI = URI.create("urn:invalid");
-    }
-
-    CatalogBookDetailActivity.startNewActivity(this, new_up_stack, targetURI, e);
+    CatalogBookDetailActivity.startNewActivity(this, new_up_stack, e);
   }
 
   private void onSelectedFeedGroup(

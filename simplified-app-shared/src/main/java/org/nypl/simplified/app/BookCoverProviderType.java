@@ -6,31 +6,47 @@ import com.squareup.picasso.Callback;
 
 import org.nypl.simplified.books.feeds.FeedEntryOPDS;
 
-import java.net.URI;
-
 /**
  * The type of cover providers.
  */
 
-public interface BookCoverProviderType {
+public interface BookCoverProviderType
+{
   /**
    * <p> Load or generate a cover based on {@code e} into the image view {@code
    * i}, at width {@code w} and height {@code h}. </p> <p> Must only be called
    * from the UI thread. </p>
    *
-   * @param source The source URI of the feed, used to resolve relative URIs
-   * @param e      The feed entry
-   * @param i      The image view
-   * @param w      The width
-   * @param h      The height
+   * @param e The feed entry
+   * @param i The image view
+   * @param w The width
+   * @param h The height
    */
 
   void loadCoverInto(
-    final URI source,
     final FeedEntryOPDS e,
     final ImageView i,
     final int w,
     final int h);
+
+  /**
+   * <p> Load or generate a cover based on {@code e} into the image view {@code
+   * i}, at width {@code w} and height {@code h}, calling {@code c} on
+   * completion. </p> <p> Must only be called from the UI thread. </p>
+   *
+   * @param e The feed entry
+   * @param i The image view
+   * @param w The width
+   * @param h The height
+   * @param c The callback
+   */
+
+  void loadCoverIntoWithCallback(
+    final FeedEntryOPDS e,
+    final ImageView i,
+    final int w,
+    final int h,
+    final Callback c);
 
   /**
    * Pause loading of any covers. Loading will continue upon calling {@link
@@ -51,15 +67,13 @@ public interface BookCoverProviderType {
    * {@code i}, at width {@code w} and height {@code h}. </p> <p> Must only be
    * called from the UI thread. </p>
    *
-   * @param source The source URI of the feed, used to resolve relative URIs
-   * @param e      The feed entry
-   * @param i      The image view
-   * @param w      The width
-   * @param h      The height
+   * @param e The feed entry
+   * @param i The image view
+   * @param w The width
+   * @param h The height
    */
 
   void loadThumbnailInto(
-    final URI source,
     final FeedEntryOPDS e,
     final ImageView i,
     final int w,
@@ -70,16 +84,14 @@ public interface BookCoverProviderType {
    * {@code i}, at width {@code w} and height {@code h}, calling {@code c} on
    * completion. </p> <p> Must only be called from the UI thread. </p>
    *
-   * @param source The source URI of the feed, used to resolve relative URIs
-   * @param e      The feed entry
-   * @param i      The image view
-   * @param w      The width
-   * @param h      The height
-   * @param c      The callback
+   * @param e The feed entry
+   * @param i The image view
+   * @param w The width
+   * @param h The height
+   * @param c The callback
    */
 
   void loadThumbnailIntoWithCallback(
-    final URI source,
     final FeedEntryOPDS e,
     final ImageView i,
     final int w,
