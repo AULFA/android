@@ -16,7 +16,6 @@ import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.accounts.AccountBarcode;
 import org.nypl.simplified.books.accounts.AccountBundledCredentialsEmpty;
 import org.nypl.simplified.books.accounts.AccountEvent;
-import org.nypl.simplified.books.accounts.AccountEventCreation.AccountCreationSucceeded;
 import org.nypl.simplified.books.accounts.AccountEventLogin.AccountLoginFailed;
 import org.nypl.simplified.books.accounts.AccountEventLogin.AccountLoginSucceeded;
 import org.nypl.simplified.books.accounts.AccountPIN;
@@ -29,6 +28,7 @@ import org.nypl.simplified.books.book_database.BookID;
 import org.nypl.simplified.books.book_registry.BookRegistry;
 import org.nypl.simplified.books.book_registry.BookRegistryType;
 import org.nypl.simplified.books.bundled_content.BundledContentResolverType;
+import org.nypl.simplified.books.bundled_content.BundledSearchIndexType;
 import org.nypl.simplified.books.controller.Controller;
 import org.nypl.simplified.books.controller.ProfileFeedRequest;
 import org.nypl.simplified.books.controller.ProfilesControllerType;
@@ -124,9 +124,28 @@ public abstract class ProfilesControllerContract {
       throw new FileNotFoundException(uri.toString());
     };
 
+    final BundledSearchIndexType bundledSearchIndex =
+      new BundledSearchIndexType() {
+        @Override
+        public List<URI> searchRaw(List<String> terms) {
+          return Collections.emptyList();
+        }
+
+        @Override
+        public List<ResultType> search(List<String> terms) {
+          return Collections.emptyList();
+        }
+      };
+
     final FeedLoaderType feed_loader =
       FeedLoader.newFeedLoader(
-        task_exec, books, bundled_content, parser, transport, OPDSSearchParser.newParser());
+        task_exec,
+        books,
+        bundled_content,
+        bundledSearchIndex,
+        parser,
+        transport,
+        OPDSSearchParser.newParser());
 
     final File analytics_directory =
       new File("/tmp/aulfa-android-tests");

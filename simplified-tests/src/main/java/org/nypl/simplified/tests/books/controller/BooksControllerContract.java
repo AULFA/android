@@ -36,6 +36,7 @@ import org.nypl.simplified.books.book_registry.BookStatusRevokeFailed;
 import org.nypl.simplified.books.book_registry.BookStatusType;
 import org.nypl.simplified.books.book_registry.BookWithStatus;
 import org.nypl.simplified.books.bundled_content.BundledContentResolverType;
+import org.nypl.simplified.books.bundled_content.BundledSearchIndexType;
 import org.nypl.simplified.books.controller.BooksControllerType;
 import org.nypl.simplified.books.controller.Controller;
 import org.nypl.simplified.books.core.BookRevokeExceptionNoCredentials;
@@ -162,8 +163,22 @@ public abstract class BooksControllerContract {
     final BundledContentResolverType bundled_content = uri -> {
       throw new FileNotFoundException(uri.toString());
     };
+
+    final BundledSearchIndexType bundledSearchIndex =
+      new BundledSearchIndexType() {
+        @Override
+        public List<URI> searchRaw(List<String> terms) {
+          return Collections.emptyList();
+        }
+
+        @Override
+        public List<ResultType> search(List<String> terms) {
+          return Collections.emptyList();
+        }
+      };
+
     final FeedLoaderType feed_loader =
-      FeedLoader.newFeedLoader(exec, books, bundled_content, parser, transport, OPDSSearchParser.newParser());
+      FeedLoader.newFeedLoader(exec, books, bundled_content, bundledSearchIndex, parser, transport, OPDSSearchParser.newParser());
 
     final File analytics_directory =
       new File("/tmp/aulfa-android-tests");

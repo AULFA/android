@@ -32,6 +32,7 @@ simplified-app-lfa/src/main/assets/images
 simplified-app-lfa/src/main/assets/books
 simplified-app-lfa/src/main/assets/info.properties
 simplified-app-lfa/src/main/assets/account_bundled_credentials.json
+simplified-app-lfa/src/main/assets/index.txt
 simplified-app-lfa/credentials.json
 
 simplified-app-lfa-offline/src/main/assets/feeds
@@ -39,6 +40,7 @@ simplified-app-lfa-offline/src/main/assets/images
 simplified-app-lfa-offline/src/main/assets/books
 simplified-app-lfa-offline/src/main/assets/info.properties
 simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json
+simplified-app-lfa-offline/src/main/assets/index.txt
 simplified-app-lfa-offline/credentials.json
 
 #

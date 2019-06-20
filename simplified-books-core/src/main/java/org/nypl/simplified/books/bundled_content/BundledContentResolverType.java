@@ -19,5 +19,5 @@ public interface BundledContentResolverType {
    */
 
   InputStream resolve(URI uri)
-      throws IOException;
+    throws IOException;
 }

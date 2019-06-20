@@ -38,7 +38,7 @@ public final class Feeds
 
   public static FeedType fromAcquisitionFeed(
     final OPDSAcquisitionFeed f,
-    final OptionType<OPDSOpenSearch1_1> search)
+    final OptionType<FeedSearchType> search)
   {
     NullCheck.notNull(f);
 
@@ -50,14 +50,14 @@ public final class Feeds
 
   private static FeedWithGroups withGroups(
     final OPDSAcquisitionFeed f,
-    final OptionType<OPDSOpenSearch1_1> search)
+    final OptionType<FeedSearchType> search)
   {
     return FeedWithGroups.fromAcquisitionFeed(f, search);
   }
 
   private static FeedWithoutGroups withoutGroups(
     final OPDSAcquisitionFeed f,
-    final OptionType<OPDSOpenSearch1_1> search)
+    final OptionType<FeedSearchType> search)
   {
     final Map<String, List<FeedFacetType>> facets_by_group =
       new HashMap<String, List<FeedFacetType>>(4);
@@ -76,23 +76,13 @@ public final class Feeds
       facets_order.add(new FeedFacetOPDS(NullCheck.notNull(ff)));
     }
 
-    final OptionType<FeedSearchType> actual_search = search.map(
-      new FunctionType<OPDSOpenSearch1_1, FeedSearchType>()
-      {
-        @Override public FeedSearchType call(
-          final OPDSOpenSearch1_1 s)
-        {
-          return new FeedSearchOpen1_1(s);
-        }
-      });
-
     final FeedWithoutGroups rf = FeedWithoutGroups.newEmptyFeed(
       f.getFeedURI(),
       f.getFeedID(),
       f.getFeedUpdated(),
       f.getFeedTitle(),
       f.getFeedNext(),
-      actual_search,
+      search,
       facets_by_group,
       facets_order,
       f.getFeedTermsOfService(),

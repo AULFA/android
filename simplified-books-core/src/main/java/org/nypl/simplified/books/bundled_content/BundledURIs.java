@@ -11,6 +11,7 @@ import java.net.URI;
 public final class BundledURIs {
 
   public static final String BUNDLED_CONTENT_SCHEME = "simplified-bundled";
+  public static final String BUNDLED_SEARCH_SCHEME = "simplified-bundled-search";
 
   /**
    * @param uri The URI
@@ -20,6 +21,16 @@ public final class BundledURIs {
   public static boolean isBundledURI(final URI uri) {
     NullCheck.notNull(uri, "uri");
     return BUNDLED_CONTENT_SCHEME.equals(uri.getScheme());
+  }
+
+  /**
+   * @param uri The URI
+   * @return {@code true} if the URI refers to bundled content
+   */
+
+  public static boolean isBundledSearchURI(final URI uri) {
+    NullCheck.notNull(uri, "uri");
+    return BUNDLED_SEARCH_SCHEME.equals(uri.getScheme());
   }
 
   /**

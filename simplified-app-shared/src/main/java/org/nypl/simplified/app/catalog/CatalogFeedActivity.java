@@ -43,6 +43,7 @@ import org.nypl.simplified.books.accounts.AccountAuthenticatedHTTP;
 import org.nypl.simplified.books.accounts.AccountBundledCredentialsType;
 import org.nypl.simplified.books.accounts.AccountProvider;
 import org.nypl.simplified.books.book_registry.BookStatusEvent;
+import org.nypl.simplified.books.bundled_content.BundledURIs;
 import org.nypl.simplified.books.controller.ProfileFeedRequest;
 import org.nypl.simplified.books.core.BooksFeedSelection;
 import org.nypl.simplified.books.core.DocumentStoreType;
@@ -57,6 +58,7 @@ import org.nypl.simplified.books.feeds.FeedLoaderAuthenticationListenerType;
 import org.nypl.simplified.books.feeds.FeedLoaderListenerType;
 import org.nypl.simplified.books.feeds.FeedLoaderType;
 import org.nypl.simplified.books.feeds.FeedMatcherType;
+import org.nypl.simplified.books.feeds.FeedSearchBundled;
 import org.nypl.simplified.books.feeds.FeedSearchLocal;
 import org.nypl.simplified.books.feeds.FeedSearchMatcherType;
 import org.nypl.simplified.books.feeds.FeedSearchOpen1_1;
@@ -76,6 +78,7 @@ import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -636,6 +639,13 @@ public abstract class CatalogFeedActivity extends CatalogActivity
               new BooksLocalSearchQueryHandler(log(), resources, args, feed, SORT_BY_TITLE));
             return true;
           }
+
+          @Override
+          public Boolean onFeedSearchBundled(FeedSearchBundled f) throws UnreachableCodeException {
+            search_view.setOnQueryTextListener(
+              new BundledSearchQueryHandler(log(), resources, args, feed));
+            return true;
+          }
         });
     }
 
@@ -1182,6 +1192,58 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       } else {
         cfa.catalogActivityForkNew(new_args);
       }
+      return true;
+    }
+  }
+
+  private class BundledSearchQueryHandler implements OnQueryTextListener {
+    private final Logger log;
+    private final Resources resources;
+    private final CatalogFeedArgumentsType args;
+    private final FeedType feed;
+
+    BundledSearchQueryHandler(
+      Logger log,
+      Resources resources,
+      CatalogFeedArgumentsType args,
+      FeedType feed) {
+      this.log = log;
+      this.resources = resources;
+      this.args = args;
+      this.feed = feed;
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+      final String qnn = NullCheck.notNull(query);
+
+      final URI target;
+      try {
+        target = new URI(BundledURIs.BUNDLED_SEARCH_SCHEME + ":" + query);
+      } catch (URISyntaxException e) {
+        this.log.error("invalid query: ", e);
+        return false;
+      }
+
+      final CatalogFeedActivity cfa = CatalogFeedActivity.this;
+      final ImmutableStack<CatalogFeedArgumentsType> us = ImmutableStack.empty();
+
+      final String title =
+        this.resources.getString(R.string.catalog_search) + ": " + qnn;
+
+      final CatalogFeedArgumentsRemote new_args =
+        new CatalogFeedArgumentsRemote(false, us, title, target, true);
+
+      if ("Search".equals(this.feed.getFeedTitle())) {
+        cfa.catalogActivityForkNewReplacing(new_args);
+      } else {
+        cfa.catalogActivityForkNew(new_args);
+      }
+      return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
       return true;
     }
   }

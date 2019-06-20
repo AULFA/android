@@ -36,4 +36,18 @@ public interface FeedSearchMatcherType<A, E extends Exception>
   A onFeedSearchLocal(
     FeedSearchLocal f)
     throws E;
+
+  /**
+   * Match a type of search document.
+   *
+   * @param f The document
+   *
+   * @return A value of {@code A}
+   *
+   * @throws E If required
+   */
+
+  A onFeedSearchBundled(
+    FeedSearchBundled f)
+    throws E;
 }

@@ -1,11 +1,10 @@
 package org.nypl.simplified.books.feeds;
 
-import com.io7m.jfunctional.FunctionType;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
+
 import org.nypl.simplified.opds.core.OPDSAcquisitionFeed;
-import org.nypl.simplified.opds.core.OPDSOpenSearch1_1;
 
 import java.net.URI;
 import java.util.AbstractList;
@@ -17,8 +16,7 @@ import java.util.Map;
  * A (mutable) feed with groups.
  */
 
-public final class FeedWithGroups extends AbstractList<FeedGroup>
-  implements FeedType
+public final class FeedWithGroups extends AbstractList<FeedGroup> implements FeedType
 {
   private final Map<String, FeedGroup>     blocks;
   private final List<String>               blocks_order;
@@ -69,7 +67,7 @@ public final class FeedWithGroups extends AbstractList<FeedGroup>
 
   public static FeedWithGroups fromAcquisitionFeed(
     final OPDSAcquisitionFeed f,
-    final OptionType<OPDSOpenSearch1_1> search)
+    final OptionType<FeedSearchType> search)
   {
     NullCheck.notNull(f);
 
@@ -77,22 +75,12 @@ public final class FeedWithGroups extends AbstractList<FeedGroup>
       FeedGroup.fromOPDSGroups(f.getFeedGroups());
     final List<String> order = f.getFeedGroupsOrder();
 
-    final OptionType<FeedSearchType> actual_search = search.map(
-      new FunctionType<OPDSOpenSearch1_1, FeedSearchType>()
-      {
-        @Override public FeedSearchType call(
-          final OPDSOpenSearch1_1 s)
-        {
-          return new FeedSearchOpen1_1(s);
-        }
-      });
-
     return new FeedWithGroups(
       f.getFeedURI(),
       f.getFeedID(),
       f.getFeedUpdated(),
       f.getFeedTitle(),
-      actual_search,
+      search,
       order,
       blocks,
       f.getFeedTermsOfService(),

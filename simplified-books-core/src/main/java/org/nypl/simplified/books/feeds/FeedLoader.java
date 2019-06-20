@@ -24,6 +24,7 @@ import org.nypl.simplified.books.book_database.BookID;
 import org.nypl.simplified.books.book_registry.BookRegistryReadableType;
 import org.nypl.simplified.books.book_registry.BookWithStatus;
 import org.nypl.simplified.books.bundled_content.BundledContentResolverType;
+import org.nypl.simplified.books.bundled_content.BundledSearchIndexType;
 import org.nypl.simplified.books.bundled_content.BundledURIs;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.http.core.HTTPAuthType;
@@ -31,7 +32,6 @@ import org.nypl.simplified.opds.core.OPDSAcquisitionFeed;
 import org.nypl.simplified.opds.core.OPDSFeedParserType;
 import org.nypl.simplified.opds.core.OPDSFeedTransportException;
 import org.nypl.simplified.opds.core.OPDSFeedTransportType;
-import org.nypl.simplified.opds.core.OPDSOpenSearch1_1;
 import org.nypl.simplified.opds.core.OPDSSearchLink;
 import org.nypl.simplified.opds.core.OPDSSearchParserType;
 import org.slf4j.Logger;
@@ -40,7 +40,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -68,30 +74,34 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
   private final OPDSFeedTransportType<OptionType<HTTPAuthType>> transport;
   private final BookRegistryReadableType book_registry;
   private final BundledContentResolverType bundled_content;
+  private final BundledSearchIndexType bundled_search_index;
 
   private FeedLoader(
-      final ExecutorService in_exec,
-      final BookRegistryReadableType in_book_registry,
-      final BundledContentResolverType in_bundled_content,
-      final OPDSFeedParserType in_parser,
-      final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
-      final OPDSSearchParserType in_search_parser,
-      final ExpiringMap<URI, FeedType> in_m) {
+    final ExecutorService in_exec,
+    final BookRegistryReadableType in_book_registry,
+    final BundledContentResolverType in_bundled_content,
+    final BundledSearchIndexType in_bundled_search_index,
+    final OPDSFeedParserType in_parser,
+    final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
+    final OPDSSearchParserType in_search_parser,
+    final ExpiringMap<URI, FeedType> in_m) {
 
     this.exec =
-        MoreExecutors.listeningDecorator(NullCheck.notNull(in_exec));
+      MoreExecutors.listeningDecorator(NullCheck.notNull(in_exec));
     this.book_registry =
-        NullCheck.notNull(in_book_registry);
+      NullCheck.notNull(in_book_registry);
     this.bundled_content =
-        NullCheck.notNull(in_bundled_content, "in_bundled_content");
+      NullCheck.notNull(in_bundled_content, "in_bundled_content");
+    this.bundled_search_index =
+      Objects.requireNonNull(in_bundled_search_index, "in_bundled_search_index");
     this.parser =
-        NullCheck.notNull(in_parser);
+      NullCheck.notNull(in_parser);
     this.search_parser =
-        NullCheck.notNull(in_search_parser);
+      NullCheck.notNull(in_search_parser);
     this.transport =
-        NullCheck.notNull(in_transport);
+      NullCheck.notNull(in_transport);
     this.cache =
-        NullCheck.notNull(in_m);
+      NullCheck.notNull(in_m);
 
     this.cache.addExpirationListener(this);
   }
@@ -109,25 +119,27 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
    */
 
   public static FeedLoaderType newFeedLoader(
-      final ExecutorService in_exec,
-      final BookRegistryReadableType in_book_registry,
-      final BundledContentResolverType in_bundled_content,
-      final OPDSFeedParserType in_parser,
-      final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
-      final OPDSSearchParserType in_search_parser) {
+    final ExecutorService in_exec,
+    final BookRegistryReadableType in_book_registry,
+    final BundledContentResolverType in_bundled_content,
+    final BundledSearchIndexType in_bundled_search_index,
+    final OPDSFeedParserType in_parser,
+    final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
+    final OPDSSearchParserType in_search_parser) {
 
     final Builder<Object, Object> b = ExpiringMap.builder();
     b.expirationPolicy(ExpirationPolicy.CREATED);
     b.expiration(5L, TimeUnit.MINUTES);
     final ExpiringMap<URI, FeedType> m = b.build();
     return FeedLoader.newFeedLoaderFromExpiringMap(
-        in_exec,
-        in_book_registry,
-        in_bundled_content,
-        in_parser,
-        in_transport,
-        in_search_parser,
-        NullCheck.notNull(m, "Map"));
+      in_exec,
+      in_book_registry,
+      in_bundled_content,
+      in_bundled_search_index,
+      in_parser,
+      in_transport,
+      in_search_parser,
+      NullCheck.notNull(m, "Map"));
   }
 
   /**
@@ -143,91 +155,99 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
    */
 
   public static FeedLoaderType newFeedLoaderFromExpiringMap(
-      final ExecutorService in_exec,
-      final BookRegistryReadableType in_book_registry,
-      final BundledContentResolverType in_bundled_content,
-      final OPDSFeedParserType in_parser,
-      final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
-      final OPDSSearchParserType in_search_parser,
-      final ExpiringMap<URI, FeedType> m) {
+    final ExecutorService in_exec,
+    final BookRegistryReadableType in_book_registry,
+    final BundledContentResolverType in_bundled_content,
+    final BundledSearchIndexType in_bundled_search_index,
+    final OPDSFeedParserType in_parser,
+    final OPDSFeedTransportType<OptionType<HTTPAuthType>> in_transport,
+    final OPDSSearchParserType in_search_parser,
+    final ExpiringMap<URI, FeedType> m) {
 
     return new FeedLoader(
-        in_exec, in_book_registry, in_bundled_content, in_parser, in_transport, in_search_parser, m);
+      in_exec,
+      in_book_registry,
+      in_bundled_content,
+      in_bundled_search_index,
+      in_parser,
+      in_transport,
+      in_search_parser,
+      m);
   }
 
   private static void updateFeedFromBookRegistry(
-      final BookRegistryReadableType registry,
-      final FeedType f) {
+    final BookRegistryReadableType registry,
+    final FeedType f) {
 
     f.matchFeed(
-        new FeedMatcherType<Unit, UnreachableCodeException>() {
-          @Override
-          public Unit onFeedWithGroups(final FeedWithGroups feed_with_groups) {
-            final int size = feed_with_groups.size();
-            LOG.debug("updating {} entries (with groups) from book registry", size);
+      new FeedMatcherType<Unit, UnreachableCodeException>() {
+        @Override
+        public Unit onFeedWithGroups(final FeedWithGroups feed_with_groups) {
+          final int size = feed_with_groups.size();
+          LOG.debug("updating {} entries (with groups) from book registry", size);
 
-            for (int index = 0; index < size; ++index) {
-              final FeedGroup group = feed_with_groups.get(index);
-              final List<FeedEntryType> entries = group.getGroupEntries();
-              for (int gi = 0; gi < entries.size(); ++gi) {
-                final FeedEntryType e = entries.get(gi);
-                final BookID id = e.getBookID();
-                final BookWithStatus book_with_status = registry.books().get(id);
-                if (book_with_status != null) {
-                  LOG.debug("updating entry {} from book registry", id);
-                  entries.set(gi, FeedEntryOPDS.fromOPDSAcquisitionFeedEntry(
-                      book_with_status.book().entry()));
-                }
-              }
-            }
-            return Unit.unit();
-          }
-
-          @Override
-          public Unit onFeedWithoutGroups(final FeedWithoutGroups feed_without_groups) {
-            final int size = feed_without_groups.size();
-            LOG.debug("updating {} entries (without groups) from book registry", size);
-
-            for (int index = 0; index < size; ++index) {
-              final FeedEntryType e = feed_without_groups.get(index);
+          for (int index = 0; index < size; ++index) {
+            final FeedGroup group = feed_with_groups.get(index);
+            final List<FeedEntryType> entries = group.getGroupEntries();
+            for (int gi = 0; gi < entries.size(); ++gi) {
+              final FeedEntryType e = entries.get(gi);
               final BookID id = e.getBookID();
               final BookWithStatus book_with_status = registry.books().get(id);
               if (book_with_status != null) {
                 LOG.debug("updating entry {} from book registry", id);
-                final FeedEntryType en =
-                    FeedEntryOPDS.fromOPDSAcquisitionFeedEntry(book_with_status.book().entry());
-                feed_without_groups.set(index, en);
+                entries.set(gi, FeedEntryOPDS.fromOPDSAcquisitionFeedEntry(
+                  book_with_status.book().entry()));
               }
             }
-
-            return Unit.unit();
           }
-        });
+          return Unit.unit();
+        }
+
+        @Override
+        public Unit onFeedWithoutGroups(final FeedWithoutGroups feed_without_groups) {
+          final int size = feed_without_groups.size();
+          LOG.debug("updating {} entries (without groups) from book registry", size);
+
+          for (int index = 0; index < size; ++index) {
+            final FeedEntryType e = feed_without_groups.get(index);
+            final BookID id = e.getBookID();
+            final BookWithStatus book_with_status = registry.books().get(id);
+            if (book_with_status != null) {
+              LOG.debug("updating entry {} from book registry", id);
+              final FeedEntryType en =
+                FeedEntryOPDS.fromOPDSAcquisitionFeedEntry(book_with_status.book().entry());
+              feed_without_groups.set(index, en);
+            }
+          }
+
+          return Unit.unit();
+        }
+      });
   }
 
   @Override
   public void expired(
-      final @Nullable URI key,
-      final @Nullable FeedType value) {
+    final @Nullable URI key,
+    final @Nullable FeedType value) {
     LOG.debug("expired: {}", key);
   }
 
   private ListenableFuture<FeedType> fetch(
-      final URI uri,
-      final String method,
-      final OptionType<HTTPAuthType> auth,
-      final FeedLoaderListenerType listener,
-      final boolean update_from_database) {
+    final URI uri,
+    final String method,
+    final OptionType<HTTPAuthType> auth,
+    final FeedLoaderListenerType listener,
+    final boolean update_from_database) {
     LOG.debug("not cached, fetching ({}): {} (auth {})", method, uri, auth);
     return this.exec.submit(() -> fetchInner(uri, method, auth, listener, update_from_database));
   }
 
   private FeedType fetchInner(
-      final URI uri,
-      final String method,
-      final OptionType<HTTPAuthType> auth,
-      final FeedLoaderListenerType listener,
-      final boolean update_from_database) throws Exception {
+    final URI uri,
+    final String method,
+    final OptionType<HTTPAuthType> auth,
+    final FeedLoaderListenerType listener,
+    final boolean update_from_database) throws Exception {
 
     final ProtectedListener p_listener = new ProtectedListener(listener);
     try {
@@ -247,9 +267,9 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
   @Override
   public ListenableFuture<FeedType> fromURI(
-      final URI uri,
-      final OptionType<HTTPAuthType> auth,
-      final FeedLoaderListenerType listener) {
+    final URI uri,
+    final OptionType<HTTPAuthType> auth,
+    final FeedLoaderListenerType listener) {
 
     NullCheck.notNull(uri);
     NullCheck.notNull(auth);
@@ -268,10 +288,10 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
   @Override
   public ListenableFuture<FeedType> fromURIRefreshing(
-      final URI uri,
-      final OptionType<HTTPAuthType> auth,
-      final String method,
-      final FeedLoaderListenerType listener) {
+    final URI uri,
+    final OptionType<HTTPAuthType> auth,
+    final String method,
+    final FeedLoaderListenerType listener) {
     NullCheck.notNull(uri);
     NullCheck.notNull(auth);
     NullCheck.notNull(listener);
@@ -280,9 +300,9 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
   @Override
   public ListenableFuture<FeedType> fromURIWithBookRegistryEntries(
-      final URI uri,
-      final OptionType<HTTPAuthType> auth,
-      final FeedLoaderListenerType listener) {
+    final URI uri,
+    final OptionType<HTTPAuthType> auth,
+    final FeedLoaderListenerType listener) {
     NullCheck.notNull(uri);
     NullCheck.notNull(auth);
     NullCheck.notNull(listener);
@@ -306,11 +326,20 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
   }
 
   private FeedType loadFeed(
-      final URI uri,
-      final String method,
-      final OptionType<HTTPAuthType> auth,
-      final FeedLoaderListenerType listener)
-      throws InterruptedException, OPDSFeedTransportException, IOException {
+    final URI uri,
+    final String method,
+    final OptionType<HTTPAuthType> auth,
+    final FeedLoaderListenerType listener)
+    throws InterruptedException, OPDSFeedTransportException, IOException {
+
+    /*
+     * If the URI has a scheme that refers to a bundled search, fetch the data from
+     * the search index.
+     */
+
+    if (BundledURIs.isBundledSearchURI(uri)) {
+      return fromBundledSearch(uri);
+    }
 
     /*
      * If the URI has a scheme that refers to bundled content, fetch the data from
@@ -319,15 +348,15 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     if (BundledURIs.isBundledURI(uri)) {
       try (final InputStream stream = this.bundled_content.resolve(uri)) {
-        return Feeds.fromAcquisitionFeed(this.parser.parse(uri, stream), Option.none());
+        return Feeds.fromAcquisitionFeed(
+          this.parser.parse(uri, stream), Option.some(new FeedSearchBundled()));
       }
     }
 
     final AtomicReference<OptionType<HTTPAuthType>> auth_ref =
-        new AtomicReference<OptionType<HTTPAuthType>>(auth);
+      new AtomicReference<OptionType<HTTPAuthType>>(auth);
 
-    try (InputStream main_stream =
-             this.loadFeedStreamRetryingAuth(uri, method, listener, auth_ref)) {
+    try (InputStream main_stream = this.loadFeedStreamRetryingAuth(uri, method, listener, auth_ref)) {
       final OPDSAcquisitionFeed parsed = this.parser.parse(uri, main_stream);
 
       /*
@@ -341,9 +370,10 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
         final URI search_uri = some.get().getURI();
 
         try (InputStream search_stream =
-                 this.loadFeedStreamRetryingAuth(search_uri, method, listener, auth_ref)) {
-          final OptionType<OPDSOpenSearch1_1> search =
-              Option.some(this.search_parser.parse(search_uri, search_stream));
+               this.loadFeedStreamRetryingAuth(search_uri, method, listener, auth_ref)) {
+          final OptionType<FeedSearchType> search =
+            Option.some(this.search_parser.parse(search_uri, search_stream))
+              .map(FeedSearchOpen1_1::new);
           return Feeds.fromAcquisitionFeed(parsed, search);
         }
       } else {
@@ -352,10 +382,85 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
          * Otherwise, return a feed that doesn't have a search link.
          */
 
-        final OptionType<OPDSOpenSearch1_1> none = Option.none();
-        return Feeds.fromAcquisitionFeed(parsed, none);
+        return Feeds.fromAcquisitionFeed(parsed, Option.none());
       }
     }
+  }
+
+  private final class LoggingListener implements FeedLoaderListenerType {
+    private final Logger logger;
+
+    private LoggingListener(final Logger logger) {
+      this.logger = Objects.requireNonNull(logger, "logger");
+    }
+
+    @Override
+    public void onFeedLoadSuccess(
+      URI u,
+      FeedType f) {
+      logger.debug("onFeedLoadSuccess: {}", u);
+    }
+
+    @Override
+    public void onFeedRequiresAuthentication(
+      URI u,
+      int attempts,
+      FeedLoaderAuthenticationListenerType listener) {
+      listener.onAuthenticationNotProvided();
+    }
+
+    @Override
+    public void onFeedLoadFailure(URI u, Throwable x) {
+      logger.debug("onFeedLoadFailure: {}: ", u, x);
+    }
+  }
+
+  private FeedType fromBundledSearch(URI uri) {
+    LOG.debug("fromBundledSearch: " + uri);
+
+    final String[] partSplit =
+      uri.getSchemeSpecificPart().split("\\s+");
+    final List<String> searchTerms =
+      Arrays.asList(partSplit);
+    final List<BundledSearchIndexType.ResultType> results =
+      this.bundled_search_index.search(searchTerms);
+
+    FeedWithoutGroups resultFeed =
+      FeedWithoutGroups.newEmptyFeed(
+        uri,
+        UUID.randomUUID().toString(),
+        Calendar.getInstance(),
+        "Search",
+        Option.none(),
+        Option.some(new FeedSearchBundled()),
+        new HashMap<>(),
+        new ArrayList<>(),
+        Option.none(),
+        Option.none(),
+        Option.none(),
+        Option.none());
+
+    LOG.debug("got {} search results", results.size());
+    for (final BundledSearchIndexType.ResultType result : results) {
+      try {
+        final FeedType feed =
+          loadFeed(result.getUri(), "GET", Option.none(), new LoggingListener(LOG));
+
+        if (feed instanceof FeedWithoutGroups) {
+          final FeedWithoutGroups feedWithoutGroups = (FeedWithoutGroups) feed;
+          resultFeed.addAll(feedWithoutGroups);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (OPDSFeedTransportException e) {
+        LOG.error("opds transport exception: ", e);
+      } catch (IOException e) {
+        LOG.error("i/o exception: ", e);
+      }
+    }
+
+    LOG.debug("return feed with {} entries", resultFeed.size());
+    return resultFeed;
   }
 
   /**
@@ -365,11 +470,11 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
    */
 
   private InputStream loadFeedStreamRetryingAuth(
-      final URI uri,
-      final String method,
-      final FeedLoaderListenerType listener,
-      final AtomicReference<OptionType<HTTPAuthType>> auth)
-      throws OPDSFeedTransportException, IOException, InterruptedException {
+    final URI uri,
+    final String method,
+    final FeedLoaderListenerType listener,
+    final AtomicReference<OptionType<HTTPAuthType>> auth)
+    throws OPDSFeedTransportException, IOException, InterruptedException {
     OptionType<HTTPAuthType> auth_current = NullCheck.notNull(auth.get());
     final AtomicInteger attempts = new AtomicInteger();
 
@@ -385,7 +490,7 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
         try {
           if (e.getCode() == 401) {
             final HTTPAuthType basic =
-                this.getCredentialsAfterError(uri, listener, attempts, e);
+              this.getCredentialsAfterError(uri, listener, attempts, e);
             auth_current = Option.some(basic);
           } else {
             throw e;
@@ -406,20 +511,20 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
    */
 
   private HTTPAuthType getCredentialsAfterError(
-      final URI uri,
-      final FeedLoaderListenerType listener,
-      final AtomicInteger attempts,
-      final FeedHTTPTransportException e)
-      throws InterruptedException, FeedHTTPTransportException {
+    final URI uri,
+    final FeedLoaderListenerType listener,
+    final AtomicInteger attempts,
+    final FeedHTTPTransportException e)
+    throws InterruptedException, FeedHTTPTransportException {
     /*
      * Call a blocking auth listener and wait for authentication data
      * to be provided.
      */
 
     final BlockingAuthenticationListener auth_listener =
-        new BlockingAuthenticationListener();
+      new BlockingAuthenticationListener();
     listener.onFeedRequiresAuthentication(
-        uri, attempts.getAndIncrement(), auth_listener);
+      uri, attempts.getAndIncrement(), auth_listener);
 
     LOG.trace("waiting for auth listener completion");
     auth_listener.waitForCompletion(5L, TimeUnit.MINUTES);
@@ -439,7 +544,7 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
      */
 
     final Some<AccountAuthenticationCredentials> result_some =
-        (Some<AccountAuthenticationCredentials>) result_opt;
+      (Some<AccountAuthenticationCredentials>) result_opt;
 
     return AccountAuthenticatedHTTP.createAuthenticatedHTTP(result_some.get());
   }
@@ -453,8 +558,8 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     @Override
     public void onFeedLoadFailure(
-        final URI u,
-        final Throwable x) {
+      final URI u,
+      final Throwable x) {
       try {
         this.delegate.onFeedLoadFailure(u, x);
       } catch (final Throwable xe) {
@@ -464,8 +569,8 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     @Override
     public void onFeedLoadSuccess(
-        final URI u,
-        final FeedType f) {
+      final URI u,
+      final FeedType f) {
       try {
         this.delegate.onFeedLoadSuccess(u, f);
       } catch (final Throwable x) {
@@ -475,9 +580,9 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     @Override
     public void onFeedRequiresAuthentication(
-        final URI u,
-        final int attempts,
-        final FeedLoaderAuthenticationListenerType listener) {
+      final URI u,
+      final int attempts,
+      final FeedLoaderAuthenticationListenerType listener) {
       try {
         this.delegate.onFeedRequiresAuthentication(u, attempts, listener);
       } catch (final Throwable x) {
@@ -492,7 +597,7 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
    */
 
   private static final class BlockingAuthenticationListener
-      implements FeedLoaderAuthenticationListenerType {
+    implements FeedLoaderAuthenticationListenerType {
 
     private final CountDownLatch latch;
     private final AtomicReference<OptionType<AccountAuthenticationCredentials>> result;
@@ -520,9 +625,9 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
      */
 
     public void waitForCompletion(
-        final long time,
-        final TimeUnit unit)
-        throws InterruptedException {
+      final long time,
+      final TimeUnit unit)
+      throws InterruptedException {
       this.latch.await(time, unit);
     }
 
@@ -533,13 +638,13 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     public void completeNow() {
       Assertions.checkPrecondition(
-          this.latch.getCount() == 1, "Listener has already completed");
+        this.latch.getCount() == 1, "Listener has already completed");
       this.latch.countDown();
     }
 
     @Override
     public void onAuthenticationProvided(
-        final AccountAuthenticationCredentials credentials) {
+      final AccountAuthenticationCredentials credentials) {
       this.result.set(Option.some(credentials));
       this.completeNow();
     }
@@ -551,8 +656,8 @@ public final class FeedLoader implements FeedLoaderType, ExpirationListener<URI,
 
     @Override
     public void onAuthenticationError(
-        final OptionType<Throwable> error,
-        final String message) {
+      final OptionType<Throwable> error,
+      final String message) {
       LogUtilities.errorWithOptionalException(LOG, message, error);
       this.completeNow();
     }

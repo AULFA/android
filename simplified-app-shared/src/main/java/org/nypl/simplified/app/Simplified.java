@@ -43,6 +43,8 @@ import org.nypl.simplified.books.book_registry.BookRegistry;
 import org.nypl.simplified.books.book_registry.BookRegistryReadableType;
 import org.nypl.simplified.books.book_registry.BookRegistryType;
 import org.nypl.simplified.books.bundled_content.BundledContentResolverType;
+import org.nypl.simplified.books.bundled_content.BundledSearchIndex;
+import org.nypl.simplified.books.bundled_content.BundledSearchIndexType;
 import org.nypl.simplified.books.controller.AnalyticsControllerType;
 import org.nypl.simplified.books.controller.BooksControllerType;
 import org.nypl.simplified.books.controller.Controller;
@@ -134,6 +136,7 @@ public final class Simplified extends Application {
   private ExecutorService exec_profile_timer;
   private BundledContentResolverType bundled_content_resolver;
   private AccountBundledCredentialsType bundled_credentials;
+  private BundledSearchIndexType bundled_search_index;
 
   /**
    * A specification of whether or not an action bar is wanted in an activity.
@@ -689,6 +692,13 @@ public final class Simplified extends Application {
     LOG.debug("initializing bundled content");
     this.bundled_content_resolver = BundledContentResolver.create(this.getAssets());
 
+    LOG.debug("initializing bundled search index");
+    try (final InputStream stream = this.getAssets().open("index.txt")) {
+      this.bundled_search_index = BundledSearchIndex.Companion.open(stream);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+
     LOG.debug("initializing feed loader");
     this.feed_parser = createFeedParser();
     this.feed_search_parser = OPDSSearchParser.newParser();
@@ -697,6 +707,7 @@ public final class Simplified extends Application {
         this.exec_catalog_feeds,
         this.book_registry,
         this.bundled_content_resolver,
+        this.bundled_search_index,
         this.feed_parser,
         this.feed_transport,
         this.feed_search_parser);
