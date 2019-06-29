@@ -7,6 +7,7 @@ import android.view.View;
 import com.io7m.jnull.NullCheck;
 
 import org.nypl.simplified.app.catalog.MainCatalogActivity;
+import org.nypl.simplified.app.profiles.ProfileSelectionActivity;
 import org.nypl.simplified.books.controller.ProfilesControllerType;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.slf4j.Logger;

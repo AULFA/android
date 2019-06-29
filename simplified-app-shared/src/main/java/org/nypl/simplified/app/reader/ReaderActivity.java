@@ -24,7 +24,7 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 
-import org.nypl.simplified.app.ProfileTimeOutActivity;
+import org.nypl.simplified.app.profiles.ProfileTimeOutActivity;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.reader.ReaderPaginationChangedEvent.OpenPage;

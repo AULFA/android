@@ -1,4 +1,4 @@
-package org.nypl.simplified.app;
+package org.nypl.simplified.app.profiles;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,9 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 
+import org.nypl.simplified.app.R;
+import org.nypl.simplified.app.Simplified;
+import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.catalog.MainCatalogActivity;
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.UIThread;

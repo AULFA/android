@@ -1,4 +1,4 @@
-package org.nypl.simplified.app;
+package org.nypl.simplified.app.profiles;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -20,6 +20,9 @@ import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnreachableCodeException;
 
 import org.joda.time.LocalDate;
+import org.nypl.simplified.app.R;
+import org.nypl.simplified.app.Simplified;
+import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.accounts.AccountProviderCollection;
