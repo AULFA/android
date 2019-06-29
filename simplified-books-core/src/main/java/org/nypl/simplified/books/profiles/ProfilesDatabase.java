@@ -407,7 +407,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
    * @param accounts_databases          A factory for account databases
    * @param account_provider            The account provider that will be used for the default account
    * @param directory                   The profile directory
-   * @param display_name                The display name for the account
+   * @param raw_name                    The display name for the account
    * @param id                          The account ID
    */
 
@@ -590,8 +590,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     }
   }
 
-  private static String normalizeDisplayName(String name)
-  {
+  private static String normalizeDisplayName(String name) {
     return Objects.requireNonNull(name, "Display name").trim();
   }
 
