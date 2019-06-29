@@ -24,18 +24,52 @@ then
   exit 1
 fi
 
+if [ -z "${LFA_BUILDS_SSH_KEY}" ]
+then
+  echo "LFA_BUILDS_SSH_KEY not set"
+  exit 1
+fi
+
+if [ -z "${LFA_KEYSTORE_PASSWORD}" ]
+then
+  echo "LFA_KEYSTORE_PASSWORD not set"
+  exit 1
+fi
+
+#------------------------------------------------------------------------
+# Configure SSH
+
+mkdir -p "${HOME}/.ssh" || exit 1
+echo "${LFA_BUILDS_SSH_KEY}" | base64 -d > "${HOME}/.ssh/id_ed25519" || exit 1
+chmod 700 "${HOME}/.ssh" || exit 1
+chmod 600 "${HOME}/.ssh/id_ed25519" || exit 1
+
 (cat <<EOF
+[builds.lfa.one]:1022 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH/vroEIxH46lW/xg+CmCDwO7FHN24oP+ad4T/OtB/D2
+EOF
+) >> "$HOME/.ssh/known_hosts" || exit 1
+
+#------------------------------------------------------------------------
+# Configure Nexus and keystore
+
+scp -P 1022 travis-ci@builds.lfa.one:lfa-keystore.jks .
+
+(cat <<EOF
+
 org.librarysimplified.nexus.username=${NYPL_NEXUS_USER}
 org.librarysimplified.nexus.password=${NYPL_NEXUS_PASSWORD}
-EOF
-) > gradle.properties.tmp || exit 1
 
-mv gradle.properties.tmp gradle.properties || exit 1
+au.org.libraryforall.keyAlias=main
+au.org.libraryforall.keyPassword=${LFA_KEYSTORE_PASSWORD}
+au.org.libraryforall.storePassword=${LFA_KEYSTORE_PASSWORD}
+EOF
+) >> gradle.properties || exit 1
+
+#------------------------------------------------------------------------
+# Configure offline bundles
 
 mkdir -p simplified-app-lfa-offline/bundles || exit 1
-
 PROJECT_DIR=$(pwd) || exit 1
-
 cd simplified-app-lfa-offline/bundles || exit 1
 
 wget \
@@ -47,4 +81,11 @@ wget \
 
 cd "${PROJECT_DIR}" || exit 1
 
-exec ./gradlew clean assembleDebug test
+./gradlew clean assemble test
+
+#------------------------------------------------------------------------
+# Publish APKs
+
+scp -P 1022 ./simplified-app-lfa-offline/build/outputs/apk/release/* travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
+scp -P 1022 ./simplified-app-lfa/build/outputs/apk/release/* travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
+

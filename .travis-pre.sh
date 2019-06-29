@@ -17,11 +17,7 @@ info()
 
 mkdir -p .travis || fatal "could not create .travis"
 
-info "dumping environment"
-
 export ANDROID_SDK_ROOT="${ANDROID_HOME}"
-
-env | sort -u
 
 #------------------------------------------------------------------------
 # Download avdmanager
