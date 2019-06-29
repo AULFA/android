@@ -3,6 +3,7 @@ language: android
 cache:
   directories:
     - ${TRAVIS_BUILD_DIR}/simplified-app-lfa-offline/bundles
+    - ${TRAVIS_BUILD_DIR}/simplified-app-lfa/bundles
 
 before_script:
 - ./.travis-pre.sh
