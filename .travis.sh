@@ -69,16 +69,26 @@ EOF
 # Configure offline bundles
 
 mkdir -p simplified-app-lfa-offline/bundles || exit 1
-PROJECT_DIR=$(pwd) || exit 1
-cd simplified-app-lfa-offline/bundles || exit 1
+mkdir -p simplified-app-lfa/bundles || exit 1
 
 wget \
   --timestamping \
   --user "${LFA_BUILDS_USER}" \
   --password "${LFA_BUILDS_PASSWORD}" \
+  --no-verbose \
+  --output-document=simplified-app-lfa-offline/bundles/offline.zip \
   https://builds.lfa.one/auth/offline/offline.zip
 
-cd "${PROJECT_DIR}" || exit 1
+wget \
+  --timestamping \
+  --user "${LFA_BUILDS_USER}" \
+  --password "${LFA_BUILDS_PASSWORD}" \
+  --no-verbose \
+  --output-document=simplified-app-lfa/bundles/offline.zip \
+  https://builds.lfa.one/auth/offline-online/offline-online.zip
+
+#------------------------------------------------------------------------
+# Build!
 
 ./gradlew clean assemble test
 
