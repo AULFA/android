@@ -19,6 +19,7 @@ import org.nypl.simplified.books.accounts.AccountsDatabaseFactoryType;
 import org.nypl.simplified.books.accounts.AccountsDatabaseNonexistentException;
 import org.nypl.simplified.books.accounts.AccountsDatabaseType;
 import org.nypl.simplified.books.core.LogUtilities;
+import org.nypl.simplified.files.DirectoryUtilities;
 import org.nypl.simplified.files.FileLocking;
 import org.nypl.simplified.files.FileUtilities;
 import org.slf4j.Logger;
@@ -705,6 +706,17 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     }
 
     @Override
+    public void delete() throws ProfileDatabaseException, IOException {
+      LOG.debug("[{}]: delete", this.id.id());
+
+      if (this.isAnonymous()) {
+        throw new ProfileDatabaseDeleteAnonymousException("Cannot delete the anonymous profile");
+      }
+
+      this.owner.deleteProfile(this);
+    }
+
+    @Override
     public void setDisplayName(final String rawName)
       throws ProfileDatabaseException, IOException {
 
@@ -812,6 +824,19 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
           throw new AccountsDatabaseNonexistentException("No such account: " + id.id());
         }
       }
+    }
+  }
+
+  private void deleteProfile(final Profile profile)
+    throws IOException {
+
+    synchronized (this.profile_current_lock) {
+      this.profiles.remove(profile.id);
+      if (this.profile_current == profile.id) {
+        this.profile_current = null;
+      }
+
+      DirectoryUtilities.directoryDelete(profile.directory);
     }
   }
 

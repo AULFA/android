@@ -29,6 +29,7 @@ import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.books.profiles.ProfileAnonymousDisabledException;
 import org.nypl.simplified.books.profiles.ProfileAnonymousEnabledException;
 import org.nypl.simplified.books.profiles.ProfileCreateDuplicateException;
+import org.nypl.simplified.books.profiles.ProfileDatabaseDeleteAnonymousException;
 import org.nypl.simplified.books.profiles.ProfileDatabaseException;
 import org.nypl.simplified.books.profiles.ProfileID;
 import org.nypl.simplified.books.profiles.ProfileNonexistentException;
@@ -1276,6 +1277,74 @@ public abstract class ProfilesDatabaseContract {
 
     Assert.assertEquals("Big Bird", p0.displayName());
     Assert.assertEquals("Grouch", p1.displayName());
+  }
+
+  /**
+   * Deleting a profile works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testDeleteOK()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
+    final AccountProvider acc0 =
+      fakeProvider("http://www.example.com/accounts0/");
+
+    final ProfileType p0 = db0.createProfile(acc0, "Kermit");
+    Assert.assertEquals(Option.none(), db0.currentProfile());
+    db0.setProfileCurrent(p0.id());
+    Assert.assertEquals(Option.some(p0), db0.currentProfile());
+
+    p0.delete();
+    Assert.assertEquals(Option.none(), db0.currentProfile());
+
+    final ProfilesDatabaseType db1 =
+      ProfilesDatabase.openWithAnonymousAccountDisabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        f_pro);
+
+    Assert.assertEquals(0L, db1.profiles().size());
+  }
+
+  /**
+   * Deleting a profile works.
+   *
+   * @throws Exception On errors
+   */
+
+  @Test
+  public final void testDeleteAnonymous()
+    throws Exception {
+    final File f_tmp = DirectoryUtilities.directoryCreateTemporary();
+    final File f_pro = new File(f_tmp, "profiles");
+
+    final AccountProvider acc0 =
+      fakeProvider("http://www.example.com/accounts0/");
+
+    final ProfilesDatabaseType db0 =
+      ProfilesDatabase.openWithAnonymousAccountEnabled(
+        accountProviders(),
+        AccountBundledCredentialsEmpty.getInstance(),
+        accountsDatabases(),
+        acc0,
+        f_pro);
+
+    final ProfileType p0 = db0.currentProfileUnsafe();
+    this.expected.expect(ProfileDatabaseDeleteAnonymousException.class);
+    p0.delete();
   }
 
   private AccountProviderCollectionType accountProvidersMissingZero() {

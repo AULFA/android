@@ -24,6 +24,16 @@ import java.io.IOException;
 public interface ProfileType extends ProfileReadableType {
 
   /**
+   * Delete the profile.
+   *
+   * @throws ProfileDatabaseException On errors
+   * @throws IOException              On I/O errors
+   */
+
+  void delete()
+    throws ProfileDatabaseException, IOException;
+
+  /**
    * Set the name of the profile. This method will fail if there is another profile with the
    * given name already existing.
    *
