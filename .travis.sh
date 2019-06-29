@@ -95,6 +95,6 @@ wget \
 #------------------------------------------------------------------------
 # Publish APKs
 
-scp -P 1022 ./simplified-app-lfa-offline/build/outputs/apk/release/* travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
-scp -P 1022 ./simplified-app-lfa/build/outputs/apk/release/* travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
+scp -P 1022 ./simplified-app-lfa-offline/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
+scp -P 1022 ./simplified-app-lfa/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
 
