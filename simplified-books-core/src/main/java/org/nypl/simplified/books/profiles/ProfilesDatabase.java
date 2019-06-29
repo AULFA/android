@@ -358,11 +358,11 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
   @Override
   public ProfileType createProfile(
     final AccountProvider account_provider,
-    final String display_name)
+    final String raw_name)
     throws ProfileDatabaseException {
 
     Objects.requireNonNull(account_provider, "Provider");
-    Objects.requireNonNull(display_name, "Display name");
+    final String display_name = normalizeDisplayName(raw_name);
 
     if (display_name.isEmpty()) {
       throw new ProfileCreateInvalidException("Display name cannot be empty");
@@ -417,11 +417,13 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     final AccountsDatabaseFactoryType accounts_databases,
     final AccountProvider account_provider,
     final File directory,
-    final String display_name,
+    final String raw_name,
     final ProfileID id)
     throws ProfileDatabaseException {
 
     try {
+      final String display_name = normalizeDisplayName(raw_name);
+
       final File profile_dir =
         new File(directory, Integer.toString(id.id()));
       final File profile_accounts_dir =
@@ -512,10 +514,9 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
   @Override
   public OptionType<ProfileType> findProfileWithDisplayName(
-    final String display_name) {
+    final String raw_name) {
 
-    Objects.requireNonNull(display_name, "Display name");
-
+    final String display_name = normalizeDisplayName(raw_name);
     for (final Profile profile : this.profiles.values()) {
       if (profile.displayName().equals(display_name)) {
         return Option.some(profile);
@@ -587,6 +588,11 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
       }
       throw new ProfileNoneCurrentException("No profile is current");
     }
+  }
+
+  private static String normalizeDisplayName(String name)
+  {
+    return Objects.requireNonNull(name, "Display name").trim();
   }
 
   private static final class Profile implements ProfileType {
@@ -697,6 +703,36 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
       }
 
       return account;
+    }
+
+    @Override
+    public void setDisplayName(final String rawName)
+      throws ProfileDatabaseException, IOException {
+
+      final String newNameNormal = normalizeDisplayName(rawName);
+      synchronized (this.description_lock) {
+        final OptionType<ProfileType> existing =
+          this.owner.findProfileWithDisplayName(newNameNormal);
+
+        /*
+         * If a profile exists with the given name, and it's not this profile... Abort!
+         */
+
+        if (existing.isSome()) {
+          if (!existing.equals(Option.of(this))) {
+            throw new ProfileCreateDuplicateException(
+              "A profile already exists with the name '" + newNameNormal + "'");
+          }
+        }
+
+        ProfileDescription new_desc =
+          this.description.toBuilder()
+            .setDisplayName(newNameNormal)
+            .build();
+
+        writeDescription(this.directory, new_desc);
+        this.description = new_desc;
+      }
     }
 
     @Override

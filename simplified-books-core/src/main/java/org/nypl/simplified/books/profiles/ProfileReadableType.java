@@ -42,6 +42,8 @@ public interface ProfileReadableType extends Comparable<ProfileReadableType> {
 
   /**
    * @return The profile's display name
+   *
+   * @see ProfileType#setDisplayName(String)
    */
 
   String displayName();
