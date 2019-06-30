@@ -1,5 +1,6 @@
 package org.nypl.simplified.books.controller;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -36,11 +37,13 @@ import org.nypl.simplified.books.idle_timer.ProfileIdleTimer;
 import org.nypl.simplified.books.idle_timer.ProfileIdleTimerType;
 import org.nypl.simplified.books.profiles.ProfileAccountSelectEvent;
 import org.nypl.simplified.books.profiles.ProfileCreationEvent;
+import org.nypl.simplified.books.profiles.ProfileDeletionEvent;
 import org.nypl.simplified.books.profiles.ProfileEvent;
 import org.nypl.simplified.books.profiles.ProfileID;
 import org.nypl.simplified.books.profiles.ProfileNoneCurrentException;
 import org.nypl.simplified.books.profiles.ProfileNonexistentAccountProviderException;
 import org.nypl.simplified.books.profiles.ProfilePreferences;
+import org.nypl.simplified.books.profiles.ProfilePreferencesChanged;
 import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.books.profiles.ProfileSelected;
 import org.nypl.simplified.books.profiles.ProfileType;
@@ -62,6 +65,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -248,6 +252,12 @@ public final class Controller implements BooksControllerType, ProfilesController
   }
 
   @Override
+  public ListenableFuture<ProfileDeletionEvent> profileDelete(final ProfileID id) {
+    Objects.requireNonNull(id, "id");
+    return this.task_executor.submit(new ProfileDeletionTask(this.profiles, this.profile_events, id));
+  }
+
+  @Override
   public AccountType profileAccountCurrent() throws ProfileNoneCurrentException {
     final ProfileReadableType profile = this.profileCurrent();
     return profile.accountCurrent();
@@ -401,15 +411,41 @@ public final class Controller implements BooksControllerType, ProfilesController
   }
 
   @Override
-  public ListenableFuture<Unit> profilePreferencesUpdate(final ProfilePreferences preferences)
-      throws ProfileNoneCurrentException {
-
-    NullCheck.notNull(preferences, "Preferences");
-
+  public ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdate(
+    final Function<ProfilePreferences, ProfilePreferences> preferences)
+    throws ProfileNoneCurrentException {
+    Objects.requireNonNull(preferences, "preferences");
     return this.task_executor.submit(new ProfilePreferencesUpdateTask(
-        this.profile_events,
-        this.profiles.currentProfileUnsafe(),
-        preferences));
+      this.profile_events,
+      this.profiles.currentProfileUnsafe().id(),
+      this.profiles,
+      preferences));
+  }
+
+  @Override
+  public ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdateFor(
+    final ProfileID profile,
+    final Function<ProfilePreferences, ProfilePreferences> preferences) {
+    Objects.requireNonNull(profile, "profile");
+    Objects.requireNonNull(preferences, "preferences");
+    return this.task_executor.submit(new ProfilePreferencesUpdateTask(
+      this.profile_events,
+      profile,
+      this.profiles,
+      preferences));
+  }
+
+  @Override
+  public ListenableFuture<ProfilePreferencesChanged> profileDisplayNameUpdateFor(
+    final ProfileID profile,
+    final String displayName) {
+    Objects.requireNonNull(profile, "profile");
+    Objects.requireNonNull(displayName, "displayName");
+    return this.task_executor.submit(new ProfileDisplayNameUpdateTask(
+      this.profile_events,
+      profile,
+      this.profiles,
+      displayName));
   }
 
   @Override

@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import static org.nypl.simplified.books.profiles.ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded;
+
 final class ProfileBookmarkSetTask implements Callable<Unit> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProfileBookmarkSetTask.class);
@@ -26,40 +28,42 @@ final class ProfileBookmarkSetTask implements Callable<Unit> {
   private final ObservableType<ProfileEvent> events;
 
   ProfileBookmarkSetTask(
-      final ProfileType profile,
-      final ObservableType<ProfileEvent> events,
-      final BookID book_id,
-      final ReaderBookLocation new_location) {
+    final ProfileType profile,
+    final ObservableType<ProfileEvent> events,
+    final BookID book_id,
+    final ReaderBookLocation new_location) {
 
     this.profile =
-        NullCheck.notNull(profile, "Profile");
+      NullCheck.notNull(profile, "Profile");
     this.events =
-        NullCheck.notNull(events, "Events");
+      NullCheck.notNull(events, "Events");
     this.book_id =
-        NullCheck.notNull(book_id, "Book ID");
+      NullCheck.notNull(book_id, "Book ID");
     this.new_location =
-        NullCheck.notNull(new_location, "Location");
+      NullCheck.notNull(new_location, "Location");
   }
 
   @Override
   public Unit call() throws IOException {
-
     try {
       LOG.debug("[{}] saving bookmark {}", this.book_id.brief(), this.new_location);
 
       final ProfilePreferences preferences = profile.preferences();
 
       this.profile.preferencesUpdate(
-          preferences.withReaderBookmarks(
-              preferences.readerBookmarks().withBookmark(book_id, new_location)));
+        preferences.withReaderBookmarks(
+          preferences.readerBookmarks().withBookmark(book_id, new_location)));
 
-      this.events.send(ProfilePreferencesChanged.builder()
-          .setChangedReaderBookmarks(true)
-          .setChangedReaderPreferences(false)
-          .build());
-
+      this.events.send(
+        new ProfilePreferencesChangeSucceeded(
+          this.profile.id(),
+          false,
+          true,
+          false));
     } catch (final Exception e) {
       LOG.error("[{}] could not save bookmark: ", this.book_id.brief(), e);
+      this.events.send(
+        new ProfilePreferencesChanged.ProfilePreferencesChangeFailed(this.profile.id(), e));
       throw e;
     }
 

@@ -61,6 +61,19 @@ public final class DatePicker extends RelativeLayout {
     return new LocalDate(this.year.getValue(), this.month.getValue(), this.day.getValue());
   }
 
+  /**
+   * Set the date value.
+   *
+   * @param date The new date value
+   */
+
+  public void setDate(LocalDate date)
+  {
+    this.year.setValue(date.getYear());
+    this.month.setValue(date.getMonthOfYear());
+    this.day.setValue(date.getDayOfMonth());
+  }
+
   private void init() {
     final LocalDate date = LocalDate.now();
 

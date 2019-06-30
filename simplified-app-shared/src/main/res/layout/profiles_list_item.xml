@@ -1,37 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="wrap_content"
-  android:orientation="horizontal"
-  android:weightSum="1"
-  android:layout_margin="8dp"
-  android:padding="8dp">
+  android:layout_height="64dp">
 
-  <LinearLayout
-      android:id="@+id/profileItemIconLayout"
-      android:layout_width="wrap_content"
-      android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/profileItemIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_face_black_24dp"/>
-  </LinearLayout>
+  <ImageView
+    android:id="@+id/profileItemIcon"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:padding="16dp"
+    android:layout_gravity="center_vertical"
+    android:background="?android:attr/selectableItemBackground"
+    android:src="@drawable/profile_icon" />
 
   <TextView
-      android:id="@+id/profileItemDisplayName"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_toRightOf="@+id/profileItemIconLayout"
-      android:paddingLeft="16dp"
-      android:textAppearance="?android:attr/textAppearanceListItem"
-      android:textSize="18sp"
-      android:textStyle="bold"
-      android:gravity="center_vertical"
-      android:textColor="@drawable/drawer_list_text"
-      android:text="Item"/>
+    android:id="@+id/profileItemDisplayName"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:layout_toRightOf="@+id/profileItemIcon"
+    android:layout_toLeftOf="@+id/profileItemEdit"
+    android:paddingLeft="16dp"
+    android:gravity="center_vertical"
+    android:layout_centerVertical="true"
+    android:maxLines="1"
+    android:ellipsize="end"
+    android:background="?android:attr/selectableItemBackground"
+    android:text="Item"
+    android:textAppearance="?android:attr/textAppearanceListItem"
+    android:textColor="@drawable/drawer_list_text"
+    android:textSize="18sp"
+    android:textStyle="bold" />
+
+  <ImageView
+    android:id="@+id/profileItemEdit"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:layout_toLeftOf="@+id/profileItemDelete"
+    android:background="?android:attr/selectableItemBackground"
+    android:padding="16dp"
+    android:layout_gravity="center_vertical"
+    android:src="@drawable/profile_edit" />
+
+  <ImageView
+    android:id="@+id/profileItemDelete"
+    android:layout_width="64dp"
+    android:layout_height="64dp"
+    android:layout_alignParentRight="true"
+    android:background="?android:attr/selectableItemBackground"
+    android:padding="16dp"
+    android:layout_gravity="center_vertical"
+    android:src="@drawable/profile_delete" />
 
 </RelativeLayout>

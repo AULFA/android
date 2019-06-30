@@ -53,44 +53,44 @@ public final class ReaderSettingsDialog extends DialogFragment {
 
   @Override
   public View onCreateView(
-      final @Nullable LayoutInflater inflater_mn,
-      final @Nullable ViewGroup container,
-      final @Nullable Bundle state) {
+    final @Nullable LayoutInflater inflater_mn,
+    final @Nullable ViewGroup container,
+    final @Nullable Bundle state) {
 
     final LayoutInflater inflater = NullCheck.notNull(inflater_mn);
     final LinearLayout layout = NullCheck.notNull(
-        (LinearLayout) inflater.inflate(
-            R.layout.reader_settings, container, false));
+      (LinearLayout) inflater.inflate(
+        R.layout.reader_settings, container, false));
 
     final TextView in_view_font_serif =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_serif));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_serif));
     final TextView in_view_font_sans =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_sans));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_sans));
     final TextView in_view_font_open_dyslexic =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_open_dyslexic));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_font_open_dyslexic));
 
     final TextView in_view_black_on_white =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_black_on_white));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_black_on_white));
     final TextView in_view_white_on_black =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_white_on_black));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_white_on_black));
     final TextView in_view_black_on_beige =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_black_on_beige));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_black_on_beige));
 
     final TextView in_view_text_smaller =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_text_smaller));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_text_smaller));
     final TextView in_view_text_larger =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_text_larger));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_text_larger));
 
     final SeekBar in_view_brightness =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_brightness));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_brightness));
     final Button in_view_close_button =
-        NullCheck.notNull(layout.findViewById(R.id.reader_settings_close));
+      NullCheck.notNull(layout.findViewById(R.id.reader_settings_close));
 
     try {
       final ReaderPreferences reader_preferences =
-          this.profiles.profileCurrent()
-              .preferences()
-              .readerPreferences();
+        this.profiles.profileCurrent()
+          .preferences()
+          .readerPreferences();
 
       this.reader_preferences_builder = reader_preferences.toBuilder();
     } catch (final ProfileNoneCurrentException e) {
@@ -115,13 +115,13 @@ public final class ReaderSettingsDialog extends DialogFragment {
     });
 
     final Typeface od = Typeface.createFromAsset(
-        this.getActivity().getAssets(), "OpenDyslexic3-Regular.ttf");
+      this.getActivity().getAssets(), "OpenDyslexic3-Regular.ttf");
     in_view_font_open_dyslexic.setTypeface(od);
 
     in_view_black_on_white.setBackgroundColor(
-       ReaderColorSchemes.background(ReaderColorScheme.SCHEME_BLACK_ON_WHITE));
+      ReaderColorSchemes.background(ReaderColorScheme.SCHEME_BLACK_ON_WHITE));
     in_view_black_on_white.setTextColor(
-        ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_BLACK_ON_WHITE));
+      ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_BLACK_ON_WHITE));
 
     in_view_black_on_white.setOnClickListener(view -> {
       this.reader_preferences_builder.setColorScheme(ReaderColorScheme.SCHEME_BLACK_ON_WHITE);
@@ -129,9 +129,9 @@ public final class ReaderSettingsDialog extends DialogFragment {
     });
 
     in_view_white_on_black.setBackgroundColor(
-        ReaderColorSchemes.background(ReaderColorScheme.SCHEME_WHITE_ON_BLACK));
+      ReaderColorSchemes.background(ReaderColorScheme.SCHEME_WHITE_ON_BLACK));
     in_view_white_on_black.setTextColor(
-        ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_WHITE_ON_BLACK));
+      ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_WHITE_ON_BLACK));
 
     in_view_white_on_black.setOnClickListener(view -> {
       this.reader_preferences_builder.setColorScheme(ReaderColorScheme.SCHEME_WHITE_ON_BLACK);
@@ -139,9 +139,9 @@ public final class ReaderSettingsDialog extends DialogFragment {
     });
 
     in_view_black_on_beige.setBackgroundColor(
-        ReaderColorSchemes.background(ReaderColorScheme.SCHEME_BLACK_ON_BEIGE));
+      ReaderColorSchemes.background(ReaderColorScheme.SCHEME_BLACK_ON_BEIGE));
     in_view_black_on_beige.setTextColor(
-        ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_BLACK_ON_BEIGE));
+      ReaderColorSchemes.foreground(ReaderColorScheme.SCHEME_BLACK_ON_BEIGE));
 
     in_view_black_on_beige.setOnClickListener(view -> {
       this.reader_preferences_builder.setColorScheme(ReaderColorScheme.SCHEME_BLACK_ON_BEIGE);
@@ -170,29 +170,29 @@ public final class ReaderSettingsDialog extends DialogFragment {
 
     in_view_brightness.setProgress((int) (this.reader_preferences_builder.brightness() * 100));
     in_view_brightness.setOnSeekBarChangeListener(
-        new OnSeekBarChangeListener() {
+      new OnSeekBarChangeListener() {
 
-          private double bright = 0.5;
+        private double bright = 0.5;
 
-          @Override
-          public void onProgressChanged(
-              final @Nullable SeekBar bar,
-              final int progress,
-              final boolean from_user) {
+        @Override
+        public void onProgressChanged(
+          final @Nullable SeekBar bar,
+          final int progress,
+          final boolean from_user) {
 
-            this.bright = progress / 100.0;
-          }
+          this.bright = progress / 100.0;
+        }
 
-          @Override
-          public void onStartTrackingTouch(final @Nullable SeekBar bar) {
+        @Override
+        public void onStartTrackingTouch(final @Nullable SeekBar bar) {
 
-          }
+        }
 
-          @Override
-          public void onStopTrackingTouch(final @Nullable SeekBar bar) {
-            updateBrightness((float) this.bright);
-          }
-        });
+        @Override
+        public void onStopTrackingTouch(final @Nullable SeekBar bar) {
+          updateBrightness((float) this.bright);
+        }
+      });
 
     final Dialog d = this.getDialog();
     if (d != null) {
@@ -213,12 +213,10 @@ public final class ReaderSettingsDialog extends DialogFragment {
 
   private void updatePreferences(final ReaderPreferences prefs) {
     try {
-      this.profiles.profilePreferencesUpdate(
-          this.profiles.profileCurrent()
-              .preferences()
-              .toBuilder()
-              .setReaderPreferences(prefs)
-              .build());
+      this.profiles.profilePreferencesUpdate(preferences ->
+        preferences.toBuilder()
+          .setReaderPreferences(prefs)
+          .build());
     } catch (final ProfileNoneCurrentException e) {
       throw new IllegalStateException(e);
     }
@@ -232,8 +230,8 @@ public final class ReaderSettingsDialog extends DialogFragment {
     final Window window = this.getDialog().getWindow();
 
     window.setLayout(
-        (int) screen.screenDPToPixels(300),
-        android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+      (int) screen.screenDPToPixels(300),
+      android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
     window.setGravity(Gravity.CENTER);
   }
 

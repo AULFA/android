@@ -45,6 +45,7 @@ import org.nypl.simplified.books.profiles.ProfileEvent;
 import org.nypl.simplified.books.profiles.ProfileNoneCurrentException;
 import org.nypl.simplified.books.profiles.ProfilePreferences;
 import org.nypl.simplified.books.profiles.ProfilePreferencesChanged;
+import org.nypl.simplified.books.profiles.ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded;
 import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.books.reader.ReaderBookLocation;
 import org.nypl.simplified.books.reader.ReaderColorScheme;
@@ -399,8 +400,8 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
   private void onProfileEvent(final ProfileEvent event) {
     LOG.debug("onProfileEvent: {}", event);
 
-    if (event instanceof ProfilePreferencesChanged) {
-      final ProfilePreferencesChanged changed = (ProfilePreferencesChanged) event;
+    if (event instanceof ProfilePreferencesChangeSucceeded) {
+      final ProfilePreferencesChangeSucceeded changed = (ProfilePreferencesChangeSucceeded) event;
 
       final ProfilePreferences preferences;
       try {
@@ -410,7 +411,7 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
         return;
       }
 
-      if (changed.changedReaderPreferences()) {
+      if (changed.getChangedReaderPreferences()) {
         LOG.debug("reader preferences changed");
         this.onReaderPreferencesChanged(preferences.readerPreferences());
       }

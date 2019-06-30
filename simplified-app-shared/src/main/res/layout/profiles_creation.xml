@@ -74,7 +74,7 @@
     <Button
         android:id="@+id/profileCreationCreate"
         android:layout_width="wrap_content"
-        android:layout_height="35dp"
+        android:layout_height="48dp"
         android:layout_below="@+id/profileCreationDateSelection"
         android:layout_centerHorizontal="true"
         android:layout_margin="16dp"
