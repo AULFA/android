@@ -17,6 +17,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.io7m.jfunctional.Option;
@@ -26,6 +27,7 @@ import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.nypl.simplified.app.R;
@@ -48,6 +50,7 @@ import org.nypl.simplified.datepicker.DatePicker;
 import org.slf4j.Logger;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import static org.nypl.simplified.app.Simplified.WantActionBar.WANT_NO_ACTION_BAR;
 import static org.nypl.simplified.books.profiles.ProfileCreationEvent.ProfileCreationFailed.ErrorCode.ERROR_GENERAL;
@@ -343,14 +346,22 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     return Unit.unit();
   }
 
-  private Unit onProfileEventPreferencesChangeFailed(
-    final ProfilePreferencesChangeFailed event) {
+  private Unit onProfileEventPreferencesChangeFailed(final ProfilePreferencesChangeFailed event) {
+    LOG.debug("onProfileEventPreferencesChangeFailed: {}", event);
+
+    ErrorDialogUtilities.showErrorWithRunnable(
+      this,
+      LOG,
+      event.getException().getMessage(),
+      null,
+      () -> this.finishButton.setEnabled(true));
+
     return Unit.unit();
   }
 
   private Unit onProfileEventPreferencesChangeSucceeded(
     final ProfilePreferencesChangeSucceeded event) {
-    this.openSelectionActivity();
+    UIThread.runOnUIThread(this::openSelectionActivity);
     return Unit.unit();
   }
 
@@ -378,7 +389,6 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     final ProfilesControllerType profiles = Simplified.getProfilesController();
     final ListeningExecutorService exec = Simplified.getBackgroundTaskExecutor();
 
-    ProfileID profileID = this.profile.id();
     if (this.profile == null) {
       final FluentFuture<ProfileCreationEvent> taskCreateProfile =
         FluentFuture.from(profiles.profileCreate(
@@ -387,14 +397,34 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
           genderText,
           dateValue));
 
-      final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
-        updatePreferences(genderText, roleText, school, dateValue, profiles, profileID);
+      taskCreateProfile.addListener(() -> {
+        try {
+          final ProfileCreationEvent event = taskCreateProfile.get();
+          if (event instanceof ProfileCreationEvent.ProfileCreationSucceeded) {
+            final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
+              updatePreferences(
+                genderText,
+                roleText,
+                school,
+                dateValue,
+                profiles,
+                ((ProfileCreationSucceeded) event).id());
+          }
+        } catch (ExecutionException e) {
+          LOG.error("execution: ", e);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }, exec);
 
       taskCreateProfile
         .catching(Exception.class, e -> ProfileCreationFailed.of(nameText, ERROR_GENERAL, Option.some(e)), exec)
         .transform(this::onProfileEvent, exec);
       return;
     }
+
+    final ProfileID profileID =
+      this.profile.id();
 
     final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
       updatePreferences(genderText, roleText, school, dateValue, profiles, profileID);
