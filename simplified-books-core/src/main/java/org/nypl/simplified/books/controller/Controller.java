@@ -412,7 +412,7 @@ public final class Controller implements BooksControllerType, ProfilesController
 
   @Override
   public ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdate(
-    final Function<ProfilePreferences, ProfilePreferences> preferences)
+    final PreferencesUpdateType preferences)
     throws ProfileNoneCurrentException {
     Objects.requireNonNull(preferences, "preferences");
     return this.task_executor.submit(new ProfilePreferencesUpdateTask(
@@ -425,7 +425,7 @@ public final class Controller implements BooksControllerType, ProfilesController
   @Override
   public ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdateFor(
     final ProfileID profile,
-    final Function<ProfilePreferences, ProfilePreferences> preferences) {
+    final PreferencesUpdateType preferences) {
     Objects.requireNonNull(profile, "profile");
     Objects.requireNonNull(preferences, "preferences");
     return this.task_executor.submit(new ProfilePreferencesUpdateTask(

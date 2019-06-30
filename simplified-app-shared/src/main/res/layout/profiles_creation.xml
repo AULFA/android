@@ -1,83 +1,182 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="16dp"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/profileCreationEditName"
-        android:text="@string/profiles_please_enter"/>
+      android:id="@+id/profileCreateTitle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/profiles_create_title"
+      android:textSize="24sp"
+      android:textStyle="bold" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/profiles_ask_name"
+      android:textSize="18sp"
+      android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/profileCreationEditName"
+      android:id="@+id/profileCreationEditName"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:ems="10"
+      android:hint="@string/profiles_name_field"
+      android:imeOptions="actionDone"
+      android:inputType="textPersonName|textCapWords"
+      android:text="" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/profiles_ask_gender"
+      android:textSize="18sp"
+      android:textStyle="bold" />
+
+    <RelativeLayout
+      android:id="@+id/profileGenderLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginBottom="16dp">
+
+      <RadioGroup
+        android:id="@+id/profileGenderRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/profileGenderLayout"
-        android:ems="10"
-        android:inputType="textPersonName|textCapWords"
-        android:hint="@string/profiles_name_field"
+        android:orientation="vertical">
+
+        <RadioButton
+          android:id="@+id/profileGenderFemaleRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_gender_female" />
+
+        <RadioButton
+          android:id="@+id/profileGenderMaleRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_gender_male" />
+
+        <RadioButton
+          android:id="@+id/profileGenderNonBinaryRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_gender_other" />
+      </RadioGroup>
+
+      <EditText
+        android:id="@+id/profileGenderNonBinaryEditText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/profileGenderRadioGroup"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="-8dp"
+        android:layout_toRightOf="@+id/profileGenderRadioGroup"
+        android:hint=""
         android:imeOptions="actionDone"
-        android:text=""/>
+        android:inputType="textPersonName|textCapWords"
+        android:maxLength="32" />
+    </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/profileCreationDateSelection"
-        android:layout_centerInParent="true"
-        android:id="@+id/profileGenderLayout"
-        android:gravity="center_vertical"
-        android:layout_margin="8dp">
-
-        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/profileGenderRadioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <RadioButton android:id="@+id/profileGenderFemaleRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profiles_gender_female"/>
-            <RadioButton android:id="@+id/profileGenderMaleRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profiles_gender_male"/>
-            <RadioButton android:id="@+id/profileGenderNonBinaryRadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </RadioGroup>
-
-        <EditText
-            android:id="@+id/profileGenderNonBinaryEditText"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:hint=""
-            android:maxLength="32"
-            android:inputType="textPersonName|textCapWords"
-            android:layout_marginBottom="2dp"
-            android:imeOptions="actionDone"/>
-
-    </LinearLayout>
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/profiles_ask_birth"
+      android:textSize="18sp"
+      android:textStyle="bold" />
 
     <org.nypl.simplified.datepicker.DatePicker
-        android:id="@+id/profileCreationDateSelection"
+      android:id="@+id/profileCreationDateSelection"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginBottom="16dp" />
+
+    <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:text="@string/profiles_ask_role"
+      android:textSize="18sp"
+      android:textStyle="bold" />
+
+    <RelativeLayout
+      android:id="@+id/profileRoleLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_marginBottom="16dp">
+
+      <RadioGroup
+        android:id="@+id/profileRoleRadioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:orientation="vertical">
+
+        <RadioButton
+          android:id="@+id/profileRoleParetRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_role_parent" />
+
+        <RadioButton
+          android:id="@+id/profileRoleTeacherRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_role_teacher" />
+
+        <RadioButton
+          android:id="@+id/profileRoleStudentRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_role_student" />
+
+        <RadioButton
+          android:id="@+id/profileRoleOtherRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_role_other" />
+      </RadioGroup>
+
+      <EditText
+        android:id="@+id/profileRoleEditText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/profileRoleRadioGroup"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/profileRoleRadioGroup"
+        android:layout_marginBottom="-8dp"
+        android:hint=""
+        android:imeOptions="actionDone"
+        android:inputType="textPersonName|textCapWords"
+        android:maxLength="32" />
+    </RelativeLayout>
 
     <Button
-        android:id="@+id/profileCreationCreate"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_below="@+id/profileCreationDateSelection"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:text="@string/profiles_create"/>
+      android:id="@+id/profileCreationCreate"
+      android:layout_width="wrap_content"
+      android:layout_height="48dp"
+      android:layout_marginBottom="32dp"
+      android:layout_marginTop="32dp"
+      android:layout_gravity="center"
+      android:text="@string/profiles_create" />
 
-</RelativeLayout>
+  </LinearLayout>
+
+</ScrollView>

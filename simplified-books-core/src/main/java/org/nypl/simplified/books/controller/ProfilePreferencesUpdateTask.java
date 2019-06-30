@@ -22,7 +22,7 @@ final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesC
   private static final Logger LOG = LoggerFactory.getLogger(ProfilePreferencesUpdateTask.class);
 
   private final ProfilesDatabaseType profiles;
-  private final Function<ProfilePreferences, ProfilePreferences> preferences;
+  private final ProfilesControllerType.PreferencesUpdateType preferences;
   private final ObservableType<ProfileEvent> events;
   private final ProfileID profileId;
 
@@ -30,7 +30,7 @@ final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesC
     final ObservableType<ProfileEvent> events,
     final ProfileID profileId,
     final ProfilesDatabaseType profiles,
-    final Function<ProfilePreferences, ProfilePreferences> preferences) {
+    final ProfilesControllerType.PreferencesUpdateType preferences) {
 
     this.events =
       Objects.requireNonNull(events, "Events");
@@ -52,7 +52,7 @@ final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesC
       }
 
       final ProfilePreferences oldPreferences = profile.preferences();
-      final ProfilePreferences newPreferences = this.preferences.apply(oldPreferences);
+      final ProfilePreferences newPreferences = this.preferences.update(oldPreferences);
       profile.preferencesUpdate(newPreferences);
 
       final ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded event =

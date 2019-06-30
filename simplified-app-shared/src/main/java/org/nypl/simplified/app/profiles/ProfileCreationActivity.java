@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -22,6 +23,7 @@ import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
@@ -60,14 +62,18 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   private static final String PROFILE_ID_KEY =
     "org.nypl.simplified.app.profiles.ProfileCreationActivity.profileId";
 
-  private Button button;
+  private Button finishButton;
   private DatePicker date;
   private EditText name;
   private RadioGroup genderRadioGroup;
-  private RadioButton nonBinaryRadioButton;
-  private EditText nonBinaryEditText;
+  private RadioButton genderNonBinaryRadioButton;
+  private EditText genderNonBinaryEditText;
   private @Nullable
   ProfileReadableType profile;
+  private TextView title;
+  private RadioGroup roleRadioGroup;
+  private RadioButton roleOtherRadioButton;
+  private EditText roleEditText;
 
   /**
    * Start a new activity for the given profile.
@@ -111,33 +117,65 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     super.onCreate(state);
     this.setContentView(R.layout.profiles_creation);
 
-    this.button = Objects.requireNonNull(this.findViewById(R.id.profileCreationCreate));
-    this.button.setEnabled(false);
-    this.button.setOnClickListener(view -> {
+    this.title = this.findViewById(R.id.profileCreateTitle);
+    if (this.profile != null) {
+      this.title.setText(R.string.profiles_modify_title);
+    }
+
+    this.finishButton = Objects.requireNonNull(this.findViewById(R.id.profileCreationCreate));
+    this.finishButton.setEnabled(false);
+    this.finishButton.setOnClickListener(view -> {
       view.setEnabled(false);
       createOrModifyProfile();
     });
 
-    this.date = Objects.requireNonNull(this.findViewById(R.id.profileCreationDateSelection));
-    this.name = Objects.requireNonNull(this.findViewById(R.id.profileCreationEditName));
-    this.genderRadioGroup = Objects.requireNonNull(this.findViewById(R.id.profileGenderRadioGroup));
-    this.nonBinaryRadioButton = Objects.requireNonNull(
-      this.findViewById(R.id.profileGenderNonBinaryRadioButton));
-    this.nonBinaryEditText =
+    this.date =
+      Objects.requireNonNull(this.findViewById(R.id.profileCreationDateSelection));
+    this.name =
+      Objects.requireNonNull(this.findViewById(R.id.profileCreationEditName));
+
+    this.genderRadioGroup =
+      Objects.requireNonNull(this.findViewById(R.id.profileGenderRadioGroup));
+    this.genderNonBinaryRadioButton =
+      Objects.requireNonNull(this.findViewById(R.id.profileGenderNonBinaryRadioButton));
+    this.genderNonBinaryEditText =
       Objects.requireNonNull(this.findViewById(R.id.profileGenderNonBinaryEditText));
 
+    this.roleRadioGroup =
+      Objects.requireNonNull(this.findViewById(R.id.profileRoleRadioGroup));
+    this.roleOtherRadioButton =
+      Objects.requireNonNull(this.findViewById(R.id.profileRoleOtherRadioButton));
+    this.roleEditText =
+      Objects.requireNonNull(this.findViewById(R.id.profileRoleEditText));
+
     this.name.addTextChangedListener(this);
-    this.nonBinaryEditText.addTextChangedListener(this);
-    this.nonBinaryEditText.setOnFocusChangeListener((View view, boolean hasFocus) -> {
+
+    this.genderNonBinaryEditText.addTextChangedListener(this);
+    this.genderNonBinaryEditText.setOnFocusChangeListener((View view, boolean hasFocus) -> {
       if (hasFocus) {
-        this.nonBinaryRadioButton.setChecked(true);
+        this.genderNonBinaryRadioButton.setChecked(true);
       }
     });
     this.genderRadioGroup.setOnCheckedChangeListener((group, id) -> {
       if (id == R.id.profileGenderNonBinaryRadioButton) {
-        this.nonBinaryEditText.requestFocus();
+        this.genderNonBinaryEditText.requestFocus();
       } else {
-        this.nonBinaryEditText.clearFocus();
+        this.genderNonBinaryEditText.clearFocus();
+      }
+      this.updateButtonEnabled();
+    });
+
+    this.roleEditText.addTextChangedListener(this);
+    this.roleEditText.setOnFocusChangeListener((View view, boolean hasFocus) -> {
+      if (hasFocus) {
+        this.roleOtherRadioButton.setChecked(true);
+      }
+    });
+    this.roleRadioGroup.setOnCheckedChangeListener((group, id) -> {
+      if (id == R.id.profileRoleOtherRadioButton) {
+        this.roleEditText.requestFocus();
+      } else {
+        this.roleEditText.clearFocus();
       }
       this.updateButtonEnabled();
     });
@@ -164,12 +202,32 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
             break;
           default:
             this.genderRadioGroup.check(R.id.profileGenderNonBinaryRadioButton);
-            this.nonBinaryEditText.setText(gender);
+            this.genderNonBinaryEditText.setText(gender);
             break;
         }
       }
 
-      this.button.setText(R.string.profiles_modify);
+      final OptionType<String> roleOpt = preferences.role();
+      if (roleOpt.isSome()) {
+        final String role = ((Some<String>) roleOpt).get();
+        switch (role) {
+          case "parent":
+            this.roleRadioGroup.check(R.id.profileRoleParetRadioButton);
+            break;
+          case "student":
+            this.roleRadioGroup.check(R.id.profileRoleStudentRadioButton);
+            break;
+          case "teacher":
+            this.roleRadioGroup.check(R.id.profileRoleTeacherRadioButton);
+            break;
+          default:
+            this.roleRadioGroup.check(R.id.profileRoleOtherRadioButton);
+            this.roleEditText.setText(role);
+            break;
+        }
+      }
+
+      this.finishButton.setText(R.string.profiles_modify);
     }
   }
 
@@ -195,7 +253,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       LOG,
       this.getResources().getString(messageForErrorCode(e.errorCode())),
       null,
-      () -> this.button.setEnabled(true));
+      () -> this.finishButton.setEnabled(true));
 
     return Unit.unit();
   }
@@ -261,73 +319,139 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   }
 
   private void createOrModifyProfile() {
-    final String name_text = name.getText().toString().trim();
+    final String nameText = name.getText().toString().trim();
+
+    final String genderText = getGenderText();
+    final String roleText = getRoleText();
+
+    final LocalDate dateValue = this.date.getDate();
+    LOG.debug("name: {}", nameText);
+    LOG.debug("gender: {}", genderText);
+    LOG.debug("date: {}", dateValue);
+    LOG.debug("role: {}", roleText);
+
+    final AccountProviderCollection providers = Simplified.getAccountProviders();
+    final ProfilesControllerType profiles = Simplified.getProfilesController();
+    final ListeningExecutorService exec = Simplified.getBackgroundTaskExecutor();
+
+    ProfileID profileID = this.profile.id();
+    if (this.profile == null) {
+      final FluentFuture<ProfileCreationEvent> taskCreateProfile =
+        FluentFuture.from(profiles.profileCreate(
+          providers.providerDefault(),
+          nameText,
+          genderText,
+          dateValue));
+
+      final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
+        updatePreferences(genderText, roleText, dateValue, profiles, profileID);
+
+      taskCreateProfile
+        .catching(Exception.class, e -> ProfileCreationFailed.of(nameText, ERROR_GENERAL, Option.some(e)), exec)
+        .transform(this::onProfileEvent, exec);
+      return;
+    }
+
+    final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
+      updatePreferences(genderText, roleText, dateValue, profiles, profileID);
+    final ListenableFuture<ProfilePreferencesChanged> taskUpdateName =
+      profiles.profileDisplayNameUpdateFor(profileID, nameText);
+
+    final FluentFuture<Unit> task =
+      FluentFuture.from(taskUpdatePreferences)
+        .transformAsync(input -> taskUpdateName, exec)
+        .catching(Exception.class, e -> new ProfilePreferencesChangeFailed(profileID, e), exec)
+        .transform(this::onProfileEvent, exec);
+  }
+
+  private ListenableFuture<ProfilePreferencesChanged> updatePreferences(
+    final String genderText,
+    final String roleText,
+    final LocalDate dateValue,
+    final ProfilesControllerType profiles,
+    final ProfileID profileID) {
+    return profiles.profilePreferencesUpdateFor(
+      profileID,
+      preferences -> preferences.toBuilder()
+        .setDateOfBirth(dateValue)
+        .setGender(genderText)
+        .setRole(roleText)
+        .build());
+  }
+
+  @NotNull
+  private String getGenderText() {
     final String gender_text;
     if (this.genderRadioGroup.getCheckedRadioButtonId() == R.id.profileGenderFemaleRadioButton) {
       gender_text = "female";
     } else if (this.genderRadioGroup.getCheckedRadioButtonId() == R.id.profileGenderMaleRadioButton) {
       gender_text = "male";
     } else if (this.genderRadioGroup.getCheckedRadioButtonId() == R.id.profileGenderNonBinaryRadioButton) {
-      gender_text = this.nonBinaryEditText.getText().toString().toLowerCase().trim();
+      gender_text = this.genderNonBinaryEditText.getText().toString().toLowerCase().trim();
     } else {
       throw new UnreachableCodeException();
     }
-    final LocalDate date_value = this.date.getDate();
-    LOG.debug("name: {}", name_text);
-    LOG.debug("gender: {}", gender_text);
-    LOG.debug("date: {}", date_value);
+    return gender_text;
+  }
 
-    final AccountProviderCollection providers = Simplified.getAccountProviders();
-    final ProfilesControllerType profiles = Simplified.getProfilesController();
-    final ListeningExecutorService exec = Simplified.getBackgroundTaskExecutor();
-
-    if (this.profile == null) {
-      final ListenableFuture<ProfileCreationEvent> task =
-        profiles.profileCreate(
-          providers.providerDefault(),
-          name_text,
-          gender_text,
-          date_value);
-
-      FluentFuture.from(task)
-        .catching(Exception.class, e -> ProfileCreationFailed.of(name_text, ERROR_GENERAL, Option.some(e)), exec)
-        .transform(this::onProfileEvent, exec);
-      return;
+  @NotNull
+  private String getRoleText() {
+    final String role_text;
+    if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleParetRadioButton) {
+      role_text = "parent";
+    } else if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleStudentRadioButton) {
+      role_text = "student";
+    } else if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleTeacherRadioButton) {
+      role_text = "teacher";
+    } else if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleOtherRadioButton) {
+      role_text = this.roleEditText.getText().toString().toLowerCase().trim();
+    } else {
+      throw new UnreachableCodeException();
     }
-
-    final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
-      profiles.profilePreferencesUpdateFor(
-        this.profile.id(),
-        preferences -> preferences.toBuilder()
-          .setDateOfBirth(date_value)
-          .setGender(gender_text)
-          .build());
-
-    final ListenableFuture<ProfilePreferencesChanged> taskUpdateName =
-      profiles.profileDisplayNameUpdateFor(
-        this.profile.id(),
-        name_text);
-
-    final FluentFuture<Unit> task =
-      FluentFuture.from(taskUpdatePreferences)
-        .transformAsync(input -> taskUpdateName, exec)
-        .catching(Exception.class, e -> new ProfilePreferencesChangeFailed(this.profile.id(), e), exec)
-        .transform(this::onProfileEvent, exec);
+    return role_text;
   }
 
   private void updateButtonEnabled() {
-    final boolean isNameEmpty = this.name.getText().toString().trim().isEmpty();
-    final boolean isNonBinaryEmpty = this.nonBinaryEditText.getText().toString().trim().isEmpty();
-    final boolean isAnyRadioButtonChecked = this.genderRadioGroup.getCheckedRadioButtonId() != -1;
-    final boolean isNonBinaryRatioButtonChecked = this.nonBinaryRadioButton.isChecked();
+    final boolean isNameOK =
+      !this.name.getText().toString().trim().isEmpty();
 
-    if (isNonBinaryRatioButtonChecked) {
-      this.button.setEnabled(!isNameEmpty && !isNonBinaryEmpty);
-    } else if (isAnyRadioButtonChecked) {
-      this.button.setEnabled(!isNameEmpty);
+    final boolean isGenderNonBinaryEmpty =
+      this.genderNonBinaryEditText.getText().toString().trim().isEmpty();
+    final boolean isGenderAnyRadioButtonChecked =
+      this.genderRadioGroup.getCheckedRadioButtonId() != -1;
+    final boolean isGenderNonBinaryRadioButtonChecked =
+      this.genderNonBinaryRadioButton.isChecked();
+
+    final boolean isGenderOk;
+    if (isGenderAnyRadioButtonChecked) {
+      if (isGenderNonBinaryRadioButtonChecked) {
+        isGenderOk = !isGenderNonBinaryEmpty;
+      } else {
+        isGenderOk = true;
+      }
     } else {
-      this.button.setEnabled(false);
+      isGenderOk = false;
     }
+
+    final boolean isRoleOtherEmpty =
+      this.roleEditText.getText().toString().trim().isEmpty();
+    final boolean isRoleAnyRadioButtonChecked =
+      this.roleRadioGroup.getCheckedRadioButtonId() != -1;
+    final boolean isRoleOtherRadioButtonChecked =
+      this.roleOtherRadioButton.isChecked();
+
+    final boolean isRoleOk;
+    if (isRoleAnyRadioButtonChecked) {
+      if (isRoleOtherRadioButtonChecked) {
+        isRoleOk = !isRoleOtherEmpty;
+      } else {
+        isRoleOk = true;
+      }
+    } else {
+      isRoleOk = false;
+    }
+
+    this.finishButton.setEnabled(isNameOK && isRoleOk && isGenderOk);
   }
 
   @Override

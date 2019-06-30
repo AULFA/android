@@ -27,6 +27,12 @@ public abstract class ProfilePreferences {
   public abstract OptionType<String> gender();
 
   /**
+   * @return The role of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> role();
+
+  /**
    * @return The date of birth of the reader (if one has been explicitly specified)
    */
 
@@ -79,7 +85,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setReaderBookmarks(
-        ReaderBookmarks bookmarks);
+      ReaderBookmarks bookmarks);
 
     /**
      * @param prefs The reader preferences
@@ -88,7 +94,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setReaderPreferences(
-        ReaderPreferences prefs);
+      ReaderPreferences prefs);
 
     /**
      * @param gender The gender
@@ -97,7 +103,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setGender(
-        OptionType<String> gender);
+      OptionType<String> gender);
 
     /**
      * @param gender The gender
@@ -110,13 +116,32 @@ public abstract class ProfilePreferences {
     }
 
     /**
+     * @param role The role
+     * @return The current builder
+     * @see #role()
+     */
+
+    public abstract Builder setRole(
+      OptionType<String> role);
+
+    /**
+     * @param role The role
+     * @return The current builder
+     * @see #role()
+     */
+
+    public final Builder setRole(final String role) {
+      return setRole(Option.some(role));
+    }
+
+    /**
      * @param date The date
      * @return The current builder
      * @see #dateOfBirth()
      */
 
     public abstract Builder setDateOfBirth(
-        OptionType<LocalDate> date);
+      OptionType<LocalDate> date);
 
     /**
      * @param date The date
@@ -141,11 +166,10 @@ public abstract class ProfilePreferences {
 
   public static ProfilePreferences.Builder builder() {
     return new AutoValue_ProfilePreferences.Builder()
-        .setReaderPreferences(
-            ReaderPreferences.builder()
-                .build())
-        .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
-        .setGender(Option.none())
-        .setDateOfBirth(Option.none());
+      .setReaderPreferences(ReaderPreferences.builder().build())
+      .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
+      .setGender(Option.none())
+      .setRole(Option.none())
+      .setDateOfBirth(Option.none());
   }
 }

@@ -255,6 +255,14 @@ public interface ProfilesControllerType {
     throws ProfileNoneCurrentException;
 
   /**
+   * A function to update preferences.
+   */
+
+  interface PreferencesUpdateType {
+    ProfilePreferences update(ProfilePreferences current) throws Exception;
+  }
+
+  /**
    * Update preferences for the current profile.
    *
    * @param preferences A function that transforms the profile's current preferences
@@ -264,7 +272,7 @@ public interface ProfilesControllerType {
    */
 
   ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdate(
-    Function<ProfilePreferences, ProfilePreferences> preferences)
+    PreferencesUpdateType preferences)
     throws ProfileNoneCurrentException;
 
   /**
@@ -278,7 +286,7 @@ public interface ProfilesControllerType {
 
   ListenableFuture<ProfilePreferencesChanged> profilePreferencesUpdateFor(
     ProfileID profile,
-    Function<ProfilePreferences, ProfilePreferences> preferences);
+    PreferencesUpdateType preferences);
 
   /**
    * Update the display name for the given profile.

@@ -273,5 +273,18 @@
   <string name="versions_revision">Build</string>
   <string name="versions_version">Version</string>
   <string name="profiles_deletion_error">An error occurred whilst trying to delete the profile.</string>
+  <string name="profiles_role_parent">Parent</string>
+  <string name="profiles_role_teacher">Teacher</string>
+  <string name="profiles_role_student">Student</string>
+  <string name="profiles_role_other">Other</string>
+  <string name="profiles_ask_name">What is your name?</string>
+  <string name="profiles_ask_gender">What is your gender?</string>
+  <string name="profiles_gender_other">Other</string>
+  <string name="profiles_ask_birth">What is your date of birth?</string>
+  <string name="profiles_ask_role">Are you a ..?</string>
+  <string name="profiles_ask_pilot_school">Is your school in an eLibrary pilot program?</string>
+  <string name="profiles_create_title">Create A Profile</string>
+  <string name="profiles_modify_title">Modify A Profile</string>
+
 
 </resources>
