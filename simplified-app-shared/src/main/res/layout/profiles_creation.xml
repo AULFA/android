@@ -168,6 +168,46 @@
         android:maxLength="32" />
     </RelativeLayout>
 
+    <LinearLayout
+      android:id="@+id/profilePilotSchool"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/profiles_ask_pilot_school"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+      <RadioGroup
+        android:id="@+id/profilePilotSchoolRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical">
+        <RadioButton
+          android:id="@+id/profilePilotSchoolNoRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_pilot_no" />
+
+        <RadioButton
+          android:id="@+id/profilePilotSchoolYesRadioButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/profiles_pilot_yes" />
+      </RadioGroup>
+
+      <Spinner
+        android:id="@+id/profilePilotSchoolYesSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/lfaPilotSchools" />
+    </LinearLayout>
+
     <Button
       android:id="@+id/profileCreationCreate"
       android:layout_width="wrap_content"

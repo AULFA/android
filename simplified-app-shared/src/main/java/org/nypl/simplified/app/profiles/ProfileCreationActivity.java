@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.google.common.util.concurrent.FluentFuture;
@@ -74,6 +77,9 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   private RadioGroup roleRadioGroup;
   private RadioButton roleOtherRadioButton;
   private EditText roleEditText;
+  private RadioGroup pilotSchoolRadioGroup;
+  private Spinner pilotSchoolSpinner;
+  private ViewGroup pilotSchoolLayout;
 
   /**
    * Start a new activity for the given profile.
@@ -148,6 +154,23 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     this.roleEditText =
       Objects.requireNonNull(this.findViewById(R.id.profileRoleEditText));
 
+    this.pilotSchoolLayout =
+      Objects.requireNonNull(this.findViewById(R.id.profilePilotSchool));
+    this.pilotSchoolRadioGroup =
+      Objects.requireNonNull(this.findViewById(R.id.profilePilotSchoolRadioGroup));
+    this.pilotSchoolSpinner =
+      Objects.requireNonNull(this.findViewById(R.id.profilePilotSchoolYesSpinner));
+
+    this.pilotSchoolRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+      if (checkedId == R.id.profilePilotSchoolYesRadioButton) {
+        this.pilotSchoolSpinner.setEnabled(true);
+      } else {
+        this.pilotSchoolSpinner.setEnabled(false);
+        this.pilotSchoolSpinner.setSelection(-1);
+      }
+    });
+    this.pilotSchoolRadioGroup.check(R.id.profilePilotSchoolNoRadioButton);
+
     this.name.addTextChangedListener(this);
 
     this.genderNonBinaryEditText.addTextChangedListener(this);
@@ -162,7 +185,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       } else {
         this.genderNonBinaryEditText.clearFocus();
       }
-      this.updateButtonEnabled();
+      this.updateUIState();
     });
 
     this.roleEditText.addTextChangedListener(this);
@@ -177,7 +200,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       } else {
         this.roleEditText.clearFocus();
       }
-      this.updateButtonEnabled();
+      this.updateUIState();
     });
 
     if (this.profile != null) {
@@ -224,6 +247,25 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
             this.roleRadioGroup.check(R.id.profileRoleOtherRadioButton);
             this.roleEditText.setText(role);
             break;
+        }
+      }
+
+      /*
+       * Find the school in the pilot program spinner, if any.
+       */
+
+      final OptionType<String> schoolOpt = preferences.school();
+      if (schoolOpt.isSome()) {
+        final String school = ((Some<String>) schoolOpt).get();
+        final SpinnerAdapter adapter = this.pilotSchoolSpinner.getAdapter();
+        for (int index = 0; index < adapter.getCount(); ++index) {
+          final String adapterItem = adapter.getItem(index).toString();
+          if (adapterItem.equals(school)) {
+            LOG.debug("set school spinner to index {}", index);
+            this.pilotSchoolSpinner.setSelection(index, true);
+            this.pilotSchoolRadioGroup.check(R.id.profilePilotSchoolYesRadioButton);
+            break;
+          }
         }
       }
 
@@ -323,12 +365,14 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
 
     final String genderText = getGenderText();
     final String roleText = getRoleText();
+    final OptionType<String> school = getSchool();
 
     final LocalDate dateValue = this.date.getDate();
-    LOG.debug("name: {}", nameText);
+    LOG.debug("name:   {}", nameText);
     LOG.debug("gender: {}", genderText);
-    LOG.debug("date: {}", dateValue);
-    LOG.debug("role: {}", roleText);
+    LOG.debug("date:   {}", dateValue);
+    LOG.debug("role:   {}", roleText);
+    LOG.debug("school: {}", school);
 
     final AccountProviderCollection providers = Simplified.getAccountProviders();
     final ProfilesControllerType profiles = Simplified.getProfilesController();
@@ -344,7 +388,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
           dateValue));
 
       final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
-        updatePreferences(genderText, roleText, dateValue, profiles, profileID);
+        updatePreferences(genderText, roleText, school, dateValue, profiles, profileID);
 
       taskCreateProfile
         .catching(Exception.class, e -> ProfileCreationFailed.of(nameText, ERROR_GENERAL, Option.some(e)), exec)
@@ -353,7 +397,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     }
 
     final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
-      updatePreferences(genderText, roleText, dateValue, profiles, profileID);
+      updatePreferences(genderText, roleText, school, dateValue, profiles, profileID);
     final ListenableFuture<ProfilePreferencesChanged> taskUpdateName =
       profiles.profileDisplayNameUpdateFor(profileID, nameText);
 
@@ -367,6 +411,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   private ListenableFuture<ProfilePreferencesChanged> updatePreferences(
     final String genderText,
     final String roleText,
+    final OptionType<String> school,
     final LocalDate dateValue,
     final ProfilesControllerType profiles,
     final ProfileID profileID) {
@@ -376,10 +421,19 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
         .setDateOfBirth(dateValue)
         .setGender(genderText)
         .setRole(roleText)
+        .setSchool(school)
         .build());
   }
 
-  @NotNull
+  private OptionType<String> getSchool() {
+    if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleStudentRadioButton) {
+      if (this.pilotSchoolRadioGroup.getCheckedRadioButtonId() == R.id.profilePilotSchoolYesRadioButton) {
+        return Option.of(this.pilotSchoolSpinner.getSelectedItem().toString());
+      }
+    }
+    return Option.none();
+  }
+
   private String getGenderText() {
     final String gender_text;
     if (this.genderRadioGroup.getCheckedRadioButtonId() == R.id.profileGenderFemaleRadioButton) {
@@ -394,7 +448,6 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     return gender_text;
   }
 
-  @NotNull
   private String getRoleText() {
     final String role_text;
     if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleParetRadioButton) {
@@ -411,7 +464,17 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     return role_text;
   }
 
-  private void updateButtonEnabled() {
+  private void updateUIState() {
+    if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleStudentRadioButton) {
+      this.pilotSchoolLayout.setVisibility(View.VISIBLE);
+    } else {
+      this.pilotSchoolLayout.setVisibility(View.GONE);
+    }
+
+    updateFinishButton();
+  }
+
+  private void updateFinishButton() {
     final boolean isNameOK =
       !this.name.getText().toString().trim().isEmpty();
 
@@ -468,7 +531,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     final int i,
     final int i1,
     final int i2) {
-    this.updateButtonEnabled();
+    this.updateUIState();
   }
 
   @Override

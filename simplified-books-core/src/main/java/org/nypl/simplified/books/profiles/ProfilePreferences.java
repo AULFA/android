@@ -33,6 +33,12 @@ public abstract class ProfilePreferences {
   public abstract OptionType<String> role();
 
   /**
+   * @return The school of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> school();
+
+  /**
    * @return The date of birth of the reader (if one has been explicitly specified)
    */
 
@@ -135,6 +141,25 @@ public abstract class ProfilePreferences {
     }
 
     /**
+     * @param school The school
+     * @return The current builder
+     * @see #school()
+     */
+
+    public abstract Builder setSchool(
+      OptionType<String> school);
+
+    /**
+     * @param school The school
+     * @return The current builder
+     * @see #school()
+     */
+
+    public final Builder setSchool(final String school) {
+      return setSchool(Option.some(school));
+    }
+    
+    /**
      * @param date The date
      * @return The current builder
      * @see #dateOfBirth()
@@ -170,6 +195,7 @@ public abstract class ProfilePreferences {
       .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
       .setGender(Option.none())
       .setRole(Option.none())
+      .setSchool(Option.none())
       .setDateOfBirth(Option.none());
   }
 }

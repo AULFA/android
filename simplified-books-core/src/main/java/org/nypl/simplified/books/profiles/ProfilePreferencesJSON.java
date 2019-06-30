@@ -102,6 +102,9 @@ public final class ProfilePreferencesJSON {
     final OptionType<String> role =
       JSONParserUtilities.getStringOptional(obj, "role");
 
+    final OptionType<String> school =
+      JSONParserUtilities.getStringOptional(obj, "school");
+
     final OptionType<LocalDate> date_of_birth =
       JSONParserUtilities.getStringOptional(obj, "date-of-birth")
         .mapPartial(text -> {
@@ -145,6 +148,7 @@ public final class ProfilePreferencesJSON {
     return ProfilePreferences.builder()
       .setGender(gender)
       .setRole(role)
+      .setSchool(school)
       .setDateOfBirth(date_of_birth)
       .setReaderPreferences(reader_prefs)
       .setReaderBookmarks(reader_bookmarks)
@@ -182,6 +186,8 @@ public final class ProfilePreferencesJSON {
       gender -> jo.put("gender", gender));
     description.role().map_(
       role -> jo.put("role", role));
+    description.school().map_(
+      school -> jo.put("school", school));
     description.dateOfBirth().map_(
       date -> jo.put("date-of-birth", date_formatter.print(date)));
 
