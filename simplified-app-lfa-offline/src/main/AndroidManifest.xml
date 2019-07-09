@@ -46,12 +46,6 @@
     </activity>
 
     <activity
-      android:name="org.nypl.simplified.app.LoginActivity"
-      android:configChanges="orientation|screenSize"
-      android:theme="@style/SimplifiedThemeNoActionBar"
-      android:exported="false">
-    </activity>
-    <activity
       android:name="org.nypl.simplified.app.catalog.MainBooksActivity"
       android:configChanges="orientation|screenSize"
       android:label="@string/catalog"

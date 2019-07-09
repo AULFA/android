@@ -31,7 +31,6 @@ import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
-import org.nypl.simplified.app.LoginActivity;
 import org.nypl.simplified.app.NavigationDrawerActivity;
 import org.nypl.simplified.app.NetworkConnectivityType;
 import org.nypl.simplified.app.R;
@@ -371,11 +370,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       return;
     }
 
-    UIThread.runOnUIThread(() -> {
-      final Intent i = new Intent(CatalogFeedActivity.this, LoginActivity.class);
-      this.startActivity(i);
-      this.finish();
-    });
+    listener.onAuthenticationNotProvided();
+    return;
   }
 
   private boolean accountHasBundledCredentials() {
