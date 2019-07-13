@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.google.common.util.concurrent.FluentFuture;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.io7m.jfunctional.Option;
@@ -27,8 +27,6 @@ import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
-import org.jetbrains.annotations.NotNull;
 import org.joda.time.LocalDate;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
@@ -158,6 +156,10 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       Objects.requireNonNull(this.findViewById(R.id.profileRoleOtherRadioButton));
     this.roleEditText =
       Objects.requireNonNull(this.findViewById(R.id.profileRoleEditText));
+
+    this.roleEditText.setFilters(new InputFilter[]{
+      new ProfileRoleFilter()
+    });
 
     this.gradeLayout =
       Objects.requireNonNull(this.findViewById(R.id.profileGradeLayout));

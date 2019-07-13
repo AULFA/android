@@ -160,11 +160,10 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/profileRoleRadioGroup"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/profileRoleRadioGroup"
         android:layout_marginBottom="-8dp"
+        android:layout_toRightOf="@+id/profileRoleRadioGroup"
         android:hint=""
         android:imeOptions="actionDone"
-        android:inputType="textPersonName|textCapWords"
         android:maxLength="32" />
     </RelativeLayout>
 
