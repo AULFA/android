@@ -33,6 +33,12 @@ public abstract class ProfilePreferences {
   public abstract OptionType<String> role();
 
   /**
+   * @return The grade of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> grade();
+  
+  /**
    * @return The school of the reader (if one has been explicitly specified)
    */
 
@@ -129,7 +135,7 @@ public abstract class ProfilePreferences {
 
     public abstract Builder setRole(
       OptionType<String> role);
-
+    
     /**
      * @param role The role
      * @return The current builder
@@ -140,6 +146,25 @@ public abstract class ProfilePreferences {
       return setRole(Option.some(role));
     }
 
+    /**
+     * @param grade The grade
+     * @return The current builder
+     * @see #grade()
+     */
+
+    public abstract Builder setGrade(
+      OptionType<String> grade);
+
+    /**
+     * @param grade The grade
+     * @return The current builder
+     * @see #grade()
+     */
+
+    public final Builder setGrade(final String grade) {
+      return setGrade(Option.some(grade));
+    }
+    
     /**
      * @param school The school
      * @return The current builder
@@ -191,11 +216,13 @@ public abstract class ProfilePreferences {
 
   public static ProfilePreferences.Builder builder() {
     return new AutoValue_ProfilePreferences.Builder()
-      .setReaderPreferences(ReaderPreferences.builder().build())
-      .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
+      .setDateOfBirth(Option.none())
       .setGender(Option.none())
+      .setGrade(Option.none())
+      .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
+      .setReaderPreferences(ReaderPreferences.builder().build())
       .setRole(Option.none())
       .setSchool(Option.none())
-      .setDateOfBirth(Option.none());
+      ;
   }
 }

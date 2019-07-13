@@ -83,6 +83,8 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   private RadioGroup pilotSchoolRadioGroup;
   private Spinner pilotSchoolSpinner;
   private ViewGroup pilotSchoolLayout;
+  private ViewGroup gradeLayout;
+  private Spinner gradeSpinner;
 
   /**
    * Start a new activity for the given profile.
@@ -156,6 +158,11 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       Objects.requireNonNull(this.findViewById(R.id.profileRoleOtherRadioButton));
     this.roleEditText =
       Objects.requireNonNull(this.findViewById(R.id.profileRoleEditText));
+
+    this.gradeLayout =
+      Objects.requireNonNull(this.findViewById(R.id.profileGradeLayout));
+    this.gradeSpinner =
+      Objects.requireNonNull(this.findViewById(R.id.profileGradeSpinner));
 
     this.pilotSchoolLayout =
       Objects.requireNonNull(this.findViewById(R.id.profilePilotSchool));
@@ -272,6 +279,24 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
         }
       }
 
+      /*
+       * Find the grade in the grade spinner, if any.
+       */
+
+      final OptionType<String> gradeOpt = preferences.grade();
+      if (gradeOpt.isSome()) {
+        final String grade = ((Some<String>) gradeOpt).get();
+        final SpinnerAdapter adapter = this.gradeSpinner.getAdapter();
+        for (int index = 0; index < adapter.getCount(); ++index) {
+          final String adapterItem = adapter.getItem(index).toString();
+          if (adapterItem.equals(grade)) {
+            LOG.debug("set grade spinner to index {}", index);
+            this.gradeSpinner.setSelection(index, true);
+            break;
+          }
+        }
+      }
+
       this.finishButton.setText(R.string.profiles_modify);
     }
   }
@@ -377,11 +402,13 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     final String genderText = getGenderText();
     final String roleText = getRoleText();
     final OptionType<String> school = getSchool();
+    final OptionType<String> grade = getGradeText();
 
     final LocalDate dateValue = this.date.getDate();
-    LOG.debug("name:   {}", nameText);
-    LOG.debug("gender: {}", genderText);
     LOG.debug("date:   {}", dateValue);
+    LOG.debug("gender: {}", genderText);
+    LOG.debug("grade:  {}", grade);
+    LOG.debug("name:   {}", nameText);
     LOG.debug("role:   {}", roleText);
     LOG.debug("school: {}", school);
 
@@ -406,6 +433,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
                 genderText,
                 roleText,
                 school,
+                grade,
                 dateValue,
                 profiles,
                 ((ProfileCreationSucceeded) event).id());
@@ -427,7 +455,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       this.profile.id();
 
     final ListenableFuture<ProfilePreferencesChanged> taskUpdatePreferences =
-      updatePreferences(genderText, roleText, school, dateValue, profiles, profileID);
+      updatePreferences(genderText, roleText, school, grade, dateValue, profiles, profileID);
     final ListenableFuture<ProfilePreferencesChanged> taskUpdateName =
       profiles.profileDisplayNameUpdateFor(profileID, nameText);
 
@@ -442,6 +470,7 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     final String genderText,
     final String roleText,
     final OptionType<String> school,
+    final OptionType<String> grade,
     final LocalDate dateValue,
     final ProfilesControllerType profiles,
     final ProfileID profileID) {
@@ -450,9 +479,17 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
       preferences -> preferences.toBuilder()
         .setDateOfBirth(dateValue)
         .setGender(genderText)
+        .setGrade(grade)
         .setRole(roleText)
         .setSchool(school)
         .build());
+  }
+
+  private OptionType<String> getGradeText() {
+    if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleStudentRadioButton) {
+      return Option.of(this.gradeSpinner.getSelectedItem().toString());
+    }
+    return Option.none();
   }
 
   private OptionType<String> getSchool() {
@@ -497,8 +534,10 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
   private void updateUIState() {
     if (this.roleRadioGroup.getCheckedRadioButtonId() == R.id.profileRoleStudentRadioButton) {
       this.pilotSchoolLayout.setVisibility(View.VISIBLE);
+      this.gradeLayout.setVisibility(View.VISIBLE);
     } else {
       this.pilotSchoolLayout.setVisibility(View.GONE);
+      this.gradeLayout.setVisibility(View.GONE);
     }
 
     updateFinishButton();

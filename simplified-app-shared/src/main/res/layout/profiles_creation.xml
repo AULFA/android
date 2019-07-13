@@ -172,6 +172,7 @@
       android:id="@+id/profilePilotSchool"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
       android:orientation="vertical">
 
       <TextView
@@ -188,6 +189,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:orientation="vertical">
+
         <RadioButton
           android:id="@+id/profilePilotSchoolNoRadioButton"
           android:layout_width="wrap_content"
@@ -208,6 +210,29 @@
         android:entries="@array/lfaPilotSchools" />
     </LinearLayout>
 
+    <LinearLayout
+      android:id="@+id/profileGradeLayout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="16dp"
+      android:orientation="vertical">
+
+      <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/profiles_ask_grade"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+      <Spinner
+        android:id="@+id/profileGradeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:entries="@array/lfaGrades" />
+    </LinearLayout>
+
     <Button
       android:id="@+id/profileCreationCreate"
       android:layout_width="wrap_content"
@@ -216,7 +241,6 @@
       android:layout_marginTop="32dp"
       android:layout_gravity="center"
       android:text="@string/profiles_create" />
-
   </LinearLayout>
 
 </ScrollView>

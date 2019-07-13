@@ -287,6 +287,7 @@
   <string name="profiles_modify_title">Modify A Profile</string>
   <string name="profiles_pilot_no">No</string>
   <string name="profiles_pilot_yes">Yes, my school is:</string>
+  <string name="profiles_ask_grade">What is your school grade?</string>
 
 
 </resources>
