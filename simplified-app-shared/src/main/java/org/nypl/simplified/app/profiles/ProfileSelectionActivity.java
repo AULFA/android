@@ -21,6 +21,7 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 
+import org.joda.time.LocalDate;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
@@ -144,16 +145,35 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     LOG.debug("selected profile: {} ({})", profile.id(), profile.displayName());
     final ProfilesControllerType profiles = Simplified.getProfilesController();
 
-    final String gender = getWithDefault(profile.preferences().gender(), "");
-    final String birthday = getWithDefault(
-      profile.preferences().dateOfBirth().map((d) -> d.toString()),
-      "");
+    final String gender =
+      getWithDefault(profile.preferences().gender(), "");
+    final String birthday =
+      getWithDefault(profile.preferences().dateOfBirth().map(LocalDate::toString), "");
+    final String role =
+      getWithDefault(profile.preferences().role(), "");
+    final String school =
+      getWithDefault(profile.preferences().school(), "");
+    final String grade =
+      getWithDefault(profile.preferences().grade(), "");
 
-    final String message = "profile_selected," + profile.id().id()
-      + "," + profile.displayName()
-      + "," + gender
-      + "," + birthday;
-    Simplified.getAnalyticsController().logToAnalytics(message);
+    {
+      final StringBuilder eventBuilder = new StringBuilder(128);
+      eventBuilder.append("profile_selected,");
+      eventBuilder.append(profile.id().id());
+      eventBuilder.append(',');
+      eventBuilder.append(profile.displayName());
+      eventBuilder.append(',');
+      eventBuilder.append(gender);
+      eventBuilder.append(',');
+      eventBuilder.append(birthday);
+      eventBuilder.append(',');
+      eventBuilder.append(role);
+      eventBuilder.append(',');
+      eventBuilder.append(school);
+      eventBuilder.append(',');
+      eventBuilder.append(grade);
+      Simplified.getAnalyticsController().logToAnalytics(eventBuilder.toString());
+    }
 
     if (Simplified.getNetworkConnectivity().isNetworkAvailable()) {
       String deviceId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
