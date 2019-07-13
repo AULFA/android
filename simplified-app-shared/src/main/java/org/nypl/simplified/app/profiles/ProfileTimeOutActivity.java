@@ -1,8 +1,10 @@
-package org.nypl.simplified.app;
+package org.nypl.simplified.app.profiles;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.nypl.simplified.app.Simplified;
+import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.controller.ProfilesControllerType;
 import org.nypl.simplified.books.idle_timer.ProfileIdleTimeOutSoon;

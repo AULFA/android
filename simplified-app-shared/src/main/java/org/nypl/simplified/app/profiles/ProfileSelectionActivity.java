@@ -1,5 +1,6 @@
-package org.nypl.simplified.app;
+package org.nypl.simplified.app.profiles;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,12 +21,18 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 
+import org.joda.time.LocalDate;
+import org.nypl.simplified.app.R;
+import org.nypl.simplified.app.Simplified;
+import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.catalog.MainCatalogActivity;
 import org.nypl.simplified.app.utilities.ErrorDialogUtilities;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.books.controller.ProfilesControllerType;
 import org.nypl.simplified.books.core.LogUtilities;
+import org.nypl.simplified.books.profiles.ProfileDeletionEvent;
 import org.nypl.simplified.books.profiles.ProfileEvent;
+import org.nypl.simplified.books.profiles.ProfileID;
 import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.observable.ObservableSubscriptionType;
 import org.slf4j.Logger;
@@ -33,8 +40,10 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.nypl.simplified.app.Simplified.WantActionBar.WANT_NO_ACTION_BAR;
+import static org.nypl.simplified.books.profiles.ProfileDeletionEvent.*;
 
 /**
  * An activity that allows users to pick from a list of profiles, or to create a new profile.
@@ -65,12 +74,27 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     this.list_items = new ArrayList<>();
     this.reloadProfiles();
 
-    this.list_adapter = new ProfileArrayAdapter(this, this.list_items);
+    final ProfileSelectionListenerType listener =
+      new ProfileSelectionListenerType() {
+        @Override
+        public void onProfileSelected(ProfileReadableType profile) {
+          onSelectedProfile(profile);
+        }
+
+        @Override
+        public void onProfileWantEdit(ProfileReadableType profile) {
+          openEditDialog(profile);
+        }
+
+        @Override
+        public void onProfileWantDelete(ProfileReadableType profile) {
+          openDeleteDialog(profile);
+        }
+      };
+
+    this.list_adapter = new ProfileArrayAdapter(this, this.list_items, listener);
     this.list = NullCheck.notNull(this.findViewById(R.id.profileSelectionList));
     this.list.setAdapter(this.list_adapter);
-    this.list.setOnItemClickListener(
-        (adapter_view, view, position, id) ->
-            onSelectedProfile(NullCheck.notNull(list_items.get(position))));
 
     this.button = NullCheck.notNull(this.findViewById(R.id.profileSelectionCreate));
     this.button.setOnClickListener(view -> openCreationDialog());
@@ -78,7 +102,31 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     final ProfilesControllerType profiles = Simplified.getProfilesController();
     profiles.profileIdleTimer().stop();
 
-    this.profile_event_subscription = profiles.profileEvents().subscribe(event -> reloadProfiles());
+    this.profile_event_subscription =
+      profiles.profileEvents()
+        .subscribe(this::onProfileEvent);
+  }
+
+  private void onProfileEvent(ProfileEvent event) {
+    reloadProfiles();
+
+    if (event instanceof ProfileDeletionFailed) {
+      final ProfileDeletionFailed failed = (ProfileDeletionFailed) event;
+      ErrorDialogUtilities.showError(
+        this,
+        LOG,
+        this.getResources().getString(R.string.profiles_deletion_error),
+        failed.getException());
+    }
+  }
+
+  private void openDeleteDialog(final ProfileReadableType profile) {
+    new AlertDialog.Builder(this)
+      .setTitle(R.string.profiles_delete)
+      .setMessage(R.string.profiles_delete_confirm)
+      .setNegativeButton(R.string.profiles_cancel_button, (dialog, which) -> dialog.dismiss())
+      .setPositiveButton(R.string.profiles_delete_button, (dialog, which) -> Simplified.getProfilesController().profileDelete(profile.id()))
+      .show();
   }
 
   @Override
@@ -92,41 +140,60 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
   }
 
   private void onSelectedProfile(
-      final ProfileReadableType profile) {
+    final ProfileReadableType profile) {
 
     LOG.debug("selected profile: {} ({})", profile.id(), profile.displayName());
     final ProfilesControllerType profiles = Simplified.getProfilesController();
 
-    final String gender = getWithDefault(profile.preferences().gender(), "");
-    final String birthday = getWithDefault(
-        profile.preferences().dateOfBirth().map((d) -> d.toString()),
-        "");
+    final String gender =
+      getWithDefault(profile.preferences().gender(), "");
+    final String birthday =
+      getWithDefault(profile.preferences().dateOfBirth().map(LocalDate::toString), "");
+    final String role =
+      getWithDefault(profile.preferences().role(), "");
+    final String school =
+      getWithDefault(profile.preferences().school(), "");
+    final String grade =
+      getWithDefault(profile.preferences().grade(), "");
 
-    final String message = "profile_selected," + profile.id().id()
-        + "," + profile.displayName()
-        + "," + gender
-        + "," + birthday;
-    Simplified.getAnalyticsController().logToAnalytics(message);
+    {
+      final StringBuilder eventBuilder = new StringBuilder(128);
+      eventBuilder.append("profile_selected,");
+      eventBuilder.append(profile.id().id());
+      eventBuilder.append(',');
+      eventBuilder.append(profile.displayName());
+      eventBuilder.append(',');
+      eventBuilder.append(gender);
+      eventBuilder.append(',');
+      eventBuilder.append(birthday);
+      eventBuilder.append(',');
+      eventBuilder.append(role);
+      eventBuilder.append(',');
+      eventBuilder.append(school);
+      eventBuilder.append(',');
+      eventBuilder.append(grade);
+      Simplified.getAnalyticsController().logToAnalytics(eventBuilder.toString());
+    }
 
-    if ( Simplified.getNetworkConnectivity().isNetworkAvailable() ) {
+    if (Simplified.getNetworkConnectivity().isNetworkAvailable()) {
       String deviceId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
       Simplified.getAnalyticsController().attemptToPushAnalytics(deviceId);
     }
 
     FluentFuture.from(
-        profiles.profileSelect(profile.id()))
-        .addCallback(new FutureCallback<Unit>() {
-          @Override
-          public void onSuccess(final Unit result) {
-            onProfileSelectionSucceeded(result);
-          }
+      profiles.profileSelect(profile.id()))
+      .addCallback(new FutureCallback<Unit>() {
+        @Override
+        public void onSuccess(final Unit result) {
+          onProfileSelectionSucceeded(result);
+        }
 
-          @Override
-          public void onFailure(final Throwable e) {
-            LOG.error("profile selection failed: ", e);
-            onProfileSelectionFailed(e);
-          }
-        }, Simplified.getBackgroundTaskExecutor());
+        @Override
+        public void onFailure(final Throwable e) {
+          LOG.error("profile selection failed: ", e);
+          onProfileSelectionFailed(e);
+        }
+      }, Simplified.getBackgroundTaskExecutor());
   }
 
   private void onProfileSelectionFailed(final Throwable e) {
@@ -138,10 +205,10 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
      */
 
     ErrorDialogUtilities.showError(
-        this,
-        LOG,
-        this.getResources().getString(R.string.profiles_selection_error_general),
-        null);
+      this,
+      LOG,
+      this.getResources().getString(R.string.profiles_selection_error_general),
+      null);
   }
 
   private void onProfileSelectionSucceeded(final Unit ignored) {
@@ -163,22 +230,42 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     });
   }
 
+  private interface ProfileSelectionListenerType {
+
+    void onProfileSelected(
+      ProfileReadableType profile);
+
+    void onProfileWantEdit(
+      ProfileReadableType profile);
+
+    void onProfileWantDelete(
+      ProfileReadableType profile);
+  }
+
   private static final class ProfileArrayAdapter extends ArrayAdapter<ProfileReadableType> {
 
     private final List<ProfileReadableType> list_items;
     private final Context context;
+    private final ProfileSelectionListenerType selectionListener;
 
     ProfileArrayAdapter(
-        final Context in_context,
-        final ArrayList<ProfileReadableType> objects) {
+      final Context in_context,
+      final ArrayList<ProfileReadableType> objects,
+      final ProfileSelectionListenerType listener) {
       super(in_context, R.layout.profiles_list_item, objects);
-      this.context = NullCheck.notNull(in_context, "Context");
-      this.list_items = NullCheck.notNull(objects, "Objects");
+      this.context =
+        NullCheck.notNull(in_context, "Context");
+      this.list_items =
+        NullCheck.notNull(objects, "Objects");
+      this.selectionListener =
+        Objects.requireNonNull(listener, "listener");
     }
 
     private static final class ViewHolder {
       private TextView text;
-      private ImageView image;
+      private ImageView icon;
+      private ImageView edit;
+      private ImageView delete;
 
       ViewHolder() {
 
@@ -187,25 +274,33 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
 
     @Override
     public View getView(
-        final int position,
-        final View convert_view,
-        final ViewGroup parent_group) {
+      final int position,
+      final View convert_view,
+      final ViewGroup parent_group) {
 
       View row_view = convert_view;
       if (row_view == null) {
         final LayoutInflater inflater =
-            (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+          (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         row_view = inflater.inflate(R.layout.profiles_list_item, null);
 
         final ViewHolder view_holder = new ViewHolder();
         view_holder.text = row_view.findViewById(R.id.profileItemDisplayName);
-        view_holder.image = row_view.findViewById(R.id.profileItemIcon);
+        view_holder.icon = row_view.findViewById(R.id.profileItemIcon);
+        view_holder.edit = row_view.findViewById(R.id.profileItemEdit);
+        view_holder.delete = row_view.findViewById(R.id.profileItemDelete);
         row_view.setTag(view_holder);
       }
 
       final ViewHolder holder = (ViewHolder) row_view.getTag();
       final ProfileReadableType profile = this.list_items.get(position);
+
+      holder.icon.setOnClickListener(v -> this.selectionListener.onProfileSelected(profile));
+      holder.text.setOnClickListener(v -> this.selectionListener.onProfileSelected(profile));
+      holder.edit.setOnClickListener(v -> this.selectionListener.onProfileWantEdit(profile));
+      holder.delete.setOnClickListener(v -> this.selectionListener.onProfileWantDelete(profile));
+
       holder.text.setText(profile.displayName());
       LOG.trace("getView: [{}] profile: {}", position, profile.displayName());
       return row_view;
@@ -221,5 +316,9 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
   private void openCreationDialog() {
     final Intent i = new Intent(this, ProfileCreationActivity.class);
     this.startActivity(i);
+  }
+
+  private void openEditDialog(final ProfileReadableType profile) {
+    ProfileCreationActivity.startActivity(this, profile.id());
   }
 }

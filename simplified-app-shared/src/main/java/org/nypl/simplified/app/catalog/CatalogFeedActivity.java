@@ -31,7 +31,6 @@ import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
-import org.nypl.simplified.app.LoginActivity;
 import org.nypl.simplified.app.NavigationDrawerActivity;
 import org.nypl.simplified.app.NetworkConnectivityType;
 import org.nypl.simplified.app.R;
@@ -371,11 +370,8 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       return;
     }
 
-    UIThread.runOnUIThread(() -> {
-      final Intent i = new Intent(CatalogFeedActivity.this, LoginActivity.class);
-      this.startActivity(i);
-      this.finish();
-    });
+    listener.onAuthenticationNotProvided();
+    return;
   }
 
   private boolean accountHasBundledCredentials() {
@@ -533,6 +529,12 @@ public abstract class CatalogFeedActivity extends CatalogActivity
           return Unit.unit();
         }
       });
+  }
+
+  @Override
+  protected void onStart()
+  {
+    super.onStart();
 
     /*
      * Subscribe to profile change events.
@@ -544,7 +546,29 @@ public abstract class CatalogFeedActivity extends CatalogActivity
         .subscribe(this::onProfileEvent);
   }
 
+  @Override
+  protected void onStop()
+  {
+    super.onStop();
+
+    final ListenableFuture<FeedType> future = this.loading;
+    if (future != null) {
+      future.cancel(true);
+    }
+
+    final ObservableSubscriptionType<ProfileEvent> profile_sub = this.profile_event_subscription;
+    if (profile_sub != null) {
+      profile_sub.unsubscribe();
+    }
+
+    final ObservableSubscriptionType<BookStatusEvent> book_sub = this.book_event_subscription;
+    if (book_sub != null) {
+      book_sub.unsubscribe();
+    }
+  }
+
   private void onProfileEvent(final ProfileEvent event) {
+    this.log().debug("onProfileEvent: {}", event);
 
     /*
      * If the current profile changed accounts, start a new catalog feed activity. The
@@ -651,27 +675,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity
 
     search_item.setEnabled(search_ok);
     search_item.setVisible(search_ok);
-  }
-
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    this.log().debug("onDestroy");
-
-    final ListenableFuture<FeedType> future = this.loading;
-    if (future != null) {
-      future.cancel(true);
-    }
-
-    final ObservableSubscriptionType<ProfileEvent> profile_sub = this.profile_event_subscription;
-    if (profile_sub != null) {
-      profile_sub.unsubscribe();
-    }
-
-    final ObservableSubscriptionType<BookStatusEvent> book_sub = this.book_event_subscription;
-    if (book_sub != null) {
-      book_sub.unsubscribe();
-    }
   }
 
   @Override

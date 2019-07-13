@@ -24,7 +24,7 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
 import com.io7m.jnull.Nullable;
 
-import org.nypl.simplified.app.ProfileTimeOutActivity;
+import org.nypl.simplified.app.profiles.ProfileTimeOutActivity;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.reader.ReaderPaginationChangedEvent.OpenPage;
@@ -45,6 +45,7 @@ import org.nypl.simplified.books.profiles.ProfileEvent;
 import org.nypl.simplified.books.profiles.ProfileNoneCurrentException;
 import org.nypl.simplified.books.profiles.ProfilePreferences;
 import org.nypl.simplified.books.profiles.ProfilePreferencesChanged;
+import org.nypl.simplified.books.profiles.ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded;
 import org.nypl.simplified.books.profiles.ProfileReadableType;
 import org.nypl.simplified.books.reader.ReaderBookLocation;
 import org.nypl.simplified.books.reader.ReaderColorScheme;
@@ -399,8 +400,8 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
   private void onProfileEvent(final ProfileEvent event) {
     LOG.debug("onProfileEvent: {}", event);
 
-    if (event instanceof ProfilePreferencesChanged) {
-      final ProfilePreferencesChanged changed = (ProfilePreferencesChanged) event;
+    if (event instanceof ProfilePreferencesChangeSucceeded) {
+      final ProfilePreferencesChangeSucceeded changed = (ProfilePreferencesChangeSucceeded) event;
 
       final ProfilePreferences preferences;
       try {
@@ -410,7 +411,7 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
         return;
       }
 
-      if (changed.changedReaderPreferences()) {
+      if (changed.getChangedReaderPreferences()) {
         LOG.debug("reader preferences changed");
         this.onReaderPreferencesChanged(preferences.readerPreferences());
       }

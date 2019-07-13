@@ -1,11 +1,8 @@
 package org.nypl.simplified.books.controller;
 
-import com.google.common.base.Function;
-
 import org.nypl.simplified.books.profiles.ProfileEvent;
 import org.nypl.simplified.books.profiles.ProfileID;
 import org.nypl.simplified.books.profiles.ProfileNonexistentException;
-import org.nypl.simplified.books.profiles.ProfilePreferences;
 import org.nypl.simplified.books.profiles.ProfilePreferencesChanged;
 import org.nypl.simplified.books.profiles.ProfileType;
 import org.nypl.simplified.books.profiles.ProfilesDatabaseType;
@@ -17,20 +14,20 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
-final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesChanged> {
+final class ProfileDisplayNameUpdateTask implements Callable<ProfilePreferencesChanged> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ProfilePreferencesUpdateTask.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProfileDisplayNameUpdateTask.class);
 
   private final ProfilesDatabaseType profiles;
-  private final ProfilesControllerType.PreferencesUpdateType preferences;
+  private final String displayName;
   private final ObservableType<ProfileEvent> events;
   private final ProfileID profileId;
 
-  ProfilePreferencesUpdateTask(
+  ProfileDisplayNameUpdateTask(
     final ObservableType<ProfileEvent> events,
     final ProfileID profileId,
     final ProfilesDatabaseType profiles,
-    final ProfilesControllerType.PreferencesUpdateType preferences) {
+    final String displayName) {
 
     this.events =
       Objects.requireNonNull(events, "Events");
@@ -38,8 +35,8 @@ final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesC
       Objects.requireNonNull(profileId, "ProfileId");
     this.profiles =
       Objects.requireNonNull(profiles, "profiles");
-    this.preferences =
-      Objects.requireNonNull(preferences, "Preferences");
+    this.displayName =
+      Objects.requireNonNull(displayName, "displayName");
   }
 
   @Override
@@ -51,16 +48,14 @@ final class ProfilePreferencesUpdateTask implements Callable<ProfilePreferencesC
         throw new ProfileNonexistentException("No such profile: " + this.profileId.id());
       }
 
-      final ProfilePreferences oldPreferences = profile.preferences();
-      final ProfilePreferences newPreferences = this.preferences.update(oldPreferences);
-      profile.preferencesUpdate(newPreferences);
+      profile.setDisplayName(this.displayName);
 
       final ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded event =
         new ProfilePreferencesChanged.ProfilePreferencesChangeSucceeded(
-        this.profileId,
-        false,
-        !oldPreferences.readerBookmarks().equals(newPreferences.readerBookmarks()),
-        !oldPreferences.readerPreferences().equals(newPreferences.readerPreferences()));
+          this.profileId,
+          true,
+          false,
+          false);
 
       this.events.send(event);
       return event;

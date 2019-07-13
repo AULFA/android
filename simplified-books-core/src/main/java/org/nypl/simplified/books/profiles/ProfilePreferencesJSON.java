@@ -7,8 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.OptionType;
 import com.io7m.jfunctional.OptionVisitorType;
-import com.io7m.jfunctional.PartialFunctionType;
-import com.io7m.jfunctional.ProcedureType;
 import com.io7m.jfunctional.Some;
 import com.io7m.jnull.NullCheck;
 import com.io7m.junreachable.UnreachableCodeException;
@@ -49,9 +47,9 @@ public final class ProfilePreferencesJSON {
    */
 
   public static ProfilePreferences deserializeFromFile(
-      final ObjectMapper jom,
-      final File file)
-      throws IOException {
+    final ObjectMapper jom,
+    final File file)
+    throws IOException {
 
     NullCheck.notNull(jom, "Object mapper");
     NullCheck.notNull(file, "File");
@@ -68,8 +66,8 @@ public final class ProfilePreferencesJSON {
    */
 
   public static ProfilePreferences deserializeFromText(
-      final ObjectMapper jom,
-      final String text) throws IOException {
+    final ObjectMapper jom,
+    final String text) throws IOException {
 
     NullCheck.notNull(jom, "Object mapper");
     NullCheck.notNull(text, "Text");
@@ -86,9 +84,9 @@ public final class ProfilePreferencesJSON {
    */
 
   public static ProfilePreferences deserializeFromJSON(
-      final ObjectMapper jom,
-      final JsonNode node)
-      throws JSONParseException {
+    final ObjectMapper jom,
+    final JsonNode node)
+    throws JSONParseException {
 
     NullCheck.notNull(jom, "Object mapper");
     NullCheck.notNull(node, "JSON");
@@ -96,67 +94,79 @@ public final class ProfilePreferencesJSON {
     final DateTimeFormatter date_formatter = standardDateFormatter();
 
     final ObjectNode obj =
-        JSONParserUtilities.checkObject(null, node);
+      JSONParserUtilities.checkObject(null, node);
 
-    final OptionType<String> gender=
-        JSONParserUtilities.getStringOptional(obj, "gender");
+    final OptionType<String> gender =
+      JSONParserUtilities.getStringOptional(obj, "gender");
+
+    final OptionType<String> role =
+      JSONParserUtilities.getStringOptional(obj, "role");
+
+    final OptionType<String> grade =
+      JSONParserUtilities.getStringOptional(obj, "grade");
+
+    final OptionType<String> school =
+      JSONParserUtilities.getStringOptional(obj, "school");
 
     final OptionType<LocalDate> date_of_birth =
-        JSONParserUtilities.getStringOptional(obj, "date-of-birth")
-            .mapPartial(text -> {
-              try {
-                return LocalDate.parse(text, date_formatter);
-              } catch (final IllegalArgumentException e) {
-                throw new JSONParseException(e);
-              }
-            });
+      JSONParserUtilities.getStringOptional(obj, "date-of-birth")
+        .mapPartial(text -> {
+          try {
+            return LocalDate.parse(text, date_formatter);
+          } catch (final IllegalArgumentException e) {
+            throw new JSONParseException(e);
+          }
+        });
 
     final ReaderPreferences reader_prefs =
-        JSONParserUtilities.getObjectOptional(obj, "reader-preferences")
-            .mapPartial(prefs_node -> ReaderPreferencesJSON.deserializeFromJSON(jom, prefs_node))
-            .accept(new OptionVisitorType<ReaderPreferences, ReaderPreferences>() {
-              @Override
-              public ReaderPreferences none(final None<ReaderPreferences> none) {
-                return ReaderPreferences.builder().build();
-              }
+      JSONParserUtilities.getObjectOptional(obj, "reader-preferences")
+        .mapPartial(prefs_node -> ReaderPreferencesJSON.deserializeFromJSON(jom, prefs_node))
+        .accept(new OptionVisitorType<ReaderPreferences, ReaderPreferences>() {
+          @Override
+          public ReaderPreferences none(final None<ReaderPreferences> none) {
+            return ReaderPreferences.builder().build();
+          }
 
-              @Override
-              public ReaderPreferences some(final Some<ReaderPreferences> some) {
-                return some.get();
-              }
-            });
+          @Override
+          public ReaderPreferences some(final Some<ReaderPreferences> some) {
+            return some.get();
+          }
+        });
 
     final ReaderBookmarks reader_bookmarks =
-        JSONParserUtilities.getObjectOptional(obj, "reader-bookmarks")
-            .mapPartial(marks_node -> ReaderBookmarksJSON.deserializeFromJSON(jom, marks_node))
-            .accept(new OptionVisitorType<ReaderBookmarks, ReaderBookmarks>() {
-              @Override
-              public ReaderBookmarks none(final None<ReaderBookmarks> none) {
-                return ReaderBookmarks.create(ImmutableMap.of());
-              }
+      JSONParserUtilities.getObjectOptional(obj, "reader-bookmarks")
+        .mapPartial(marks_node -> ReaderBookmarksJSON.deserializeFromJSON(jom, marks_node))
+        .accept(new OptionVisitorType<ReaderBookmarks, ReaderBookmarks>() {
+          @Override
+          public ReaderBookmarks none(final None<ReaderBookmarks> none) {
+            return ReaderBookmarks.create(ImmutableMap.of());
+          }
 
-              @Override
-              public ReaderBookmarks some(final Some<ReaderBookmarks> some) {
-                return some.get();
-              }
-            });
+          @Override
+          public ReaderBookmarks some(final Some<ReaderBookmarks> some) {
+            return some.get();
+          }
+        });
 
     return ProfilePreferences.builder()
-        .setGender(gender)
-        .setDateOfBirth(date_of_birth)
-        .setReaderPreferences(reader_prefs)
-        .setReaderBookmarks(reader_bookmarks)
-        .build();
+      .setDateOfBirth(date_of_birth)
+      .setGender(gender)
+      .setGrade(grade)
+      .setReaderBookmarks(reader_bookmarks)
+      .setReaderPreferences(reader_prefs)
+      .setRole(role)
+      .setSchool(school)
+      .build();
   }
 
   private static DateTimeFormatter standardDateFormatter() {
     return new DateTimeFormatterBuilder()
-        .appendYear(4, 5)
-        .appendLiteral("-")
-        .appendMonthOfYear(2)
-        .appendLiteral("-")
-        .appendDayOfMonth(2)
-        .toFormatter();
+      .appendYear(4, 5)
+      .appendLiteral("-")
+      .appendMonthOfYear(2)
+      .appendLiteral("-")
+      .appendDayOfMonth(2)
+      .toFormatter();
   }
 
   /**
@@ -167,8 +177,8 @@ public final class ProfilePreferencesJSON {
    */
 
   public static ObjectNode serializeToJSON(
-      final ObjectMapper jom,
-      final ProfilePreferences description) {
+    final ObjectMapper jom,
+    final ProfilePreferences description) {
 
     NullCheck.notNull(jom, "Object mapper");
     NullCheck.notNull(description, "Description");
@@ -177,10 +187,15 @@ public final class ProfilePreferencesJSON {
     final ObjectNode jo = jom.createObjectNode();
 
     description.gender().map_(
-        gender -> jo.put("gender", gender));
-
+      gender -> jo.put("gender", gender));
+    description.role().map_(
+      role -> jo.put("role", role));
+    description.grade().map_(
+      grade -> jo.put("grade", grade));
+    description.school().map_(
+      school -> jo.put("school", school));
     description.dateOfBirth().map_(
-        date -> jo.put("date-of-birth", date_formatter.print(date)));
+      date -> jo.put("date-of-birth", date_formatter.print(date)));
 
     jo.set("reader-preferences", ReaderPreferencesJSON.serializeToJSON(jom, description.readerPreferences()));
     jo.set("reader-bookmarks", ReaderBookmarksJSON.serializeToJSON(jom, description.readerBookmarks()));
@@ -196,9 +211,9 @@ public final class ProfilePreferencesJSON {
    */
 
   public static String serializeToString(
-      final ObjectMapper jom,
-      final ProfilePreferences description)
-      throws IOException {
+    final ObjectMapper jom,
+    final ProfilePreferences description)
+    throws IOException {
 
     final ObjectNode jo = serializeToJSON(jom, description);
     final ByteArrayOutputStream bao = new ByteArrayOutputStream(1024);

@@ -62,6 +62,10 @@ android {
   }
 }
 
+// Check that bundled credentials exist
+def credentials = file("${project.rootDir}/simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json")
+def credentialsText = credentials.getText()
+
 def jsonFile   = file("${project.rootDir}/simplified-app-lfa-offline/bundles.json")
 def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
 

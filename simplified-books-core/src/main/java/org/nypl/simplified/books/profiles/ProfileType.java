@@ -24,6 +24,27 @@ import java.io.IOException;
 public interface ProfileType extends ProfileReadableType {
 
   /**
+   * Delete the profile.
+   *
+   * @throws ProfileDatabaseException On errors
+   * @throws IOException              On I/O errors
+   */
+
+  void delete()
+    throws ProfileDatabaseException, IOException;
+
+  /**
+   * Set the name of the profile. This method will fail if there is another profile with the
+   * given name already existing.
+   *
+   * @param newName The new profile name
+   * @throws ProfileDatabaseException On errors
+   */
+
+  void setDisplayName(String newName)
+    throws ProfileDatabaseException, IOException;
+
+  /**
    * @return The accounts database for the profile
    */
 
@@ -36,7 +57,7 @@ public interface ProfileType extends ProfileReadableType {
    */
 
   void preferencesUpdate(
-      ProfilePreferences preferences) throws IOException;
+    ProfilePreferences preferences) throws IOException;
 
   /**
    * Create an account using the given provider.
@@ -45,8 +66,8 @@ public interface ProfileType extends ProfileReadableType {
    */
 
   AccountType createAccount(
-      AccountProvider account_provider)
-      throws AccountsDatabaseException;
+    AccountProvider account_provider)
+    throws AccountsDatabaseException;
 
   /**
    * Delete the account using the given provider.
@@ -58,8 +79,8 @@ public interface ProfileType extends ProfileReadableType {
    */
 
   AccountID deleteAccountByProvider(
-      AccountProvider account_provider)
-      throws AccountsDatabaseException;
+    AccountProvider account_provider)
+    throws AccountsDatabaseException;
 
   /**
    * Set the account created by the given provider to be the current account in the profile.
@@ -68,6 +89,6 @@ public interface ProfileType extends ProfileReadableType {
    */
 
   AccountType selectAccount(
-      AccountProvider account_provider)
-      throws AccountsDatabaseNonexistentException;
+    AccountProvider account_provider)
+    throws AccountsDatabaseNonexistentException;
 }

@@ -27,6 +27,24 @@ public abstract class ProfilePreferences {
   public abstract OptionType<String> gender();
 
   /**
+   * @return The role of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> role();
+
+  /**
+   * @return The grade of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> grade();
+  
+  /**
+   * @return The school of the reader (if one has been explicitly specified)
+   */
+
+  public abstract OptionType<String> school();
+
+  /**
    * @return The date of birth of the reader (if one has been explicitly specified)
    */
 
@@ -79,7 +97,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setReaderBookmarks(
-        ReaderBookmarks bookmarks);
+      ReaderBookmarks bookmarks);
 
     /**
      * @param prefs The reader preferences
@@ -88,7 +106,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setReaderPreferences(
-        ReaderPreferences prefs);
+      ReaderPreferences prefs);
 
     /**
      * @param gender The gender
@@ -97,7 +115,7 @@ public abstract class ProfilePreferences {
      */
 
     public abstract Builder setGender(
-        OptionType<String> gender);
+      OptionType<String> gender);
 
     /**
      * @param gender The gender
@@ -110,13 +128,70 @@ public abstract class ProfilePreferences {
     }
 
     /**
+     * @param role The role
+     * @return The current builder
+     * @see #role()
+     */
+
+    public abstract Builder setRole(
+      OptionType<String> role);
+    
+    /**
+     * @param role The role
+     * @return The current builder
+     * @see #role()
+     */
+
+    public final Builder setRole(final String role) {
+      return setRole(Option.some(role));
+    }
+
+    /**
+     * @param grade The grade
+     * @return The current builder
+     * @see #grade()
+     */
+
+    public abstract Builder setGrade(
+      OptionType<String> grade);
+
+    /**
+     * @param grade The grade
+     * @return The current builder
+     * @see #grade()
+     */
+
+    public final Builder setGrade(final String grade) {
+      return setGrade(Option.some(grade));
+    }
+    
+    /**
+     * @param school The school
+     * @return The current builder
+     * @see #school()
+     */
+
+    public abstract Builder setSchool(
+      OptionType<String> school);
+
+    /**
+     * @param school The school
+     * @return The current builder
+     * @see #school()
+     */
+
+    public final Builder setSchool(final String school) {
+      return setSchool(Option.some(school));
+    }
+    
+    /**
      * @param date The date
      * @return The current builder
      * @see #dateOfBirth()
      */
 
     public abstract Builder setDateOfBirth(
-        OptionType<LocalDate> date);
+      OptionType<LocalDate> date);
 
     /**
      * @param date The date
@@ -141,11 +216,13 @@ public abstract class ProfilePreferences {
 
   public static ProfilePreferences.Builder builder() {
     return new AutoValue_ProfilePreferences.Builder()
-        .setReaderPreferences(
-            ReaderPreferences.builder()
-                .build())
-        .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
-        .setGender(Option.none())
-        .setDateOfBirth(Option.none());
+      .setDateOfBirth(Option.none())
+      .setGender(Option.none())
+      .setGrade(Option.none())
+      .setReaderBookmarks(ReaderBookmarks.create(ImmutableMap.of()))
+      .setReaderPreferences(ReaderPreferences.builder().build())
+      .setRole(Option.none())
+      .setSchool(Option.none())
+      ;
   }
 }

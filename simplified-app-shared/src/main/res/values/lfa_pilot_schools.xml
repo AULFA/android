@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+  <string-array name="lfaPilotSchools">
+    <item>May Memorial Elementary</item>
+    <item>Sunbeam Elementary</item>
+    <item>Ngintsip Elementary</item>
+    <item>Flierl Elementary</item>
+    <item>Pinu Elementary</item>
+    <item>Ginigolo Elementary</item>
+    <item>Siar Elementary</item>
+    <item>Gum Elementary</item>
+    <item>Tumun Gain Elementary</item>
+    <item>Antiragen Elementary</item>
+    <item>Inauaia Elementary</item>
+    <item>Boregaina Elementary</item>
+  </string-array>
+</resources>

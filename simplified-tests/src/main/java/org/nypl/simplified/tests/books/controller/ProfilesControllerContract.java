@@ -79,6 +79,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.nypl.simplified.books.profiles.ProfileCreationEvent.ProfileCreationFailed.ErrorCode.ERROR_DISPLAY_NAME_ALREADY_USED;
+import static org.nypl.simplified.books.profiles.ProfilePreferencesChanged.*;
 
 public abstract class ProfilesControllerContract {
 
@@ -538,14 +539,14 @@ public abstract class ProfilesControllerContract {
       Option.some(ReaderBookLocation.create(Option.none(), "2")),
       controller.profileBookmarkGet(BookID.create("aaaa")));
 
-    EventAssertions.isTypeAndMatches(ProfilePreferencesChanged.class, this.profile_events, 0, e -> {
-      Assert.assertTrue("Preferences must not have changed", !e.changedReaderPreferences());
-      Assert.assertTrue("Bookmarks must have changed", e.changedReaderBookmarks());
+    EventAssertions.isTypeAndMatches(ProfilePreferencesChangeSucceeded.class, this.profile_events, 0, e -> {
+      Assert.assertTrue("Preferences must not have changed", !e.getChangedReaderPreferences());
+      Assert.assertTrue("Bookmarks must have changed", e.getChangedReaderBookmarks());
     });
 
-    EventAssertions.isTypeAndMatches(ProfilePreferencesChanged.class, this.profile_events, 1, e -> {
-      Assert.assertTrue("Preferences must not have changed", !e.changedReaderPreferences());
-      Assert.assertTrue("Bookmarks must have changed", e.changedReaderBookmarks());
+    EventAssertions.isTypeAndMatches(ProfilePreferencesChangeSucceeded.class, this.profile_events, 1, e -> {
+      Assert.assertTrue("Preferences must not have changed", !e.getChangedReaderPreferences());
+      Assert.assertTrue("Bookmarks must have changed", e.getChangedReaderBookmarks());
     });
   }
 
@@ -569,15 +570,16 @@ public abstract class ProfilesControllerContract {
     controller.profileAccountSelectByProvider(provider.id()).get();
     controller.profileEvents().subscribe(this.profile_events::add);
 
-    controller.profilePreferencesUpdate(profiles.currentProfileUnsafe().preferences()).get();
+    controller.profilePreferencesUpdate(ignored -> profiles.currentProfileUnsafe().preferences()).get();
 
-    EventAssertions.isTypeAndMatches(ProfilePreferencesChanged.class, this.profile_events, 0, e -> {
-      Assert.assertTrue("Preferences must not have changed", !e.changedReaderPreferences());
-      Assert.assertTrue("Bookmarks must not have changed", !e.changedReaderBookmarks());
+    EventAssertions.isTypeAndMatches(ProfilePreferencesChangeSucceeded.class, this.profile_events, 0, e -> {
+      Assert.assertTrue("Preferences must not have changed", !e.getChangedReaderPreferences());
+      Assert.assertTrue("Bookmarks must not have changed", !e.getChangedReaderBookmarks());
     });
 
     this.profile_events.clear();
     controller.profilePreferencesUpdate(
+      ignored ->
       profiles.currentProfileUnsafe()
         .preferences()
         .toBuilder()
@@ -591,9 +593,9 @@ public abstract class ProfilesControllerContract {
         .build())
       .get();
 
-    EventAssertions.isTypeAndMatches(ProfilePreferencesChanged.class, this.profile_events, 0, e -> {
-      Assert.assertTrue("Preferences must have changed", e.changedReaderPreferences());
-      Assert.assertTrue("Bookmarks must not have changed", !e.changedReaderBookmarks());
+    EventAssertions.isTypeAndMatches(ProfilePreferencesChangeSucceeded.class, this.profile_events, 0, e -> {
+      Assert.assertTrue("Preferences must have changed", e.getChangedReaderPreferences());
+      Assert.assertTrue("Bookmarks must not have changed", !e.getChangedReaderBookmarks());
     });
   }
 

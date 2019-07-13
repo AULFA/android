@@ -15,22 +15,24 @@ public abstract class ProfileDescriptionJSONContract {
 
   @Test
   public final void testRoundTrip()
-      throws Exception {
+    throws Exception {
 
     final ObjectMapper mapper = new ObjectMapper();
 
     final ProfileDescription description_0 =
-        ProfileDescription.builder(
-            "Kermit",
-            ProfilePreferences.builder()
-                .setDateOfBirth(new LocalDate(1985, 1, 1))
-                .setReaderPreferences(ReaderPreferences.builder().build())
-                .build()).build();
+      ProfileDescription.builder(
+        "Kermit",
+        ProfilePreferences.builder()
+          .setGender("male")
+          .setRole("Frog")
+          .setDateOfBirth(new LocalDate(1985, 1, 1))
+          .setReaderPreferences(ReaderPreferences.builder().build())
+          .build()).build();
 
     final ObjectNode node =
-        ProfileDescriptionJSON.serializeToJSON(mapper, description_0);
+      ProfileDescriptionJSON.serializeToJSON(mapper, description_0);
     final ProfileDescription description_1 =
-        ProfileDescriptionJSON.deserializeFromJSON(mapper, node);
+      ProfileDescriptionJSON.deserializeFromJSON(mapper, node);
 
     Assert.assertEquals(description_0, description_1);
   }
