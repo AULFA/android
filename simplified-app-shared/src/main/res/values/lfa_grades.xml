@@ -2,18 +2,19 @@
 
 <resources>
   <string-array name="lfaGrades">
-    <item>Prep 1</item>
-    <item>Prep 2</item>
-    <item>Prep 3</item>
-    <item>Prep 4</item>
-    <item>Prep 5</item>
-    <item>Prep 6</item>
-    <item>Prep 7</item>
-    <item>Prep 8</item>
-    <item>Prep 9</item>
-    <item>Prep 10</item>
-    <item>Prep 11</item>
-    <item>Prep 12</item>
+    <item>Prep</item>
+    <item>Grade 1</item>
+    <item>Grade 2</item>
+    <item>Grade 3</item>
+    <item>Grade 4</item>
+    <item>Grade 5</item>
+    <item>Grade 6</item>
+    <item>Grade 7</item>
+    <item>Grade 8</item>
+    <item>Grade 9</item>
+    <item>Grade 10</item>
+    <item>Grade 11</item>
+    <item>Grade 12</item>
     <item>University</item>
   </string-array>
 </resources>
