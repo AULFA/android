@@ -97,7 +97,7 @@ public final class CatalogFeedArgumentsRemote
      * Only feeds that don't refer to bundled content require network connectivity.
      */
 
-    return !BundledURIs.isBundledURI(this.uri);
+    return !BundledURIs.isBundledURI(this.uri) && !BundledURIs.isBundledSearchURI(this.uri);
   }
 
   @Override public boolean isSearching()
