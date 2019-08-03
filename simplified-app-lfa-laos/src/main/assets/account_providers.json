@@ -1,0 +1,17 @@
+[
+  {
+    "id": "urn:provider:com.cantookstation.lfalaos",
+    "name": "Laos",
+    "subtitle": "Laos",
+    "logo": "simplified-asset:logos/laos.png",
+    "supportsSimplyESync": false,
+    "supportsBarcodeScanner": false,
+    "supportsBarcodeDisplay": false,
+    "supportsReservations": false,
+    "supportsCardCreator": false,
+    "supportsHelpCenter": false,
+    "addAutomatically": true,
+    "catalogUrl": "simplified-bundled:feeds/BD7FB097465813B469DE6AC89734D25D17A5784D3B96FEE08BCC38989B4F9C93.atom",
+    "mainColor": "#ec1c24"
+  }
+]

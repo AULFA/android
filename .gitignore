@@ -43,6 +43,14 @@ simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json
 simplified-app-lfa-offline/src/main/assets/index.txt
 simplified-app-lfa-offline/credentials.json
 
+simplified-app-lfa-laos/src/main/assets/feeds
+simplified-app-lfa-laos/src/main/assets/images
+simplified-app-lfa-laos/src/main/assets/books
+simplified-app-lfa-laos/src/main/assets/info.properties
+simplified-app-lfa-laos/src/main/assets/account_bundled_credentials.json
+simplified-app-lfa-laos/src/main/assets/index.txt
+simplified-app-lfa-laos/credentials.json
+
 #
 # Generated content
 #

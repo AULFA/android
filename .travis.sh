@@ -72,10 +72,12 @@ scp -P 1022 travis-ci@builds.lfa.one:online-app-credentials.json .
 
 cp online-app-credentials.json simplified-app-lfa/src/main/assets/account_bundled_credentials.json
 cp online-app-credentials.json simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json
+cp online-app-credentials.json simplified-app-lfa-laos/src/main/assets/account_bundled_credentials.json
 
 #------------------------------------------------------------------------
 # Configure offline bundles
 
+mkdir -p simplified-app-lfa-laos/bundles || exit 1
 mkdir -p simplified-app-lfa-offline/bundles || exit 1
 mkdir -p simplified-app-lfa/bundles || exit 1
 
@@ -86,6 +88,14 @@ wget \
   --no-verbose \
   --output-document=simplified-app-lfa-offline/bundles/offline.zip \
   https://builds.lfa.one/auth/offline/offline.zip
+
+wget \
+  --timestamping \
+  --user "${LFA_BUILDS_USER}" \
+  --password "${LFA_BUILDS_PASSWORD}" \
+  --no-verbose \
+  --output-document=simplified-app-lfa-laos/bundles/offline-laos.zip \
+  https://builds.lfa.one/auth/offline-laos/offline-laos.zip
 
 wget \
   --timestamping \
@@ -105,4 +115,5 @@ wget \
 
 scp -P 1022 ./simplified-app-lfa-offline/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
 scp -P 1022 ./simplified-app-lfa/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
+scp -P 1022 ./simplified-app-lfa-laos/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
 
