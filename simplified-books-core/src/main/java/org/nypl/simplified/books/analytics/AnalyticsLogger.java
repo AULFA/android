@@ -59,7 +59,7 @@ public final class AnalyticsLogger {
   private static final int LOG_FILE_SIZE_LIMIT =
     1024 * 1024 * 10;
   private static final int LOG_FILE_PUSH_LIMIT =
-    1024 * 2;
+    1024 * 200;
 
   private final HTTPType http;
   private final ListeningExecutorService executor;
