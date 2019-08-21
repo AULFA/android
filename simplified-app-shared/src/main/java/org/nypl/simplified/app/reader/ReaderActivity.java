@@ -212,6 +212,12 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
     }, 300L);
   }
 
+  private static String scrubCommas(
+    final String text)
+  {
+    return text.replace(",", "");
+  }
+
   @Override
   protected void onCreate(final @Nullable Bundle state) {
 
@@ -235,9 +241,15 @@ public final class ReaderActivity extends ProfileTimeOutActivity implements
     try {
       this.profile = Simplified.getProfilesController().profileCurrent();
       this.account = this.profile.account(account_id);
-      String message = "book_opened," + this.profile.id().id()
-          + "," + this.profile.displayName()
-          + "," + this.account.bookDatabase().entry(book_id).book().entry().getTitle();
+      final String message =
+        new StringBuilder(128)
+          .append("book_opened,")
+          .append(this.profile.id().id())
+          .append(",")
+          .append(scrubCommas(this.profile.displayName()))
+          .append(",")
+          .append(scrubCommas(this.account.bookDatabase().entry(book_id).book().entry().getTitle()))
+          .toString();
       Simplified.getAnalyticsController().logToAnalytics(message);  
     } catch (final AccountsDatabaseNonexistentException
         | BookDatabaseException

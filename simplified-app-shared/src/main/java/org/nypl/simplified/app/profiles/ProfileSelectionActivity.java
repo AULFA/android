@@ -139,6 +139,12 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     return optional instanceof Some ? ((Some<A>) optional).get() : orElse;
   }
 
+  private static String scrubCommas(
+    final String text)
+  {
+    return text.replace(",", "");
+  }
+
   private void onSelectedProfile(
     final ProfileReadableType profile) {
 
@@ -161,17 +167,17 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
       eventBuilder.append("profile_selected,");
       eventBuilder.append(profile.id().id());
       eventBuilder.append(',');
-      eventBuilder.append(profile.displayName());
+      eventBuilder.append(scrubCommas(profile.displayName()));
       eventBuilder.append(',');
-      eventBuilder.append(gender);
+      eventBuilder.append(scrubCommas(gender));
       eventBuilder.append(',');
-      eventBuilder.append(birthday);
+      eventBuilder.append(scrubCommas(birthday));
       eventBuilder.append(',');
-      eventBuilder.append(role);
+      eventBuilder.append(scrubCommas(role));
       eventBuilder.append(',');
-      eventBuilder.append(school);
+      eventBuilder.append(scrubCommas(school));
       eventBuilder.append(',');
-      eventBuilder.append(grade);
+      eventBuilder.append(scrubCommas(grade));
       Simplified.getAnalyticsController().logToAnalytics(eventBuilder.toString());
     }
 
