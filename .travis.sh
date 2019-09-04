@@ -69,10 +69,15 @@ EOF
 # Configure bundled credentials
 
 scp -P 1022 travis-ci@builds.lfa.one:online-app-credentials.json .
+scp -P 1022 travis-ci@builds.lfa.one:bugsnag.conf .
 
 cp online-app-credentials.json simplified-app-lfa/src/main/assets/account_bundled_credentials.json
 cp online-app-credentials.json simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json
 cp online-app-credentials.json simplified-app-lfa-laos/src/main/assets/account_bundled_credentials.json
+
+cp bugsnag.conf simplified-app-lfa/src/main/assets/bugsnag.conf
+cp bugsnag.conf simplified-app-lfa-offline/src/main/assets/bugsnag.conf
+cp bugsnag.conf simplified-app-lfa-laos/src/main/assets/bugsnag.conf
 
 #------------------------------------------------------------------------
 # Configure offline bundles
