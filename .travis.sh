@@ -56,8 +56,8 @@ scp -P 1022 travis-ci@builds.lfa.one:lfa-keystore.jks .
 
 (cat <<EOF
 
-nexusUsername=${NYPL_NEXUS_USER}
-nexusPassword=${NYPL_NEXUS_PASSWORD}
+org.librarysimplified.nexus.username=${NYPL_NEXUS_USER}
+org.librarysimplified.nexus.password=${NYPL_NEXUS_PASSWORD}
 
 au.org.libraryforall.keyAlias=main
 au.org.libraryforall.keyPassword=${LFA_KEYSTORE_PASSWORD}
