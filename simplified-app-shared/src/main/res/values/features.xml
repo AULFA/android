@@ -2,7 +2,7 @@
 <resources>
 
   <!-- The configurable application name -->
-  <string name="feature_app_name">Simply\uFEFFE</string>
+  <string name="feature_app_name" translatable="false">Simply\uFEFFE</string>
 
   <!-- The configurable splash screen image -->
   <drawable name="feature_app_splash">@drawable/simplified_splash</drawable>
@@ -65,12 +65,12 @@
   <bool name="feature_manage_accounts">true</bool>
 
   <!-- The default Adobe vendor ID -->
-  <string name="feature_adobe_vendor_id">NYPL</string>
+  <string name="feature_adobe_vendor_id" translatable="false">NYPL</string>
 
   <!-- A non-empty string here will override the package name given to
      the Adobe DRM implementation. An empty string will cause the
       implementation to use the package name defined in the Android manifest. -->
-  <string name="feature_adobe_package_override">org.nypl.simplified.app</string>
+  <string name="feature_adobe_package_override" translatable="false">org.nypl.simplified.app</string>
 
   <!-- qa or prod  - currently used only in card creator -->
   <string name="feature_environment">qa</string>
@@ -78,13 +78,13 @@
   <!-- authentication providers -->
   <!-- default authentication provider -->
   <bool name="feature_default_auth_provider">true</bool>
-  <string name="feature_default_auth_provider_name">Library</string>
+  <string name="feature_default_auth_provider_name" translatable="false">Library</string>
   <bool name="feature_default_auth_provider_request_new_code">false</bool>
-  <string name="feature_default_auth_provider_request_new_code_uri"> </string>
+  <string name="feature_default_auth_provider_request_new_code_uri" translatable="false"> </string>
 
   <!-- clever authentication provider -->
   <bool name="feature_auth_provider_clever">false</bool>
-  <string name="feature_auth_provider_clever_name">Clever</string>
-  <string name="feature_auth_provider_clever_uri"> </string>
+  <string name="feature_auth_provider_clever_name" translatable="false">Clever</string>
+  <string name="feature_auth_provider_clever_uri" translatable="false"> </string>
 
 </resources>
