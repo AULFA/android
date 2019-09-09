@@ -11,9 +11,9 @@
   <application
     android:name="org.nypl.simplified.app.Simplified"
     android:allowBackup="true"
-    android:contentDescription="@string/feature_app_name"
+    android:contentDescription="ອົງການ LFA ລາວ"
     android:icon="@mipmap/ic_launcher"
-    android:label="@string/feature_app_name"
+    android:label="ອົງການ LFA ລາວ"
     android:largeHeap="true"
     android:theme="@style/SimplifiedTheme">
 
@@ -21,8 +21,8 @@
     <activity
       android:name="org.nypl.simplified.app.MainSplashActivity"
       android:configChanges="orientation|screenSize"
-      android:contentDescription="@string/feature_app_name"
-      android:label="@string/feature_app_name"
+      android:contentDescription="ອົງການ LFA ລາວ"
+      android:label="ອົງການ LFA ລາວ"
       android:theme="@style/SimplifiedThemeNoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

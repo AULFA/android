@@ -1,8 +1,8 @@
 [
   {
     "id": "urn:provider:com.cantookstation.lfalaos",
-    "name": "Laos",
-    "subtitle": "Laos",
+    "name": "ປະເທດລາວ",
+    "subtitle": "",
     "logo": "simplified-asset:logos/laos.png",
     "supportsSimplyESync": false,
     "supportsBarcodeScanner": false,
