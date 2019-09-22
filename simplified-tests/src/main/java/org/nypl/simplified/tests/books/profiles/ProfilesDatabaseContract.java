@@ -9,6 +9,7 @@ import org.hamcrest.Description;
 import org.hamcrest.core.StringContains;
 import org.joda.time.LocalDate;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,6 +26,7 @@ import org.nypl.simplified.books.accounts.AccountsDatabaseFactoryType;
 import org.nypl.simplified.books.accounts.AccountsDatabaseLastAccountException;
 import org.nypl.simplified.books.accounts.AccountsDatabaseNonexistentException;
 import org.nypl.simplified.books.accounts.AccountsDatabases;
+import org.nypl.simplified.books.analytics.AnalyticsLogger;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.books.profiles.ProfileAnonymousDisabledException;
 import org.nypl.simplified.books.profiles.ProfileAnonymousEnabledException;
@@ -38,6 +40,8 @@ import org.nypl.simplified.books.profiles.ProfilesDatabase;
 import org.nypl.simplified.books.profiles.ProfilesDatabaseType;
 import org.nypl.simplified.files.DirectoryUtilities;
 import org.nypl.simplified.files.FileUtilities;
+import org.nypl.simplified.http.core.HTTP;
+import org.nypl.simplified.tests.http.MockingHTTP;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -54,6 +58,13 @@ public abstract class ProfilesDatabaseContract {
 
   @Rule
   public ExpectedException expected = ExpectedException.none();
+
+  private AnalyticsLogger analytics;
+
+  @Before
+  public final void testSetup() throws IOException {
+    this.analytics = AnalyticsLogger.create(new MockingHTTP(), Thread::new, DirectoryUtilities.directoryCreateTemporary());
+  }
 
   /**
    * An exception matcher that checks to see if the given profile database exception has
@@ -106,6 +117,7 @@ public abstract class ProfilesDatabaseContract {
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(IOException.class, "Not a directory"));
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       accountProviders(),
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -126,6 +138,7 @@ public abstract class ProfilesDatabaseContract {
     expected.expect(new CausesContains<>(
       IOException.class, "Could not parse directory name as profile ID"));
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       accountProviders(),
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -153,6 +166,7 @@ public abstract class ProfilesDatabaseContract {
     f_0.mkdirs();
 
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       accountProviders(),
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -174,6 +188,7 @@ public abstract class ProfilesDatabaseContract {
     expected.expect(ProfileDatabaseException.class);
     expected.expect(new CausesContains<>(IOException.class, "Could not parse profile: "));
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       accountProviders(),
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -188,6 +203,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -208,6 +224,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers,
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -282,6 +299,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers,
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -295,6 +313,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db1 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers, AccountBundledCredentialsEmpty.getInstance(), accountsDatabases(), f_pro);
 
     final ProfileType pr0 = db1.profiles().get(p0.id());
@@ -322,6 +341,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -349,6 +369,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -371,6 +392,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -391,6 +413,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -414,6 +437,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -436,6 +460,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -457,6 +482,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -475,6 +501,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -502,6 +529,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -527,6 +555,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -550,6 +579,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -576,6 +606,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -613,6 +644,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -708,6 +740,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         account_providers,
         credentials,
         accountsDatabases(),
@@ -828,6 +861,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         account_providers_initial,
         credentials,
         accountsDatabases(),
@@ -853,6 +887,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db1 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         account_providers_later,
         credentials,
         accountsDatabases(),
@@ -967,6 +1002,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers,
         credentials,
         accountsDatabases(),
@@ -1088,6 +1124,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers_initial,
         credentials,
         accountsDatabases(),
@@ -1114,6 +1151,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db1 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers_later,
         credentials,
         accountsDatabases(),
@@ -1164,6 +1202,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers,
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1175,6 +1214,7 @@ public abstract class ProfilesDatabaseContract {
     p0.createAccount(account_providers.provider(URI.create("http://www.example.com/accounts1/")));
 
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       accountProvidersMissingOne(),
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -1198,6 +1238,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         account_providers_no_zero,
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1209,6 +1250,7 @@ public abstract class ProfilesDatabaseContract {
     final AccountProviderCollectionType account_providers_no_one = accountProvidersMissingOne();
 
     ProfilesDatabase.openWithAnonymousAccountDisabled(
+      analytics,
       account_providers_no_one,
       AccountBundledCredentialsEmpty.getInstance(),
       accountsDatabases(),
@@ -1229,6 +1271,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1260,6 +1303,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1293,6 +1337,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1311,6 +1356,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db1 =
       ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),
@@ -1336,6 +1382,7 @@ public abstract class ProfilesDatabaseContract {
 
     final ProfilesDatabaseType db0 =
       ProfilesDatabase.openWithAnonymousAccountEnabled(
+        analytics,
         accountProviders(),
         AccountBundledCredentialsEmpty.getInstance(),
         accountsDatabases(),

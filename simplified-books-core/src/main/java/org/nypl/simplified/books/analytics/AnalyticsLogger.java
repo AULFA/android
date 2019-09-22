@@ -211,6 +211,8 @@ public final class AnalyticsLogger {
   }
 
   public void logToAnalytics(String message) {
+    LOG.trace("logToAnalytics: {}", message);
+
     if (this.analytics_output == null) {
       init();
     }

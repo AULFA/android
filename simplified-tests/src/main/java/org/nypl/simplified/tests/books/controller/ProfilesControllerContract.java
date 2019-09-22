@@ -96,6 +96,7 @@ public abstract class ProfilesControllerContract {
   private List<AccountEvent> account_events;
   private DownloaderType downloader;
   private BookRegistryType book_registry;
+  private AnalyticsLogger analytics;
 
   private static AccountProvider fakeProvider(final String provider_id) {
     return AccountProvider.builder()
@@ -171,6 +172,7 @@ public abstract class ProfilesControllerContract {
   @Before
   public void setUp() throws Exception {
     this.http = new MockingHTTP();
+    this.analytics = AnalyticsLogger.create(new MockingHTTP(), Thread::new, DirectoryUtilities.directoryCreateTemporary());
     this.executor_downloads = Executors.newCachedThreadPool();
     this.executor_books = Executors.newCachedThreadPool();
     this.executor_timer = Executors.newCachedThreadPool();
@@ -632,6 +634,7 @@ public abstract class ProfilesControllerContract {
   private ProfilesDatabaseType profilesDatabaseWithoutAnonymous(final File dir_profiles)
     throws ProfileDatabaseException {
     return ProfilesDatabase.openWithAnonymousAccountDisabled(
+      this.analytics,
       accountProviders(Unit.unit()),
       AccountBundledCredentialsEmpty.getInstance(),
       AccountsDatabases.get(),

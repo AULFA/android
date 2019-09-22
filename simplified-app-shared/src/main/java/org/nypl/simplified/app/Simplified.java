@@ -405,6 +405,7 @@ public final class Simplified extends Application {
 
   private static ProfilesDatabaseType createProfileDatabase(
       final Resources resources,
+      final AnalyticsLogger analytics_logger,
       final AccountProviderCollection account_providers,
       final AccountBundledCredentialsType account_bundled_credentials,
       final File directory)
@@ -419,6 +420,7 @@ public final class Simplified extends Application {
     if (anonymous) {
       LOG.debug("opening profile database with anonymous profile");
       return ProfilesDatabase.openWithAnonymousAccountEnabled(
+          analytics_logger,
           account_providers,
           account_bundled_credentials,
           AccountsDatabases.get(),
@@ -428,6 +430,7 @@ public final class Simplified extends Application {
 
     LOG.debug("opening profile database without anonymous profile");
     return ProfilesDatabase.openWithAnonymousAccountDisabled(
+        analytics_logger,
         account_providers,
         account_bundled_credentials,
         AccountsDatabases.get(),
@@ -662,14 +665,6 @@ public final class Simplified extends Application {
     }
 
     try {
-      LOG.debug("initializing profiles and accounts");
-      this.profiles = createProfileDatabase(
-        resources, this.account_providers, this.bundled_credentials, this.directory_profiles);
-    } catch (final ProfileDatabaseException e) {
-      throw new IllegalStateException("Could not initialize profile database", e);
-    }
-
-    try {
       LOG.debug("initializing analytics log");
       analytics_logger = AnalyticsLogger.create(
         this.http,
@@ -677,6 +672,18 @@ public final class Simplified extends Application {
         this.directory_analytics);
     } catch (Exception e) {
       LOG.debug("Ignoring exception: AnalyticsLogger.create raised: ", e);
+    }
+
+    try {
+      LOG.debug("initializing profiles and accounts");
+      this.profiles = createProfileDatabase(
+        resources,
+        this.analytics_logger,
+        this.account_providers,
+        this.bundled_credentials,
+        this.directory_profiles);
+    } catch (final ProfileDatabaseException e) {
+      throw new IllegalStateException("Could not initialize profile database", e);
     }
 
     try {

@@ -1,12 +1,17 @@
 package org.nypl.simplified.books.profiles;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
+import com.io7m.jfunctional.OptionVisitorType;
+import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
+import org.joda.time.LocalDate;
+import org.joda.time.format.ISODateTimeFormat;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.accounts.AccountAuthenticationCredentials;
 import org.nypl.simplified.books.accounts.AccountBundledCredentialsType;
@@ -18,6 +23,7 @@ import org.nypl.simplified.books.accounts.AccountsDatabaseException;
 import org.nypl.simplified.books.accounts.AccountsDatabaseFactoryType;
 import org.nypl.simplified.books.accounts.AccountsDatabaseNonexistentException;
 import org.nypl.simplified.books.accounts.AccountsDatabaseType;
+import org.nypl.simplified.books.analytics.AnalyticsLogger;
 import org.nypl.simplified.books.core.LogUtilities;
 import org.nypl.simplified.files.DirectoryUtilities;
 import org.nypl.simplified.files.FileLocking;
@@ -55,12 +61,14 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
   private final AnonymousProfileEnabled profile_anon_enabled;
   private final AccountsDatabaseFactoryType accounts_databases;
   private final Object profile_current_lock;
+  private final AnalyticsLogger analytics;
   private final AccountProviderCollectionType account_providers;
   private final AccountBundledCredentialsType account_bundled_credentials;
   private @GuardedBy("profile_current_lock")
   ProfileID profile_current;
 
   private ProfilesDatabase(
+    final AnalyticsLogger in_analytics,
     final AccountProviderCollectionType account_providers,
     final AccountBundledCredentialsType account_bundled_credentials,
     final AccountsDatabaseFactoryType accounts_databases,
@@ -68,6 +76,8 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     final ConcurrentSkipListMap<ProfileID, Profile> profiles,
     final AnonymousProfileEnabled anonymous_enabled) {
 
+    this.analytics =
+      Objects.requireNonNull(in_analytics, "analytics");
     this.account_providers =
       Objects.requireNonNull(account_providers, "Account providers");
     this.account_bundled_credentials =
@@ -113,12 +123,14 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
    */
 
   public static ProfilesDatabaseType openWithAnonymousAccountDisabled(
+    final AnalyticsLogger in_analytics,
     final AccountProviderCollectionType account_providers,
     final AccountBundledCredentialsType account_bundled_credentials,
     final AccountsDatabaseFactoryType accounts_databases,
     final File directory)
     throws ProfileDatabaseException {
 
+    Objects.requireNonNull(in_analytics, "in_analytics");
     Objects.requireNonNull(account_providers, "Account providers");
     Objects.requireNonNull(account_bundled_credentials, "Account bundled credentials");
     Objects.requireNonNull(accounts_databases, "Accounts databases");
@@ -151,6 +163,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     }
 
     return new ProfilesDatabase(
+      in_analytics,
       account_providers,
       account_bundled_credentials,
       accounts_databases,
@@ -212,6 +225,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
    */
 
   public static ProfilesDatabaseType openWithAnonymousAccountEnabled(
+    final AnalyticsLogger in_analytics,
     final AccountProviderCollectionType account_providers,
     final AccountBundledCredentialsType account_bundled_credentials,
     final AccountsDatabaseFactoryType accounts_databases,
@@ -219,6 +233,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
     final File directory)
     throws ProfileDatabaseException {
 
+    Objects.requireNonNull(in_analytics, "in_analytics");
     Objects.requireNonNull(account_providers, "Account providers");
     Objects.requireNonNull(account_bundled_credentials, "Account bundled credentials");
     Objects.requireNonNull(accounts_databases, "Accounts databases");
@@ -260,6 +275,7 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
     final ProfilesDatabase database =
       new ProfilesDatabase(
+        in_analytics,
         account_providers,
         account_bundled_credentials,
         accounts_databases,
@@ -397,7 +413,105 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
     this.profiles.put(profile.id(), profile);
     profile.setOwner(this);
+
+    logProfileCreated(analytics, profile);
     return profile;
+  }
+
+  private static void logProfileCreated(AnalyticsLogger analytics, Profile profile) {
+    final ProfilePreferences prefs = profile.preferences();
+    final StringBuilder eventBuilder = new StringBuilder(128);
+    eventBuilder.append("profile_created,");
+    eventBuilder.append(profile.id().id());
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(profile.displayName()));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.gender())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmptyDate(prefs.dateOfBirth())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.role())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.school())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.grade())));
+    analytics.logToAnalytics(eventBuilder.toString());
+  }
+
+  private static void logProfileModified(AnalyticsLogger analytics, Profile profile) {
+    final ProfilePreferences prefs = profile.preferences();
+    final StringBuilder eventBuilder = new StringBuilder(128);
+    eventBuilder.append("profile_modified,");
+    eventBuilder.append(profile.id().id());
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(profile.displayName()));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.gender())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmptyDate(prefs.dateOfBirth())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.role())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.school())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.grade())));
+    analytics.logToAnalytics(eventBuilder.toString());
+  }
+
+  private static void logProfileDeleted(AnalyticsLogger analytics, Profile profile) {
+    final ProfilePreferences prefs = profile.preferences();
+    final StringBuilder eventBuilder = new StringBuilder(128);
+    eventBuilder.append("profile_deleted,");
+    eventBuilder.append(profile.id().id());
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(profile.displayName()));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.gender())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmptyDate(prefs.dateOfBirth())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.role())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.school())));
+    eventBuilder.append(',');
+    eventBuilder.append(scrubCommas(orEmpty(prefs.grade())));
+    analytics.logToAnalytics(eventBuilder.toString());
+  }
+
+  private static String orEmptyDate(OptionType<LocalDate> opt)
+  {
+    return opt.accept(new OptionVisitorType<LocalDate, String>() {
+      @Override
+      public String none(None<LocalDate> n) {
+        return "";
+      }
+
+      @Override
+      public String some(Some<LocalDate> s) {
+        return ISODateTimeFormat.basicDate().print(s.get());
+      }
+    });
+  }
+
+  private static String orEmpty(OptionType<String> opt)
+  {
+    return opt.accept(new OptionVisitorType<String, String>() {
+      @Override
+      public String none(None<String> n) {
+        return "";
+      }
+
+      @Override
+      public String some(Some<String> s) {
+        return s.get();
+      }
+    });
+  }
+
+  private static String scrubCommas(
+    final String text)
+  {
+    return text.replace(",", "");
   }
 
   /**
@@ -744,6 +858,8 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
         writeDescription(this.directory, new_desc);
         this.description = new_desc;
       }
+
+      logProfileModified(this.owner.analytics, this);
     }
 
     @Override
@@ -767,6 +883,8 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
         writeDescription(this.directory, new_desc);
         this.description = new_desc;
       }
+
+      logProfileModified(this.owner.analytics, this);
     }
 
     @Override
@@ -838,6 +956,8 @@ public final class ProfilesDatabase implements ProfilesDatabaseType {
 
       DirectoryUtilities.directoryDelete(profile.directory);
     }
+
+    logProfileDeleted(this.analytics, profile);
   }
 
   private static void writeDescription(
