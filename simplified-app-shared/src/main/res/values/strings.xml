@@ -32,6 +32,8 @@
 
   <!-- Catalog strings -->
   <string name="catalog">Catalogue</string>
+  <string name="catalog_book_more">More…</string>
+  <string name="catalog_book_description">Description</string>
   <string name="catalog_book_detail">Details</string>
   <string name="catalog_load_error_title">Error</string>
   <string name="catalog_load_error_text">An error occurred while loading the catalog. Please try again.</string>
@@ -288,6 +290,5 @@
   <string name="profiles_pilot_no">No</string>
   <string name="profiles_pilot_yes">Yes, my school is:</string>
   <string name="profiles_ask_grade">What is your school grade?</string>
-
 
 </resources>

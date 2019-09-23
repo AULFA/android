@@ -174,7 +174,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/catalog_book_summary_publisher"
-            android:textColor="@color/normal_text_major" tools:text="Description"/>
+            android:textColor="@color/normal_text_major"
+      tools:text="@string/catalog_book_description"/>
 
     <WebView
       android:id="@+id/book_summary_text"
@@ -189,7 +190,7 @@
       android:layout_height="@dimen/button_standard_height"
       android:gravity="right|center_vertical"
       android:textSize="12sp"
-      android:text="More..."
+      android:text="@string/catalog_book_more"
       android:background="@android:color/transparent"
       android:paddingRight="6dp"
       android:id="@+id/book_summary_read_more_button"/>

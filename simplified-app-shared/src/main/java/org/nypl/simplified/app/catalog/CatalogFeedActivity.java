@@ -633,14 +633,11 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       search_item.expandActionView();
 
       /*
-       * Set some placeholder text
+       * Set some empty placeholder text
        */
 
       final CatalogFeedArgumentsType args = this.getArguments();
-      this.search_view.setQueryHint("Search " + feed.getFeedTitle());
-      if (args.getTitle().startsWith("Search")) {
-        this.search_view.setQueryHint(args.getTitle());
-      }
+      this.search_view.setQueryHint("");
 
       /*
        * Check that the search URI is of an understood type.
