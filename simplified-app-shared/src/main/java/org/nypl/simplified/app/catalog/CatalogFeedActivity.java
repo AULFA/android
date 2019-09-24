@@ -626,24 +626,27 @@ public abstract class CatalogFeedActivity extends CatalogActivity
       final Some<FeedSearchType> search_some =
         (Some<FeedSearchType>) search_opt;
 
+      final Resources resources = this.getResources();
+
       this.search_view = (SearchView) search_item.getActionView();
       this.search_view.setSubmitButtonEnabled(true);
       this.search_view.setIconifiedByDefault(false);
       search_item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
       search_item.expandActionView();
+      search_item.setTitle(R.string.catalog_search);
+      search_item.setTitleCondensed(resources.getString(R.string.catalog_search));
 
       /*
        * Set some empty placeholder text
        */
 
       final CatalogFeedArgumentsType args = this.getArguments();
-      this.search_view.setQueryHint("");
+      this.search_view.setQueryHint(resources.getString(R.string.catalog_search));
 
       /*
        * Check that the search URI is of an understood type.
        */
 
-      final Resources resources = NullCheck.notNull(this.getResources());
       final FeedSearchType search = search_some.get();
       search_ok = search.matchSearch(
         new FeedSearchMatcherType<Boolean, UnreachableCodeException>() {
