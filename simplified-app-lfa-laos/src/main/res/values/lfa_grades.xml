@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+  <string-array name="lfaGrades">
+    <item>ອະນຸບານ</item>
+    <item>ຊັ້ນ 1</item>
+    <item>ຊັ້ນ 2</item>
+    <item>ຊັ້ນ 3</item>
+    <item>ຊັ້ນ 4</item>
+    <item>ຊັ້ນ 5</item>
+    <item>ຊັ້ນ 6</item>
+    <item>ຊັ້ນ 7</item>
+    <item>ຊັ້ນ 8</item>
+    <item>ຊັ້ນ 9</item>
+    <item>ຊັ້ນ 10</item>
+    <item>ຊັ້ນ 11</item>
+    <item>ຊັ້ນ 12</item>
+    <item>ມະຫາວິທະຍາໄລ</item>
+  </string-array>
+</resources>
