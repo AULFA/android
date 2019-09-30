@@ -104,7 +104,7 @@
   <string name="profiles_create">ສ9າງການປ2ຽນແປງ</string>
   <string name="profiles_modify">ສ9າງການປ2ຽນແປງ</string>
   <string name="profiles_please_enter">ກະລuນາໃສ2ຊ?, ເພດ, %ນເດ-ອນປ5ເກ5ດ</string>
-  <string name="profiles_name_field">ເພດ</string>
+  <string name="profiles_name_field">ຊື່</string>
   <string name="profiles_gender_male">ເພດຊາຍ</string>
   <string name="profiles_gender_female">ເພດຍiງ</string>
   <string name="profiles_gender_non_binary">ບDລະບu</string>
