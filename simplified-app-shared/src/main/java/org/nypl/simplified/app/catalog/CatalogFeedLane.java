@@ -133,8 +133,6 @@ public final class CatalogFeedLane extends LinearLayout {
 
     final Resources Resources = NullCheck.notNull(this.getResources());
 
-    this.header.setContentDescription(
-        String.format(Resources.getString(R.string.catalog_accessibility_header_show_more), this.title.getText()));
     this.header.setOnClickListener(
         view_title -> CatalogFeedLane.this.listener.onSelectFeed(in_group));
 
