@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -ex
 
 if [ -z "${NYPL_NEXUS_USER}" ]
 then
