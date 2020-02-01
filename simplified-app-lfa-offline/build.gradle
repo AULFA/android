@@ -72,21 +72,6 @@ android {
 def credentials = file("${project.rootDir}/simplified-app-lfa-offline/src/main/assets/account_bundled_credentials.json")
 def credentialsText = credentials.getText()
 
-def jsonFile   = file("${project.rootDir}/simplified-app-lfa-offline/bundles.json")
-def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
-
-parsedJson.each { bundle ->
-  def zipFile   = file("${project.rootDir}/simplified-app-lfa-offline/${bundle.zip}")
-  def outputDir = file("src/main/assets/")
-  def unzipTaskName  = "unzipBundled_${bundle.short}"
-
-  logger.lifecycle("instantiating task {} to unzip {} to {}", unzipTaskName, zipFile, outputDir)
-  task (unzipTaskName, type: Copy) {
-    from zipTree(zipFile)
-    into outputDir
-  }
-}
-
 task copyCredentials(type: Copy) {
   from "${project.rootDir}/simplified-app-lfa-offline/credentials.json"
   rename { name -> "account_bundled_credentials.json" }
@@ -95,7 +80,6 @@ task copyCredentials(type: Copy) {
 
 afterEvaluate {
   android.applicationVariants.all { variant ->
-    variant.javaCompiler.dependsOn(tasks.matching { Task task -> task.name.startsWith("unzipBundled_") })
     variant.javaCompiler.dependsOn(copyCredentials)
   }
 }

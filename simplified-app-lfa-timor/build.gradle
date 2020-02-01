@@ -68,28 +68,6 @@ android {
   }
 }
 
-// Check that bundled credentials exist
-def jsonFile   = file("${project.rootDir}/simplified-app-lfa-timor/bundles.json")
-def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
-
-parsedJson.each { bundle ->
-  def zipFile   = file("${project.rootDir}/simplified-app-lfa-timor/${bundle.zip}")
-  def outputDir = file("src/main/assets/")
-  def unzipTaskName  = "unzipBundled_${bundle.short}"
-
-  logger.lifecycle("instantiating task {} to unzip {} to {}", unzipTaskName, zipFile, outputDir)
-  task (unzipTaskName, type: Copy) {
-    from zipTree(zipFile)
-    into outputDir
-  }
-}
-
-afterEvaluate {
-  android.applicationVariants.all { variant ->
-    variant.javaCompiler.dependsOn(tasks.matching { Task task -> task.name.startsWith("unzipBundled_") })
-  }
-}
-
 dependencies {
   api project(':simplified-app-shared')
 }

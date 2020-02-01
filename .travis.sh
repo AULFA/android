@@ -62,6 +62,10 @@ org.librarysimplified.nexus.password=${NYPL_NEXUS_PASSWORD}
 au.org.libraryforall.keyAlias=main
 au.org.libraryforall.keyPassword=${LFA_KEYSTORE_PASSWORD}
 au.org.libraryforall.storePassword=${LFA_KEYSTORE_PASSWORD}
+
+org.gradle.daemon=true
+org.gradle.configureondemand=true
+org.gradle.jvmargs=-Xmx4g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError
 EOF
 ) >> gradle.properties || exit 1
 
@@ -78,37 +82,17 @@ cp online-app-credentials.json simplified-app-lfa-laos/src/main/assets/account_b
 cp bugsnag.conf simplified-app-lfa/src/main/assets/bugsnag.conf
 cp bugsnag.conf simplified-app-lfa-offline/src/main/assets/bugsnag.conf
 cp bugsnag.conf simplified-app-lfa-laos/src/main/assets/bugsnag.conf
+cp bugsnag.conf simplified-app-lfa-timor/src/main/assets/bugsnag.conf
 
 #------------------------------------------------------------------------
 # Configure offline bundles
 
-mkdir -p simplified-app-lfa-laos/bundles || exit 1
-mkdir -p simplified-app-lfa-offline/bundles || exit 1
-mkdir -p simplified-app-lfa/bundles || exit 1
+RSYNC_FLAGS='rsync -a -L -i --delay-updates --partial --no-inc-recursive --no-times -e "ssh -p 1022"'
 
-wget \
-  --timestamping \
-  --user "${LFA_BUILDS_USER}" \
-  --password "${LFA_BUILDS_PASSWORD}" \
-  --no-verbose \
-  --output-document=simplified-app-lfa-offline/bundles/offline.zip \
-  https://builds.lfa.one/auth/offline/offline.zip
-
-wget \
-  --timestamping \
-  --user "${LFA_BUILDS_USER}" \
-  --password "${LFA_BUILDS_PASSWORD}" \
-  --no-verbose \
-  --output-document=simplified-app-lfa-laos/bundles/offline-laos.zip \
-  https://builds.lfa.one/auth/offline-laos/offline-laos.zip
-
-wget \
-  --timestamping \
-  --user "${LFA_BUILDS_USER}" \
-  --password "${LFA_BUILDS_PASSWORD}" \
-  --no-verbose \
-  --output-document=simplified-app-lfa/bundles/offline.zip \
-  https://builds.lfa.one/auth/offline-online/offline-online.zip
+rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/png/current/           simplified-app-lfa-offline/src/main/assets/
+rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/png-feedsonly/current/ simplified-app-lfa/src/main/assets/
+rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/laos/current/          simplified-app-lfa-laos/src/main/assets/
+rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/timor/current/         simplified-app-lfa-timor/src/main/assets/
 
 #------------------------------------------------------------------------
 # Build!
@@ -121,4 +105,4 @@ wget \
 scp -P 1022 ./simplified-app-lfa-offline/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
 scp -P 1022 ./simplified-app-lfa/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
 scp -P 1022 ./simplified-app-lfa-laos/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
-
+scp -P 1022 ./simplified-app-lfa-timor/build/outputs/apk/release/*.apk travis-ci@builds.lfa.one:/sites/builds.lfa.one/apk/
