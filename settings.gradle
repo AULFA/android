@@ -1,6 +1,7 @@
 include ':simplified-app-lfa'
 include ':simplified-app-lfa-laos'
 include ':simplified-app-lfa-offline'
+include ':simplified-app-lfa-timor'
 include ':simplified-app-shared'
 include ':simplified-assert'
 include ':simplified-books-core'

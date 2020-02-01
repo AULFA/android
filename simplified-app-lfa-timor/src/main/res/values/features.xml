@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- The main application name -->
+  <string name="feature_app_name">LFA Laos</string>
+
+  <!-- The main app color -->
+  <color name="feature_main_color">#14234F</color>
+
+  <color name="app_main_color">@color/feature_main_color</color>
+
+  <!-- A pale version of the configurable main color. -->
+  <color name="feature_main_color_pale">#2d3867</color>
+
+  <!-- The configurable secondary color, used for branding. -->
+  <color name="feature_secondary_color">#14234F</color>
+
+  <!-- If true, the application presents selectable profiles. -->
+  <bool name="feature_profiles_enabled">true</bool>
+
+  <!-- If true, the application presents a settings option to manage accounts. -->
+  <bool name="feature_manage_accounts">false</bool>
+
+  <!-- If true, a Holds tab is shown. -->
+  <!-- This can be disabled for book collections that do not have holds. -->
+  <bool name="feature_holds_enabled">false</bool>
+
+  <!-- qa or prod  - currently used only in card creator -->
+  <string name="feature_environment">prod</string>
+
+  <!-- default authentication provider -->
+  <string name="feature_default_auth_provider_name">Library For All</string>
+
+  <!-- A non-empty string here will override the package name given to
+       the Adobe DRM implementation. An empty string will cause the
+       implementation to use the package name defined in the Android manifest. -->
+  <string name="feature_adobe_package_override">org.nypl.simplified.simplye</string>
+
+</resources>

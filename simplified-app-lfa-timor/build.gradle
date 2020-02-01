@@ -1,0 +1,95 @@
+apply plugin: 'com.android.application'
+
+def buildVersion() {
+  def propsFile = file("version.properties")
+  def Properties props = new Properties()
+  def code
+  if (propsFile.canRead()) {
+    props.load(new FileInputStream(propsFile))
+    code = props['VERSION_CODE'].toInteger()
+  } else {
+    throw new FileNotFoundException("Could not read ${propsFile}")
+  }
+
+  props['VERSION_CODE'] = (code + 1).toString()
+  props.store(new FileOutputStream(propsFile), "")
+  logger.info("incrementing build version ${code} -> ${code + 1}")
+  return code
+}
+
+android {
+  packagingOptions {
+    exclude 'META-INF/LICENSE'
+    doNotStrip "*/armeabi-v7a/*.so"
+    doNotStrip '*/arm64-v8a/*.so'
+    exclude ('/lib/mips/**')
+    exclude ('/lib/mips64/**')
+    exclude ('/lib/x86_64/**')
+    exclude ('/lib/x86/**')
+  }
+
+  defaultConfig {
+    versionName = VERSION_NAME
+    versionCode = buildVersion()
+    setProperty("archivesBaseName", "lfa-laos-${VERSION_NAME}-${versionCode}")
+  }
+
+  signingConfigs {
+    debug {
+      keyAlias findProperty("au.org.libraryforall.keyAlias")
+      keyPassword findProperty("au.org.libraryforall.keyPassword")
+      storeFile file("${project.rootDir}/lfa-keystore.jks")
+      storePassword findProperty("au.org.libraryforall.storePassword")
+    }
+    release {
+      keyAlias findProperty("au.org.libraryforall.keyAlias")
+      keyPassword findProperty("au.org.libraryforall.keyPassword")
+      storeFile file("${project.rootDir}/lfa-keystore.jks")
+      storePassword findProperty("au.org.libraryforall.storePassword")
+    }
+  }
+
+  buildTypes {
+    debug {
+      signingConfig signingConfigs.debug
+    }
+    release {
+      signingConfig signingConfigs.release
+    }
+  }
+
+  lintOptions {
+    checkReleaseBuilds false
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+// Check that bundled credentials exist
+def jsonFile   = file("${project.rootDir}/simplified-app-lfa-timor/bundles.json")
+def parsedJson = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+
+parsedJson.each { bundle ->
+  def zipFile   = file("${project.rootDir}/simplified-app-lfa-timor/${bundle.zip}")
+  def outputDir = file("src/main/assets/")
+  def unzipTaskName  = "unzipBundled_${bundle.short}"
+
+  logger.lifecycle("instantiating task {} to unzip {} to {}", unzipTaskName, zipFile, outputDir)
+  task (unzipTaskName, type: Copy) {
+    from zipTree(zipFile)
+    into outputDir
+  }
+}
+
+afterEvaluate {
+  android.applicationVariants.all { variant ->
+    variant.javaCompiler.dependsOn(tasks.matching { Task task -> task.name.startsWith("unzipBundled_") })
+  }
+}
+
+dependencies {
+  api project(':simplified-app-shared')
+}

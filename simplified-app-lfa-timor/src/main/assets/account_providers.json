@@ -1,0 +1,17 @@
+[
+  {
+    "id": "urn:uuid:f07ef516-ea25-498f-ba23-80ff2904e6e6",
+    "name": "Timor",
+    "subtitle": "",
+    "logo": "simplified-asset:logos/timor.png",
+    "supportsSimplyESync": false,
+    "supportsBarcodeScanner": false,
+    "supportsBarcodeDisplay": false,
+    "supportsReservations": false,
+    "supportsCardCreator": false,
+    "supportsHelpCenter": false,
+    "addAutomatically": true,
+    "catalogUrl": "simplified-bundled:feeds/DAE5313E5E65D49C7AFF7388819E7A42A93B0614523BE11C278489FC536670AE.atom",
+    "mainColor": "#ec1c24"
+  }
+]

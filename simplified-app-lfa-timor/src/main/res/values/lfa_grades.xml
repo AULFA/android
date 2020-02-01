@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+  <string-array name="lfaGrades">
+    <item>grau 1</item>
+    <item>grau 2</item>
+    <item>grau 3</item>
+    <item>grau 4</item>
+    <item>grau 5</item>
+    <item>grau 6</item>
+    <item>grau 7</item>
+    <item>grau 8</item>
+    <item>grau 9</item>
+    <item>grau 10</item>
+    <item>grau 11</item>
+    <item>grau 12</item>
+    <item>Preparatória</item>
+    <item>Universidade</item>
+  </string-array>
+</resources>

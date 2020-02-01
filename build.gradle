@@ -106,6 +106,9 @@ Automatic-Module-Name: ${POM_AUTOMATIC_MODULE_NAME}
         compileSdkVersion androidCompileSDKVersion
         buildToolsVersion androidBuildToolsVersion
 
+        dexOptions {
+          javaMaxHeapSize "3g"
+        }
         defaultConfig {
           minSdkVersion androidMinimumSDKVersion
           targetSdkVersion androidTargetSDKVersion
@@ -132,6 +135,9 @@ Automatic-Module-Name: ${POM_AUTOMATIC_MODULE_NAME}
         compileSdkVersion androidCompileSDKVersion
         buildToolsVersion androidBuildToolsVersion
 
+        dexOptions {
+          javaMaxHeapSize "3g"
+        }
         defaultConfig {
           minSdkVersion androidMinimumSDKVersion
           targetSdkVersion androidTargetSDKVersion

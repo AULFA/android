@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="one.lfa.android.timor">
+
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+
+  <application
+    android:name="org.nypl.simplified.app.Simplified"
+    android:allowBackup="true"
+    android:contentDescription="LFA Timor"
+    android:icon="@mipmap/ic_launcher"
+    android:label="LFA Timor"
+    android:largeHeap="true"
+    android:theme="@style/SimplifiedTheme">
+
+    <!-- Main entry point for the application. -->
+    <activity
+      android:name="org.nypl.simplified.app.MainSplashActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="LFA Timor"
+      android:label="LFA Timor"
+      android:theme="@style/SimplifiedThemeNoActionBar">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <!-- Main application parts -->
+    <activity
+      android:name="org.nypl.simplified.app.catalog.MainCatalogActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/catalog"
+      android:label="@string/catalog"></activity>
+
+    <activity
+      android:name="org.nypl.simplified.app.catalog.MainBooksActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/catalog"
+      android:exported="false"
+      android:label="@string/catalog"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.catalog.MainHoldsActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/holds"
+      android:exported="false"
+      android:label="@string/holds"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.MainSettingsActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/settings"
+      android:exported="false"
+      android:label="@string/settings"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.MainSettingsAccountActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/settings_account"
+      android:exported="false"
+      android:label="@string/settings_account"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.MainSettingsAccountsActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/settings_accounts"
+      android:exported="false"
+      android:label="@string/settings_accounts"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.MainSettingsVersionActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/settings_application_version"
+      android:exported="false"
+      android:label="@string/settings_application_version"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.HelpActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/help"
+      android:exported="false"
+      android:label="@string/help"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.profiles.ProfileSelectionActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/profiles_title"
+      android:exported="true"
+      android:label="@string/profiles_title"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.profiles.ProfileCreationActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/profiles_title"
+      android:exported="false"
+      android:label="@string/profiles_title"></activity>
+
+    <!-- General components -->
+    <activity
+      android:name="org.nypl.simplified.app.WebViewActivity"
+      android:configChanges="orientation|screenSize"
+      android:exported="false"></activity>
+
+    <!-- EULA -->
+    <activity
+      android:name="org.nypl.simplified.app.MainEULAActivity"
+      android:configChanges="orientation|screenSize"
+      android:exported="true"></activity>
+
+    <!-- Catalog -->
+    <activity
+      android:name="org.nypl.simplified.app.catalog.CatalogBookDetailActivity"
+      android:contentDescription="@string/catalog_book_detail"
+      android:exported="false"
+      android:label="@string/catalog_book_detail"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.catalog.CatalogBookReportActivity"
+      android:contentDescription="@string/catalog_book_report"
+      android:exported="false"
+      android:label="@string/catalog_book_report"></activity>
+
+    <!-- Reader -->
+    <activity
+      android:name="org.nypl.simplified.app.reader.ReaderActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/reader"
+      android:label="@string/reader"
+      android:theme="@style/SimplifiedThemeNoActionBar"></activity>
+    <activity
+      android:name="org.nypl.simplified.app.reader.ReaderTOCActivity"
+      android:configChanges="orientation|screenSize"
+      android:contentDescription="@string/reader_toc"
+      android:label="@string/reader_toc"
+      android:theme="@style/SimplifiedThemeNoActionBar"></activity>
+  </application>
+
+</manifest>
