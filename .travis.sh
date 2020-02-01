@@ -87,7 +87,7 @@ cp bugsnag.conf simplified-app-lfa-timor/src/main/assets/bugsnag.conf
 #------------------------------------------------------------------------
 # Configure offline bundles
 
-RSYNC_FLAGS='rsync -a -L -i --delay-updates --partial --no-inc-recursive --no-times -e "ssh -p 1022"'
+RSYNC_FLAGS='-a -L -i --delay-updates --partial --no-inc-recursive --no-times -e "ssh -p 1022"'
 
 rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/png/current/           simplified-app-lfa-offline/src/main/assets/
 rsync ${RSYNC_FLAGS} travis-ci@builds.lfa.one:/feeds/png-feedsonly/current/ simplified-app-lfa/src/main/assets/
