@@ -99,7 +99,7 @@ rsync -a -L -i --delay-updates --partial --no-inc-recursive --no-times -e "ssh -
 #------------------------------------------------------------------------
 # Build!
 
-./gradlew clean assemble test
+./gradlew clean assembleRelease test
 
 #------------------------------------------------------------------------
 # Publish APKs
