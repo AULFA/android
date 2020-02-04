@@ -2,5 +2,11 @@
 
 <resources>
   <string-array name="lfaPilotSchools">
+    <item>Cairui Primary School</item>
+    <item>Hatumetac Primary School</item>
+    <item>Lifau Primary School</item>
+    <item>Beboro Primary School</item>
+    <item>Obrato Community Center</item>
+    <item>Aitehe Community Center</item>
   </string-array>
 </resources>
