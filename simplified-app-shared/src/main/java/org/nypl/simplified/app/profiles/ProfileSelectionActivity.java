@@ -22,6 +22,7 @@ import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
 
 import org.joda.time.LocalDate;
+import org.nypl.simplified.app.AnalyticsUtilities;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
@@ -125,7 +126,19 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
       .setTitle(R.string.profiles_delete)
       .setMessage(R.string.profiles_delete_confirm)
       .setNegativeButton(R.string.profiles_cancel_button, (dialog, which) -> dialog.dismiss())
-      .setPositiveButton(R.string.profiles_delete_button, (dialog, which) -> Simplified.getProfilesController().profileDelete(profile.id()))
+      .setPositiveButton(R.string.profiles_delete_button, (dialog, which) -> {
+
+        /*
+         * XXX: Extremely ugly hack because we can't refer to a profile that's deleted.
+         * Modern rewrites of this application correctly publish analytics events internally
+         * in all cases.
+         */
+
+        Simplified.getAnalyticsController()
+          .logToAnalytics(AnalyticsUtilities.INSTANCE.profileDeleted(profile));
+
+        Simplified.getProfilesController().profileDelete(profile.id());
+      })
       .show();
   }
 
@@ -135,51 +148,14 @@ public final class ProfileSelectionActivity extends SimplifiedActivity {
     this.profile_event_subscription.unsubscribe();
   }
 
-  private <A> A getWithDefault(OptionType<A> optional, A orElse) {
-    return optional instanceof Some ? ((Some<A>) optional).get() : orElse;
-  }
-
-  private static String scrubCommas(
-    final String text)
-  {
-    return text.replace(",", "");
-  }
-
   private void onSelectedProfile(
     final ProfileReadableType profile) {
 
     LOG.debug("selected profile: {} ({})", profile.id(), profile.displayName());
     final ProfilesControllerType profiles = Simplified.getProfilesController();
 
-    final String gender =
-      getWithDefault(profile.preferences().gender(), "");
-    final String birthday =
-      getWithDefault(profile.preferences().dateOfBirth().map(LocalDate::toString), "");
-    final String role =
-      getWithDefault(profile.preferences().role(), "");
-    final String school =
-      getWithDefault(profile.preferences().school(), "");
-    final String grade =
-      getWithDefault(profile.preferences().grade(), "");
-
-    {
-      final StringBuilder eventBuilder = new StringBuilder(128);
-      eventBuilder.append("profile_selected,");
-      eventBuilder.append(profile.id().id());
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(profile.displayName()));
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(gender));
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(birthday));
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(role));
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(school));
-      eventBuilder.append(',');
-      eventBuilder.append(scrubCommas(grade));
-      Simplified.getAnalyticsController().logToAnalytics(eventBuilder.toString());
-    }
+    Simplified.getAnalyticsController()
+      .logToAnalytics(AnalyticsUtilities.INSTANCE.profileSelected(profile));
 
     if (Simplified.getNetworkConnectivity().isNetworkAvailable()) {
       String deviceId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);

@@ -28,6 +28,7 @@ import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
 import org.joda.time.LocalDate;
+import org.nypl.simplified.app.AnalyticsUtilities;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
@@ -342,6 +343,10 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
 
   private Unit onProfileCreationSucceeded(final ProfileCreationSucceeded e) {
     LOG.debug("onProfileCreationSucceeded: {}", e);
+
+    Simplified.getAnalyticsController()
+      .logToAnalytics(AnalyticsUtilities.INSTANCE.profileCreated(this.profile));
+
     UIThread.runOnUIThread(this::openSelectionActivity);
     return Unit.unit();
   }
@@ -388,6 +393,10 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
 
   private Unit onProfileEventPreferencesChangeSucceeded(
     final ProfilePreferencesChangeSucceeded event) {
+
+    Simplified.getAnalyticsController()
+      .logToAnalytics(AnalyticsUtilities.INSTANCE.profileChanged(this.profile));
+
     UIThread.runOnUIThread(this::openSelectionActivity);
     return Unit.unit();
   }
