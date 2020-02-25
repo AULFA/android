@@ -24,8 +24,9 @@
   <string name="catalog_accessibility_header_show_more">ສະແດງຈໍານວນຫຼາຍກວ່າ 1%</string>
   <string name="catalog_added_for_later_download">ເພີ່ມໃສ່ລາຍການປຶ້ມຂອງຂ້ອຍ ເພື່ອດາວໂຫຼດຕາມຫຼັງ</string>
   <string name="catalog_book_more">ຫຼາຍ…</string>
-  <string name="catalog_book_description">ຄຳ ອະທິບາຍ</string>
+  <string name="catalog_book_description">ເນື້ອເລື່ອງໂດຍຫຍໍ້</string>
   <string name="catalog_book_add">ເພີ່ມໃສ່ໃນປຶ້ມຂອງຂ້ອຍ</string>
+  <string name="catalog_book_availability_loaned_indefinite">ປື້ມເຫຼັ້ມນີ້ເປັນຂອງທ່ານ</string>
   <string name="catalog_book_availability_open_access">ປຶ້ມເຫຼັ້ມນີ້ເປັນຂອງທ່ານ.</string>
   <string name="catalog_book_borrow">ນໍາໃຊ້</string>
   <string name="catalog_book_delete">ລືບ</string>
