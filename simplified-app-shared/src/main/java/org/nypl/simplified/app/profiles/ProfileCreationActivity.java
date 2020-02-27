@@ -341,16 +341,6 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     throw new UnreachableCodeException();
   }
 
-  private Unit onProfileCreationSucceeded(final ProfileCreationSucceeded e) {
-    LOG.debug("onProfileCreationSucceeded: {}", e);
-
-    Simplified.getAnalyticsController()
-      .logToAnalytics(AnalyticsUtilities.INSTANCE.profileCreated(this.profile));
-
-    UIThread.runOnUIThread(this::openSelectionActivity);
-    return Unit.unit();
-  }
-
   private Unit onProfileEvent(final ProfileEvent event) {
     LOG.debug("onProfileEvent: {}", event);
     if (event instanceof ProfileCreationEvent) {
@@ -391,20 +381,68 @@ public final class ProfileCreationActivity extends SimplifiedActivity implements
     return Unit.unit();
   }
 
+  private Unit onProfileCreationSucceeded(final ProfileCreationSucceeded e) {
+    LOG.debug("onProfileCreationSucceeded: {}", e);
+
+    try {
+      LOG.debug("onProfileCreationSucceeded: sending analytics event");
+      final ProfileReadableType created =
+        Simplified.getProfilesController()
+          .profiles()
+          .get(e.id());
+
+      Simplified.getAnalyticsController()
+        .logToAnalytics(AnalyticsUtilities.INSTANCE.profileCreated(created));
+
+      LOG.debug("onProfileCreationSucceeded: done");
+      return Unit.unit();
+    } catch (Exception ex) {
+      LOG.error("onProfileCreationSucceeded: ", ex);
+      return Unit.unit();
+    } finally {
+      UIThread.runOnUIThread(() -> {
+        LOG.debug("onProfileCreationSucceeded: closing this activity");
+        this.openSelectionActivity();
+      });
+    }
+  }
+
   private Unit onProfileEventPreferencesChangeSucceeded(
     final ProfilePreferencesChangeSucceeded event) {
 
-    Simplified.getAnalyticsController()
-      .logToAnalytics(AnalyticsUtilities.INSTANCE.profileChanged(this.profile));
+    try {
+      LOG.debug("onProfileEventPreferencesChangeSucceeded: sending analytics event");
+      final ProfileReadableType changed =
+        Simplified.getProfilesController()
+          .profiles()
+          .get(event.getProfileID());
 
-    UIThread.runOnUIThread(this::openSelectionActivity);
-    return Unit.unit();
+      Simplified.getAnalyticsController()
+        .logToAnalytics(AnalyticsUtilities.INSTANCE.profileChanged(changed));
+
+      LOG.debug("onProfileEventPreferencesChangeSucceeded: done");
+      return Unit.unit();
+    } catch (Exception e) {
+      LOG.error("onProfileEventPreferencesChangeSucceeded: ", e);
+      return Unit.unit();
+    } finally {
+      UIThread.runOnUIThread(() -> {
+        LOG.debug("onProfileCreationSucceeded: closing this activity");
+        this.openSelectionActivity();
+      });
+    }
   }
 
   private void openSelectionActivity() {
-    final Intent i = new Intent(this, ProfileSelectionActivity.class);
-    this.startActivity(i);
-    this.finish();
+    try {
+      LOG.debug("openSelectionActivity");
+
+      final Intent i = new Intent(this, ProfileSelectionActivity.class);
+      this.startActivity(i);
+      this.finish();
+    } catch (final Exception e) {
+      LOG.error("openSelectionActivity: ", e);
+    }
   }
 
   private void createOrModifyProfile() {
