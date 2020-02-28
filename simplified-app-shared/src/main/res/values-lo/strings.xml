@@ -126,7 +126,7 @@
   <string name="profiles_deletion_error">ເກິດຄວາມຜິດຜາດໃນຂະນະລົບປະຫວັດຂອງທ່ານ</string>
   <string name="profiles_role_parent">ພໍ່ແມ່</string>
   <string name="profiles_role_teacher">ອາຈານ</string>
-  <string name="profiles_role_student">ນັກສຶກສາ</string>
+  <string name="profiles_role_student">ນັກຮຽນ</string>
   <string name="profiles_role_other">ອຶ່ນໆ</string>
   <string name="profiles_ask_name">ຊຶ່ຂອງທ່ານແມ່ນຫຍັງ?</string>
   <string name="profiles_ask_gender">ເພດຂອງທ່ານແມ່ນຫຍັງ?</string>
