@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+  <string-array name="lfaPilotSchools">
+    <item>ບວມງາມ</item>
+    <item>ເມືອງເປີນ</item>
+    <item>ຜານາງ</item>
+    <item>ໂຮມພັນ</item>
+    <item>ສົບລາບ</item>
+    <item>ພຽງດີ</item>
+    <item>ສົ້ນຂົວ</item>
+    <item>ປ່າຄາໄຕ້</item>
+  </string-array>
+</resources>
