@@ -30,21 +30,6 @@
     "mainColor": "#ec1c24"
   },
   {
-    "id": "urn:provider:com.cantookstation.lfabooksthattravel",
-    "name": "Indigenous",
-    "subtitle": "Indigenous",
-    "logo": "simplified-asset:logos/lfa_square.png",
-    "supportsSimplyESync": false,
-    "supportsBarcodeScanner": false,
-    "supportsBarcodeDisplay": false,
-    "supportsReservations": false,
-    "supportsCardCreator": false,
-    "supportsHelpCenter": false,
-    "addAutomatically": true,
-    "catalogUrl": "https://lfabooksthattravel.cantookstation.com/catalog/featuredresources.atom",
-    "mainColor": "#ec1c24"
-  },
-  {
     "id": "urn:provider:la.dp.openbookshelf",
     "name": "Open Bookshelf",
     "subtitle": "Open Bookshelf",
