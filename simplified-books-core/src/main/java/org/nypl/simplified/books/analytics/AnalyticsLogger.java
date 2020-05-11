@@ -202,7 +202,7 @@ public final class AnalyticsLogger {
         long len = log_file.length();
         // If over 50kb, push log file
         if (len > LOG_FILE_PUSH_LIMIT) {
-          writeToAnalyticsServer(deviceId);
+          // writeToAnalyticsServer(deviceId);
         }
       } catch (Exception e) {
         LOG.debug("Ignoring exception: attemptToPushAnalytics raised: ", e);
